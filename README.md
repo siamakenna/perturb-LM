@@ -41,6 +41,7 @@ Full image archives are never downloaded by default. Metadata and embeddings are
 ## Phase 1 Commands
 
 For real local RxRx metadata and embedding placement, see `docs/REAL_RXRX_SETUP.md`.
+For the real-image and model baseline workflow, see `docs/PHASE2_REAL_DATA_AND_MODELS.md`.
 
 Dry-run safe metadata downloads:
 

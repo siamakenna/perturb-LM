@@ -10,7 +10,7 @@ Text-to-image retrieval index over RxRx19a and RxRx1, perturbation-level aggrega
 
 ## Phase 2
 
-Zero-shot VLM baselines using OpenCLIP/BiomedCLIP and rendered microscopy composites.
+Real local image support, rendered microscopy composites, and zero-shot VLM baselines using OpenCLIP/BiomedCLIP. See `PHASE2_REAL_DATA_AND_MODELS.md`.
 
 ## Phase 3
 

@@ -163,9 +163,16 @@ def find_metadata_files(dataset: str, data_root: Path) -> list[Path]:
         return found
 
     keywords = ("metadata", "site", "experiment", "well", "plate", "sirna", "compound")
-    for path in sorted(data_root.rglob("*")):
-        if path.suffix.lower() in METADATA_EXTENSIONS and any(key in path.name.lower() for key in keywords):
-            found.append(path)
+    fallback_roots = [data_root / dataset] if (data_root / dataset).exists() else [data_root]
+    for root in fallback_roots:
+        if not root.exists():
+            continue
+        for path in sorted(root.rglob("*")):
+            path_parts = {part.lower() for part in path.parts}
+            if root == data_root and dataset not in path_parts and dataset not in path.name.lower():
+                continue
+            if path.suffix.lower() in METADATA_EXTENSIONS and any(key in path.name.lower() for key in keywords):
+                found.append(path)
     return found
 
 
