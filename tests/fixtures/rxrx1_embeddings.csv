@@ -1,0 +1,5 @@
+site_id,emb_0,emb_1,emb_2
+rxrx1::exp1::plate1::A01::1,1.0,0.0,0.0
+rxrx1::exp1::plate1::A01::2,0.8,0.1,0.0
+rxrx1::exp2::plate2::B01::1,0.0,1.0,0.0
+unmatched_site,0.0,0.0,1.0

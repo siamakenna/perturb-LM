@@ -1,0 +1,4 @@
+experiment,plate,well,site,cell_type,perturbation_id,perturbation_name,perturbation_type,condition_label,concentration,split,image_path_ch1,image_path_ch2,image_path_ch3,image_path_ch4,image_path_ch5,image_path_ch6
+exp1,plate1,A01,1,HUVEC,sirna_001,GENE1 knockdown,siRNA,control,10 nM,train,ch1.tif,ch2.tif,ch3.tif,ch4.tif,ch5.tif,ch6.tif
+exp1,plate1,A01,2,HUVEC,sirna_001,GENE1 knockdown,siRNA,control,10 nM,train,ch1b.tif,ch2b.tif,ch3b.tif,ch4b.tif,ch5b.tif,ch6b.tif
+exp2,plate2,B01,1,HUVEC,sirna_002,GENE2 knockdown,siRNA,control,10 nM,test,ch1c.tif,ch2c.tif,ch3c.tif,ch4c.tif,ch5c.tif,ch6c.tif

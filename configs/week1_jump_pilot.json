@@ -1,0 +1,21 @@
+{
+  "dataset": "JUMP pilot / CPJUMP1",
+  "repo": "jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1",
+  "branch": "main",
+  "batches": [
+    "2020_11_04_CPJUMP1"
+  ],
+  "profile_kind": "normalized_feature_select_negcon_batch",
+  "default_plate_limit": 12,
+  "label_columns": [
+    "Metadata_broad_sample",
+    "Metadata_pert_iname",
+    "Metadata_gene"
+  ],
+  "notes": [
+    "Use perturbation/profile-level retrieval as the formal benchmark unit.",
+    "Start with CellProfiler feature-selected, negative-control-normalized profiles.",
+    "Use image tiles later for qualitative prototype panels, not first-pass scoring."
+  ]
+}
+

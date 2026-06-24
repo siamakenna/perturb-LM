@@ -1,0 +1,3 @@
+experiment,plate,well,site,cell_type,perturbation_id,perturbation_name,perturbation_type,condition_label,concentration,split,image_path_ch1,image_path_ch2,image_path_ch3,image_path_ch4,image_path_ch5,image_path_ch6
+covid_exp1,plate3,C01,1,HRCE,drug_001,Remdesivir,compound,SARS-CoV-2 infected,1 uM,train,ch1.tif,ch2.tif,ch3.tif,ch4.tif,ch5.tif,ch6.tif
+covid_exp1,plate3,C02,1,HRCE,drug_002,DMSO,control,mock infected,0 uM,train,ch1d.tif,ch2d.tif,ch3d.tif,ch4d.tif,ch5d.tif,ch6d.tif
