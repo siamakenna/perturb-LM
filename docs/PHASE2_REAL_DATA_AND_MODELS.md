@@ -4,20 +4,29 @@ Phase 2 turns the Phase 1 parser/retrieval scaffold into a real-image benchmark 
 
 ## Scope
 
-Use real local metadata, optional local embeddings/profiles, and selected local microscopy channel images. Do not download full raw image archives by default. Full archive downloads remain opt-in only.
+Use real local metadata and local embeddings/profiles first, then selected local microscopy channel images later. Do not download full raw image archives by default. Full archive downloads remain opt-in only.
 
 The immediate benchmark ladder is:
 
-1. Metadata lexical retrieval from Phase 1.
-2. Image/profile nearest-neighbor retrieval using local morphology embeddings or profiles.
-3. Zero-shot VLM baselines on rendered RGB microscopy composites.
-4. Lightweight alignment from biomedical text embeddings to microscopy/profile embeddings.
+1. JUMP CPJUMP1 profile inventory and profile-based retrieval.
+2. Metadata lexical retrieval from Phase 1 where matching local metadata exists.
+3. Image/profile nearest-neighbor retrieval using local morphology embeddings or profiles.
+4. Zero-shot VLM baselines on rendered RGB microscopy composites.
+5. Lightweight alignment from biomedical text embeddings to microscopy/profile embeddings.
 
 Formal scoring remains perturbation-level after image/site aggregation.
 
 ## Local Asset Flow
 
-Place real assets under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
+The active real Cell Painting profile track is JUMP CPJUMP1 under `data/raw/jump_pilot/`.
+
+```bash
+python scripts/audit_jump_pilot.py
+```
+
+The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. Generated inventory output is local only and should not be committed.
+
+For RxRx local assets, place real files under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
 
 Then run:
 
