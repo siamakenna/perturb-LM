@@ -21,12 +21,13 @@ Formal scoring remains perturbation-level after image/site aggregation.
 The active real Cell Painting profile track is JUMP CPJUMP1 under `data/raw/jump_pilot/`.
 
 ```bash
+python scripts/run_phase2_jump_smoke.py
 python scripts/audit_jump_pilot.py
 python scripts/build_jump_profile_index.py
 python scripts/run_jump_profile_diagnostics.py
 ```
 
-The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. The profile index writes `outputs/jump_pilot_index/index_metadata.json`. Generated inventory, index, and diagnostic outputs are local only and should not be committed.
+The smoke command writes tiny synthetic JUMP-like files and outputs under `outputs/phase2_jump_smoke/`. It is software validation only, not a biological result. The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. The profile index writes `outputs/jump_pilot_index/index_metadata.json`. Generated smoke, inventory, index, and diagnostic outputs are local only and should not be committed.
 
 For RxRx local assets, place real files under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
 

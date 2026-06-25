@@ -14,6 +14,14 @@ Current expected settings:
 - Profile kind: `normalized_feature_select_negcon_batch`
 - Source: `https://github.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1`
 
+Run the synthetic software smoke workflow first:
+
+```bash
+python scripts/run_phase2_jump_smoke.py
+```
+
+This writes tiny synthetic JUMP-like files and local outputs under `outputs/phase2_jump_smoke/`. It validates the audit, index, and diagnostics code paths without downloading real JUMP data. It is for software validation only, not biological results.
+
 Run the local inventory audit with:
 
 ```bash

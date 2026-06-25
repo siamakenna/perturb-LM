@@ -2,6 +2,14 @@
 
 The first real Phase 2 baseline is profile-based cosine retrieval over local JUMP CPJUMP1 morphology profiles. This comes before raw image, composite, or DINOv3 experiments.
 
+Before using real local profile files, run the synthetic smoke workflow:
+
+```bash
+python scripts/run_phase2_jump_smoke.py
+```
+
+This creates tiny JUMP-like metadata/profile tables under `outputs/phase2_jump_smoke/`, then runs audit, index building, and diagnostics. The smoke output is for software validation only and should not be interpreted as biological signal.
+
 Build the local profile index with:
 
 ```bash
