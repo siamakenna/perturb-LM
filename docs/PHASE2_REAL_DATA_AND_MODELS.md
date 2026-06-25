@@ -22,9 +22,11 @@ The active real Cell Painting profile track is JUMP CPJUMP1 under `data/raw/jump
 
 ```bash
 python scripts/audit_jump_pilot.py
+python scripts/build_jump_profile_index.py
+python scripts/run_jump_profile_diagnostics.py
 ```
 
-The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. Generated inventory output is local only and should not be committed.
+The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. The profile index writes `outputs/jump_pilot_index/index_metadata.json`. Generated inventory, index, and diagnostic outputs are local only and should not be committed.
 
 For RxRx local assets, place real files under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
 
@@ -75,10 +77,11 @@ Do not commit these generated artifacts.
 
 Image/profile baseline:
 
-- Load local embeddings or profile features.
-- Align rows to `site_id` or another declared ID column.
-- Build the sklearn cosine index with `scripts/build_index.py`.
-- Evaluate nearest-neighbor behavior with batch and perturbation diagnostics.
+- Load local CPJUMP1 profile features before raw images.
+- Detect Metadata columns separately from numeric Cell Painting feature columns.
+- Track profile IDs plus likely batch, plate, well, and perturbation/treatment columns.
+- Build the sklearn cosine index with `scripts/build_jump_profile_index.py`.
+- Evaluate nearest-neighbor behavior with same-batch, same-plate, same-well, and same-perturbation/treatment diagnostics.
 
 Zero-shot VLM baseline:
 
@@ -98,7 +101,7 @@ Lightweight alignment:
 
 - Random retrieval.
 - Shuffled-label retrieval.
-- Same-batch and same-plate diagnostics.
+- Same-batch, same-plate, same-well, and same-perturbation diagnostics.
 - Leakage diagnostics for query positives across batches, plates, and splits.
 - Held-out perturbation evaluation when labels allow.
 
