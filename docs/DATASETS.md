@@ -1,10 +1,12 @@
 # Datasets
 
-Perturb LM starts with RxRx19a as the infectious-disease anchor dataset. RxRx19a is the first target because it directly supports SARS-CoV-2 perturbation retrieval questions and keeps the initial benchmark aligned with the project mission.
+The active real Cell Painting profile track is the JUMP CPJUMP1 pilot data under `data/raw/jump_pilot/`. This is the first Phase 2 local-data target because it supports a profile-based retrieval baseline before raw image or VLM work is required.
 
-RxRx1 is required alongside RxRx19a for batch and generalization stress testing. It gives the benchmark a controlled perturbation setting where splits by experiment, plate, and batch can expose whether retrieval models are learning biology or shortcutting acquisition structure.
+Local CPJUMP1 files are optional review/runtime inputs and should remain outside git. This PR covers Adam's Phase 2 profile-infrastructure and diagnostics path; raw microscopy images, VLM baselines, and text-query/RAG support remain later project layers.
 
-JUMP Cell Painting `cpg0016-jump` is the large-scale Cell Painting expansion target. It is important for scale, perturbation diversity, and broader morphology retrieval, but it should not be the first large download dependency.
+RxRx1 and RxRx19a remain important future/generalization tracks unless real RxRx files are added locally. RxRx1 gives the benchmark a controlled perturbation setting where splits by experiment, plate, and batch can expose whether retrieval models are learning biology or shortcutting acquisition structure. RxRx19a remains the infectious-disease anchor for later SARS-CoV-2 perturbation retrieval questions.
+
+JUMP Cell Painting `cpg0016-jump` is the large-scale Cell Painting expansion target. The current local pilot uses CPJUMP1 profile files from `2020_11_04_CPJUMP1` with profile kind `normalized_feature_select_negcon_batch`.
 
 PERISCOPE / `cpg0021-periscope` is the optical pooled screening bridge. It is a later-stage target for connecting image-based retrieval to pooled-screen perturbation logic.
 

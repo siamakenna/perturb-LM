@@ -43,6 +43,26 @@ Full image archives are never downloaded by default. Metadata and embeddings are
 For real local RxRx metadata and embedding placement, see `docs/REAL_RXRX_SETUP.md`.
 For the real-image and model baseline workflow, see `docs/PHASE2_REAL_DATA_AND_MODELS.md`.
 
+## Phase 2 JUMP Pilot Commands
+
+The active Phase 2 real-data track is JUMP CPJUMP1 profile-based retrieval under `data/raw/jump_pilot/`. Local real data is optional and ignored by git; raw microscopy images are not part of this PR path yet. This PR covers Adam's Phase 2 profile-infrastructure and diagnostics slice, not the full VLM/text-query project.
+
+Run the one-command synthetic smoke workflow first:
+
+```bash
+python scripts/run_phase2_jump_smoke.py
+```
+
+Then, when local CPJUMP1 profile files are available:
+
+```bash
+python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
+python scripts/build_jump_profile_index.py
+python scripts/run_jump_profile_diagnostics.py --filtered-presets
+```
+
+The smoke workflow validates software only. One-plate and five-profile local sanity runs are useful for checking the audit/index/diagnostics path, but they are not final biological claims. Unfiltered retrieval can be inflated by plate and well-position effects; filtered diagnostics are stronger evidence, especially when interpreted alongside `n_evaluable_queries`.
+
 Dry-run safe metadata downloads:
 
 ```bash
