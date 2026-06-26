@@ -29,6 +29,16 @@ python scripts/run_jump_profile_diagnostics.py
 
 The smoke command writes tiny synthetic JUMP-like files and outputs under `outputs/phase2_jump_smoke/`. It is software validation only, not a biological result. The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. The profile index writes `outputs/jump_pilot_index/index_metadata.json`. Generated smoke, inventory, index, and diagnostic outputs are local only and should not be committed.
 
+For concise real-data inventory output, use:
+
+```bash
+python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
+```
+
+One-plate CPJUMP1 results validate the software path but are not enough for biological claims. Same-plate diagnostics become meaningful only after multiple plates are downloaded. When only some queries have same-treatment replicates, prefer `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative all-query metric.
+
+The next recommended real-data step is a 5-plate CPJUMP1 profile run before scaling to all profile data.
+
 For RxRx local assets, place real files under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
 
 Then run:
@@ -83,6 +93,7 @@ Image/profile baseline:
 - Track profile IDs plus likely batch, plate, well, and perturbation/treatment columns.
 - Build the sklearn cosine index with `scripts/build_jump_profile_index.py`.
 - Evaluate nearest-neighbor behavior with same-batch, same-plate, same-well, and same-perturbation/treatment diagnostics.
+- Treat one-plate same-plate scores as software validation only.
 
 Zero-shot VLM baseline:
 

@@ -39,6 +39,23 @@ def write_tiny_jump_profile(data_root: Path) -> Path:
     return profile_path
 
 
+def write_single_plate_profile_without_batch(data_root: Path) -> Path:
+    profile_dir = data_root / "profiles" / "2020_11_04_CPJUMP1" / "BR001"
+    profile_dir.mkdir(parents=True)
+    profile_path = profile_dir / "BR001_normalized_feature_select_negcon_batch.csv.gz"
+    pd.DataFrame(
+        {
+            "Metadata_Plate": ["BR001", "BR001", "BR001", "BR001"],
+            "Metadata_Well": ["A01", "A02", "A03", "A04"],
+            "Metadata_broad_sample": ["BRD-A", "BRD-A", "BRD-B", "BRD-C"],
+            "Metadata_pert_iname": ["compound-a", "compound-a", "compound-b", "compound-c"],
+            "Cells_AreaShape_Area": [1.0, 0.95, 0.0, 0.2],
+            "Nuclei_Texture_Info": [0.0, 0.05, 1.0, 0.8],
+        }
+    ).to_csv(profile_path, index=False)
+    return profile_path
+
+
 def test_build_jump_profile_index_writes_metadata_and_reuses_index_artifacts(tmp_path) -> None:
     data_root = tmp_path / "jump_pilot"
     profile_path = write_tiny_jump_profile(data_root)
@@ -70,6 +87,17 @@ def test_build_jump_profile_index_writes_metadata_and_reuses_index_artifacts(tmp
     assert saved_metadata["index_type"] == "sklearn-nearest-neighbors"
 
 
+def test_jump_profile_index_infers_batch_from_profile_path(tmp_path) -> None:
+    data_root = tmp_path / "jump_pilot"
+    write_single_plate_profile_without_batch(data_root)
+
+    metadata = build_jump_profile_index(data_root, out_dir=tmp_path / "index")
+    profile_metadata = pd.read_csv(tmp_path / "index" / "profile_metadata.csv")
+
+    assert metadata["detected_batch_column"] == "Metadata_Inferred_Batch"
+    assert set(profile_metadata["Metadata_Inferred_Batch"]) == {"2020_11_04_CPJUMP1"}
+
+
 def test_run_jump_profile_diagnostics_reports_controls(tmp_path) -> None:
     data_root = tmp_path / "jump_pilot"
     write_tiny_jump_profile(data_root)
@@ -96,3 +124,23 @@ def test_run_jump_profile_diagnostics_reports_controls(tmp_path) -> None:
         "well",
         "perturbation_treatment",
     }
+
+
+def test_jump_profile_diagnostics_explain_single_plate_and_evaluable_queries(tmp_path) -> None:
+    data_root = tmp_path / "jump_pilot"
+    write_single_plate_profile_without_batch(data_root)
+
+    _, summary, metadata = run_jump_profile_diagnostics(data_root, top_k=[1], seed=0)
+    by_metric = summary.set_index("metric")
+
+    assert metadata["detected_batch_column"] == "Metadata_Inferred_Batch"
+    assert any("one plate" in warning for warning in metadata["warnings"])
+    plate_row = by_metric.loc["same_plate_at_1"]
+    assert "not informative" in plate_row["warning"]
+    treatment_row = by_metric.loc["same_perturbation_treatment_at_1"]
+    assert treatment_row["label_column"] == "Metadata_broad_sample"
+    assert treatment_row["n_queries"] == 4
+    assert treatment_row["n_evaluable_queries"] == 2
+    assert treatment_row["n_positive_matches"] == 2
+    assert treatment_row["value_all_queries"] < treatment_row["value_evaluable_queries"]
+    assert "Only 2 of 4 queries are evaluable" in treatment_row["warning"]

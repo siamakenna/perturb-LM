@@ -38,7 +38,14 @@ LOCAL_ONLY_NOTE = (
     "Generated outputs and downloaded data are local-only artifacts and should not be committed."
 )
 
-BATCH_COLUMN_CANDIDATES = ["Metadata_Batch", "Metadata_batch", "Batch", "batch"]
+BATCH_COLUMN_CANDIDATES = [
+    "Metadata_Batch",
+    "Metadata_batch",
+    "Metadata_Inferred_Batch",
+    "Batch",
+    "batch",
+    "inferred_batch",
+]
 PLATE_COLUMN_CANDIDATES = [
     "Metadata_Plate",
     "Metadata_plate",
@@ -87,6 +94,13 @@ def audit_jump_pilot(
     warnings: list[str] = []
     metadata_files = find_expected_metadata_files(root)
     profile_files = find_profile_files(root)
+    inferred_batches = sorted(
+        {
+            inferred
+            for path in profile_files
+            if (inferred := infer_batch_from_profile_path(path)) is not None
+        }
+    )
     found_metadata_names = {path.name for path in metadata_files}
     missing_expected_files = [
         name for name in EXPECTED_METADATA_FILES if name not in found_metadata_names
@@ -126,6 +140,8 @@ def audit_jump_pilot(
     )
     ordered_columns = _ordered_columns(readable_files)
     likely_batch_column = find_first_column(ordered_columns, BATCH_COLUMN_CANDIDATES)
+    if likely_batch_column is None and inferred_batches:
+        likely_batch_column = "Metadata_Inferred_Batch"
     likely_plate_column = find_first_column(ordered_columns, PLATE_COLUMN_CANDIDATES)
     likely_well_column = find_first_column(ordered_columns, WELL_COLUMN_CANDIDATES)
     likely_perturbation_columns = find_matching_columns(
@@ -139,6 +155,10 @@ def audit_jump_pilot(
         warnings.append("No numeric feature columns were detected in readable files.")
     if likely_batch_column is None:
         warnings.append("No likely batch column was detected.")
+    elif likely_batch_column == "Metadata_Inferred_Batch":
+        warnings.append(
+            "No batch column was detected in profile tables; inferred batch from profile paths."
+        )
     if likely_plate_column is None:
         warnings.append("No likely plate column was detected.")
     if likely_well_column is None:
@@ -161,6 +181,7 @@ def audit_jump_pilot(
         "detected_metadata_column_count": len(detected_metadata_columns),
         "detected_numeric_feature_column_count": len(detected_numeric_feature_columns),
         "likely_batch_column": likely_batch_column,
+        "inferred_batches": inferred_batches,
         "likely_plate_column": likely_plate_column,
         "likely_well_column": likely_well_column,
         "likely_perturbation_treatment_columns": likely_perturbation_columns,
@@ -228,9 +249,21 @@ def load_jump_profile_tables(
     rows_remaining = max_rows
     for path in paths:
         nrows = rows_remaining if rows_remaining is not None else None
-        frame = read_jump_table(path, nrows=nrows)
-        frame["source_profile_file"] = str(path)
-        frame["source_profile_row"] = range(len(frame))
+        frame = read_jump_table(path, nrows=nrows).copy()
+        extra_columns: dict[str, Any] = {
+            "source_profile_file": str(path),
+            "source_profile_row": range(len(frame)),
+        }
+        batch_column = find_first_column(
+            [str(column) for column in frame.columns],
+            BATCH_COLUMN_CANDIDATES,
+        )
+        if batch_column is None:
+            inferred_batch = infer_batch_from_profile_path(path)
+            if inferred_batch:
+                extra_columns["Metadata_Inferred_Batch"] = inferred_batch
+        extras = pd.DataFrame(extra_columns, index=frame.index)
+        frame = pd.concat([frame, extras], axis=1)
         frames.append(frame)
         if rows_remaining is not None:
             rows_remaining -= len(frame)
@@ -246,6 +279,19 @@ def read_jump_table(path: Path | str, *, nrows: int | None = None) -> pd.DataFra
 
     path = Path(path)
     return pd.read_csv(path, sep=_separator_for(path), nrows=nrows)
+
+
+def infer_batch_from_profile_path(path: Path | str) -> str | None:
+    """Infer a CPJUMP1 batch name from a profile file path."""
+
+    parts = [part for part in Path(path).parts if part]
+    for index, part in enumerate(parts[:-1]):
+        if part.lower() == "profiles":
+            return parts[index + 1]
+    for part in parts:
+        if re.fullmatch(r"\d{4}_\d{2}_\d{2}_CPJUMP\d+", part):
+            return part
+    return None
 
 
 def detect_jump_profile_schema(frame: pd.DataFrame) -> dict[str, Any]:
@@ -463,16 +509,28 @@ def run_jump_profile_diagnostics(
     for label_name, column in diagnostic_columns:
         labels = indexed_profiles[column].map(_clean_label).to_numpy(dtype=str)
         shuffled_labels = rng.permutation(labels)
+        base_note = _diagnostic_base_note(label_name, labels, column)
+        if base_note and base_note not in warnings:
+            warnings.append(base_note)
         label_rows = _same_label_diagnostic_rows(
             indexed_profiles["profile_id"].astype(str).tolist(),
             labels,
             shuffled_labels,
             query_neighbors,
             label_name=label_name,
+            label_column=column,
             top_k=top_k,
         )
         per_query_rows.extend(label_rows)
-        summary_rows.extend(_summarize_same_label_rows(label_rows, label_name, top_k))
+        summary_rows.extend(
+            _summarize_same_label_rows(
+                label_rows,
+                label_name,
+                column,
+                top_k,
+                base_note=base_note,
+            )
+        )
 
     metadata = {
         "dataset": DATASET,
@@ -633,6 +691,7 @@ def _same_label_diagnostic_rows(
     query_neighbors: list[list[dict[str, float | int]]],
     *,
     label_name: str,
+    label_column: str,
     top_k: list[int],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
@@ -651,6 +710,7 @@ def _same_label_diagnostic_rows(
         row: dict[str, Any] = {
             "profile_id": profile_id,
             "diagnostic": label_name,
+            "label_column": label_column,
             "label": label,
             "n_positive_candidates": int(positives.sum()),
         }
@@ -676,26 +736,86 @@ def _same_label_diagnostic_rows(
 def _summarize_same_label_rows(
     rows: list[dict[str, Any]],
     label_name: str,
+    label_column: str,
     top_k: list[int],
+    *,
+    base_note: str = "",
 ) -> list[dict[str, Any]]:
     if not rows:
         return []
     frame = pd.DataFrame(rows)
-    n_evaluable = int((frame["n_positive_candidates"] > 0).sum())
+    evaluable = frame["n_positive_candidates"] > 0
+    n_evaluable = int(evaluable.sum())
+    n_positive_matches = int(frame["n_positive_candidates"].sum())
     summary_rows: list[dict[str, Any]] = []
     for k in top_k:
         for prefix in ["same", "random_same", "shuffled_same"]:
             column = f"{prefix}_{label_name}_at_{k}"
+            value_all = float(frame[column].mean()) if len(frame) else 0.0
+            value_evaluable = float(frame.loc[evaluable, column].mean()) if n_evaluable else 0.0
+            note = _diagnostic_summary_note(
+                label_name,
+                label_column,
+                n_queries=int(len(frame)),
+                n_evaluable=n_evaluable,
+                base_note=base_note,
+            )
             summary_rows.append(
                 {
                     "diagnostic": label_name,
                     "metric": column,
-                    "value": float(frame[column].mean()) if len(frame) else 0.0,
+                    "value": value_all,
+                    "value_all_queries": value_all,
+                    "value_evaluable_queries": value_evaluable,
                     "n_queries": int(len(frame)),
                     "n_evaluable_queries": n_evaluable,
+                    "n_positive_matches": n_positive_matches,
+                    "k": k,
+                    "label_column": label_column,
+                    "warning": note,
                 }
             )
     return summary_rows
+
+
+def _diagnostic_base_note(label_name: str, labels: np.ndarray, label_column: str) -> str:
+    unique_labels = sorted(
+        {_clean_label(value) for value in labels if not _is_missing_label(value)}
+    )
+    if label_name == "plate" and len(unique_labels) == 1:
+        return (
+            "Same-plate diagnostics are not informative because all rows come from "
+            f"one plate in {label_column}."
+        )
+    if label_name == "batch" and len(unique_labels) == 1:
+        return (
+            "Same-batch diagnostics are not informative because all rows come from "
+            f"one batch in {label_column}."
+        )
+    return ""
+
+
+def _diagnostic_summary_note(
+    label_name: str,
+    label_column: str,
+    *,
+    n_queries: int,
+    n_evaluable: int,
+    base_note: str,
+) -> str:
+    notes = []
+    if base_note:
+        notes.append(base_note)
+    if n_evaluable == 0:
+        notes.append(f"No queries have same-label positive candidates for {label_column}.")
+    elif n_evaluable < n_queries:
+        notes.append(
+            f"Only {n_evaluable} of {n_queries} queries are evaluable for {label_column}; "
+            "prefer value_evaluable_queries for replicate-sensitive interpretation."
+        )
+    if label_name == "perturbation_treatment":
+        notes.append(f"Same-treatment matching uses label column {label_column}.")
+    return " ".join(notes)
 
 
 def _random_hit_probability(num_candidates: int, num_positives: int, k: int) -> float:

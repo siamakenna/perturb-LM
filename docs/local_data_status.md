@@ -26,9 +26,10 @@ Run the local inventory audit with:
 
 ```bash
 python scripts/audit_jump_pilot.py
+python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
 ```
 
-This writes `outputs/jump_pilot_inventory.json`. The output is a local generated artifact and should not be committed.
+This writes `outputs/jump_pilot_inventory.json`. The `--summary-only` form is easier to read when real profile files have hundreds of feature columns. The output is a local generated artifact and should not be committed.
 
 Build the local profile index with:
 
@@ -46,9 +47,13 @@ python scripts/run_jump_profile_diagnostics.py
 
 These diagnostics include same-batch@K, same-plate@K, same-well@K, same-perturbation/treatment@K, plus random and shuffled-label controls when the required columns exist.
 
+One-plate runs validate the software path, but they are not enough for biological claims. Same-plate diagnostics are only meaningful after multiple plates are downloaded. When only some rows have same-treatment replicates, use `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative overall view.
+
 ## Current Priority
 
 The first real-data baseline is profile-based cosine retrieval over CPJUMP1 morphology profiles. Raw JUMP images are not required yet.
+
+The next recommended real-data step is a 5-plate CPJUMP1 profile run before scaling to all available profile data.
 
 RxRx1 remains a future/generalization track unless real RxRx1 files are added locally. RxRx1 is useful for later batch and generalization checks, but it is not the active local profile baseline unless matching files exist under `data/raw/`.
 

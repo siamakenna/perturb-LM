@@ -36,4 +36,8 @@ python scripts/run_jump_profile_diagnostics.py
 
 The diagnostics report same-batch@K, same-plate@K, same-well@K, and same-perturbation/treatment@K when the corresponding columns exist. Random and shuffled-label controls are included as guardrails.
 
+The summary CSV includes both `value_all_queries` and `value_evaluable_queries`. Use `value_evaluable_queries` when only some queries have same-treatment or same-well positives, and read `n_evaluable_queries` before interpreting any diagnostic. Same-plate diagnostics are not informative in a one-plate run because every nearest neighbor is necessarily from the same plate.
+
 These diagnostics are not proof of biological retrieval. Strong biological claims should wait until retrieval beats controls under leakage-aware evaluation, especially when same-batch, same-plate, or same-well structure could explain nearest-neighbor hits.
+
+After a one-plate software check, the next recommended real-data step is 5 CPJUMP1 plates before attempting all profile data.
