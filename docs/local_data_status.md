@@ -52,6 +52,8 @@ The default diagnostics include unfiltered rows. `--filtered-presets` keeps thos
 
 One-plate runs validate the software path, but they are not enough for biological claims. Same-plate diagnostics are only meaningful after multiple plates are downloaded. When only some rows have same-treatment replicates, use `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative overall view.
 
+Five-profile local runs are still sanity checks, not final biological results. Strong same-treatment scores after well or plate filtering should be read together with `n_evaluable_queries`, especially when only a small subset of rows has same-treatment replicates after filtering.
+
 ## Current Priority
 
 The first real-data baseline is profile-based cosine retrieval over CPJUMP1 morphology profiles. Raw JUMP images are not required yet.

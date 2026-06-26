@@ -46,4 +46,6 @@ Interpret same-treatment retrieval most carefully after excluding both same-plat
 
 These diagnostics are not proof of biological retrieval. Strong biological claims should wait until retrieval beats controls under leakage-aware evaluation, especially when same-batch, same-plate, or same-well structure could explain nearest-neighbor hits.
 
+Five-profile local runs are useful PR and pipeline sanity checks, but they are still not final biological evidence. Well-filtered results are especially sensitive to how many queries remain evaluable, so report `n_evaluable_queries` beside `value_evaluable_queries`.
+
 After a one-plate software check, the next recommended real-data step is 5 CPJUMP1 plates before attempting all profile data.

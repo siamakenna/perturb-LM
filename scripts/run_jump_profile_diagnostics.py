@@ -18,22 +18,73 @@ from perturb_lm.data.jump import (  # noqa: E402
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root", type=Path, default=Path("data/raw/jump_pilot"))
-    parser.add_argument("--profile-file", type=Path, action="append", default=None)
-    parser.add_argument("--expected-profile-kind", default=EXPECTED_PROFILE_KIND)
-    parser.add_argument("--top-k", type=int, nargs="+", default=[1, 5, 10])
-    parser.add_argument("--max-rows", type=int, default=None)
-    parser.add_argument("--seed", type=int, default=0)
-    parser.add_argument("--exclude-same-plate", action="store_true")
-    parser.add_argument("--exclude-same-well", action="store_true")
-    parser.add_argument("--exclude-same-batch", action="store_true")
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--data-root",
+        type=Path,
+        default=Path("data/raw/jump_pilot"),
+        help="Local JUMP pilot data root to scan for profile tables.",
+    )
+    parser.add_argument(
+        "--profile-file",
+        type=Path,
+        action="append",
+        default=None,
+        help="Specific profile table to diagnose. Repeat to combine multiple files.",
+    )
+    parser.add_argument(
+        "--expected-profile-kind",
+        default=EXPECTED_PROFILE_KIND,
+        help="Preferred profile filename marker when auto-discovering profile files.",
+    )
+    parser.add_argument(
+        "--top-k",
+        type=int,
+        nargs="+",
+        default=[1, 5, 10],
+        help="One or more K values for nearest-neighbor diagnostics.",
+    )
+    parser.add_argument(
+        "--max-rows",
+        type=int,
+        default=None,
+        help="Optional row limit for quick local checks.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=0,
+        help="Random seed for random and shuffled-label controls.",
+    )
+    parser.add_argument(
+        "--exclude-same-plate",
+        action="store_true",
+        help="Add a filtered same-treatment diagnostic excluding same-plate neighbors.",
+    )
+    parser.add_argument(
+        "--exclude-same-well",
+        action="store_true",
+        help="Add a filtered same-treatment diagnostic excluding same-well neighbors.",
+    )
+    parser.add_argument(
+        "--exclude-same-batch",
+        action="store_true",
+        help="Add a filtered same-treatment diagnostic excluding same-batch neighbors.",
+    )
     parser.add_argument(
         "--filtered-presets",
         action="store_true",
         help="Also run exclude_same_plate, exclude_same_well, and exclude_same_plate_and_well.",
     )
-    parser.add_argument("--out", type=Path, default=Path("outputs/jump_pilot_diagnostics"))
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=Path("outputs/jump_pilot_diagnostics"),
+        help="Local output directory for diagnostics CSV/JSON files.",
+    )
     args = parser.parse_args()
 
     per_query, summary, metadata = run_jump_profile_diagnostics(

@@ -2,6 +2,8 @@
 
 Phase 2 turns the Phase 1 parser/retrieval scaffold into a real-image benchmark path. The goal is still careful retrieval validation, not a claim that the system has solved biological search.
 
+This PR covers Adam's Phase 2 JUMP profile-infrastructure and diagnostics slice. It does not try to finish the full VLM, raw-image, or text-query/RAG project.
+
 ## Scope
 
 Use real local metadata and local embeddings/profiles first, then selected local microscopy channel images later. Do not download full raw image archives by default. Full archive downloads remain opt-in only.

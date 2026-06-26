@@ -17,12 +17,40 @@ from perturb_lm.data.jump import (  # noqa: E402
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root", type=Path, default=Path("data/raw/jump_pilot"))
-    parser.add_argument("--profile-file", type=Path, action="append", default=None)
-    parser.add_argument("--expected-profile-kind", default=EXPECTED_PROFILE_KIND)
-    parser.add_argument("--max-rows", type=int, default=None)
-    parser.add_argument("--out", type=Path, default=Path("outputs/jump_pilot_index"))
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--data-root",
+        type=Path,
+        default=Path("data/raw/jump_pilot"),
+        help="Local JUMP pilot data root to scan for profile tables.",
+    )
+    parser.add_argument(
+        "--profile-file",
+        type=Path,
+        action="append",
+        default=None,
+        help="Specific profile table to index. Repeat to index multiple files.",
+    )
+    parser.add_argument(
+        "--expected-profile-kind",
+        default=EXPECTED_PROFILE_KIND,
+        help="Preferred profile filename marker when auto-discovering profile files.",
+    )
+    parser.add_argument(
+        "--max-rows",
+        type=int,
+        default=None,
+        help="Optional row limit for quick local checks.",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=Path("outputs/jump_pilot_index"),
+        help="Local output directory for index files and metadata.",
+    )
     args = parser.parse_args()
 
     metadata = build_jump_profile_index(

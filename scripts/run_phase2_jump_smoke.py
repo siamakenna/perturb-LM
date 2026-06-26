@@ -188,8 +188,16 @@ def print_summary(summary: dict[str, Any]) -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--out", type=Path, default=Path("outputs/phase2_jump_smoke"))
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=Path("outputs/phase2_jump_smoke"),
+        help="Local output directory for synthetic smoke data and generated artifacts.",
+    )
     args = parser.parse_args()
 
     summary = run_phase2_jump_smoke(args.out)

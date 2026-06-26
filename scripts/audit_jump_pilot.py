@@ -19,13 +19,43 @@ from perturb_lm.data.jump import (  # noqa: E402
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-root", type=Path, default=Path("data/raw/jump_pilot"))
-    parser.add_argument("--expected-batch", default=EXPECTED_BATCH)
-    parser.add_argument("--expected-profile-kind", default=EXPECTED_PROFILE_KIND)
-    parser.add_argument("--out", type=Path, default=Path("outputs/jump_pilot_inventory.json"))
-    parser.add_argument("--summary-only", action="store_true")
-    parser.add_argument("--max-columns-to-print", type=int, default=None)
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--data-root",
+        type=Path,
+        default=Path("data/raw/jump_pilot"),
+        help="Local JUMP pilot data root to inventory.",
+    )
+    parser.add_argument(
+        "--expected-batch",
+        default=EXPECTED_BATCH,
+        help="Expected CPJUMP1 batch name used for warnings and metadata.",
+    )
+    parser.add_argument(
+        "--expected-profile-kind",
+        default=EXPECTED_PROFILE_KIND,
+        help="Expected profile filename marker used to identify preferred profiles.",
+    )
+    parser.add_argument(
+        "--out",
+        type=Path,
+        default=Path("outputs/jump_pilot_inventory.json"),
+        help="Local JSON inventory path. Generated outputs should not be committed.",
+    )
+    parser.add_argument(
+        "--summary-only",
+        action="store_true",
+        help="Print a concise human-readable summary instead of the full JSON payload.",
+    )
+    parser.add_argument(
+        "--max-columns-to-print",
+        type=int,
+        default=None,
+        help="Limit printed column previews while keeping the saved JSON inventory complete.",
+    )
     args = parser.parse_args()
 
     inventory = audit_jump_pilot(
