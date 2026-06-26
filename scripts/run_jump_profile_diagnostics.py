@@ -25,6 +25,14 @@ def main() -> None:
     parser.add_argument("--top-k", type=int, nargs="+", default=[1, 5, 10])
     parser.add_argument("--max-rows", type=int, default=None)
     parser.add_argument("--seed", type=int, default=0)
+    parser.add_argument("--exclude-same-plate", action="store_true")
+    parser.add_argument("--exclude-same-well", action="store_true")
+    parser.add_argument("--exclude-same-batch", action="store_true")
+    parser.add_argument(
+        "--filtered-presets",
+        action="store_true",
+        help="Also run exclude_same_plate, exclude_same_well, and exclude_same_plate_and_well.",
+    )
     parser.add_argument("--out", type=Path, default=Path("outputs/jump_pilot_diagnostics"))
     args = parser.parse_args()
 
@@ -35,6 +43,10 @@ def main() -> None:
         top_k=args.top_k,
         max_rows=args.max_rows,
         seed=args.seed,
+        exclude_same_plate=args.exclude_same_plate,
+        exclude_same_well=args.exclude_same_well,
+        exclude_same_batch=args.exclude_same_batch,
+        filtered_presets=args.filtered_presets,
     )
     args.out.mkdir(parents=True, exist_ok=True)
     per_query_path = args.out / "profile_neighbor_diagnostics.csv"

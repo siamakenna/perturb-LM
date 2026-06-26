@@ -43,9 +43,12 @@ Run leakage-aware nearest-neighbor diagnostics with:
 
 ```bash
 python scripts/run_jump_profile_diagnostics.py
+python scripts/run_jump_profile_diagnostics.py --filtered-presets
 ```
 
 These diagnostics include same-batch@K, same-plate@K, same-well@K, same-perturbation/treatment@K, plus random and shuffled-label controls when the required columns exist.
+
+The default diagnostics include unfiltered rows. `--filtered-presets` keeps those rows and adds filtered same-treatment checks after excluding same-plate, same-well, and same-plate-and-well neighbors. Filtered same-treatment retrieval is stronger evidence than unfiltered retrieval because plate and well-position effects can inflate nearest-neighbor results.
 
 One-plate runs validate the software path, but they are not enough for biological claims. Same-plate diagnostics are only meaningful after multiple plates are downloaded. When only some rows have same-treatment replicates, use `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative overall view.
 

@@ -463,6 +463,10 @@ def run_jump_profile_diagnostics(
     top_k: list[int] | None = None,
     max_rows: int | None = None,
     seed: int = 0,
+    exclude_same_plate: bool = False,
+    exclude_same_well: bool = False,
+    exclude_same_batch: bool = False,
+    filtered_presets: bool = False,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
     """Run same-label nearest-neighbor diagnostics for JUMP profiles."""
 
@@ -495,43 +499,68 @@ def run_jump_profile_diagnostics(
         raise ValueError("At least two profile rows are required for nearest-neighbor diagnostics.")
 
     index = build_sklearn_index(embeddings)
-    max_k = min(max(top_k), len(indexed_profiles) - 1)
-    distances, neighbor_indices = index.kneighbors(embeddings, n_neighbors=max_k + 1)
-    query_neighbors = _drop_self_neighbors(neighbor_indices, distances, max_k)
+    distances, neighbor_indices = index.kneighbors(embeddings, n_neighbors=len(indexed_profiles))
+    query_neighbors = _drop_self_neighbors(neighbor_indices, distances, len(indexed_profiles) - 1)
 
     diagnostic_columns = _diagnostic_columns(schema)
     if not diagnostic_columns:
         warnings.append("No batch, plate, well, or perturbation columns were available.")
+    filter_specs, filter_warnings = _diagnostic_filter_specs(
+        schema,
+        indexed_profiles,
+        filtered_presets=filtered_presets,
+        exclude_same_plate=exclude_same_plate,
+        exclude_same_well=exclude_same_well,
+        exclude_same_batch=exclude_same_batch,
+    )
+    warnings.extend(warning for warning in filter_warnings if warning not in warnings)
 
     rng = np.random.default_rng(seed)
     per_query_rows: list[dict[str, Any]] = []
     summary_rows: list[dict[str, Any]] = []
-    for label_name, column in diagnostic_columns:
-        labels = indexed_profiles[column].map(_clean_label).to_numpy(dtype=str)
-        shuffled_labels = rng.permutation(labels)
-        base_note = _diagnostic_base_note(label_name, labels, column)
-        if base_note and base_note not in warnings:
-            warnings.append(base_note)
-        label_rows = _same_label_diagnostic_rows(
-            indexed_profiles["profile_id"].astype(str).tolist(),
-            labels,
-            shuffled_labels,
+    for filter_spec in filter_specs:
+        filtered_neighbors = _apply_neighbor_filter(
+            indexed_profiles,
             query_neighbors,
-            label_name=label_name,
-            label_column=column,
-            top_k=top_k,
+            excluded_columns=filter_spec["excluded_columns"],
         )
-        per_query_rows.extend(label_rows)
-        summary_rows.extend(
-            _summarize_same_label_rows(
-                label_rows,
-                label_name,
-                column,
-                top_k,
-                base_note=base_note,
+        for label_name, column in diagnostic_columns:
+            labels = indexed_profiles[column].map(_clean_label).to_numpy(dtype=str)
+            shuffled_labels = rng.permutation(labels)
+            base_note = _diagnostic_base_note(label_name, labels, column)
+            if base_note and base_note not in warnings:
+                warnings.append(base_note)
+            label_rows = _same_label_diagnostic_rows(
+                indexed_profiles["profile_id"].astype(str).tolist(),
+                labels,
+                shuffled_labels,
+                filtered_neighbors,
+                label_name=label_name,
+                label_column=column,
+                top_k=top_k,
+                filter_name=filter_spec["name"],
+                excluded_label_columns=filter_spec["excluded_columns"],
             )
-        )
+            per_query_rows.extend(label_rows)
+            summary_rows.extend(
+                _summarize_same_label_rows(
+                    label_rows,
+                    label_name,
+                    column,
+                    top_k,
+                    filter_name=filter_spec["name"],
+                    excluded_label_columns=filter_spec["excluded_columns"],
+                    base_note=base_note,
+                )
+            )
 
+    filters_payload = [
+        {
+            "filter_name": spec["name"],
+            "excluded_label_columns": spec["excluded_columns"],
+        }
+        for spec in filter_specs
+    ]
     metadata = {
         "dataset": DATASET,
         "local_data_root": str(root),
@@ -550,6 +579,7 @@ def run_jump_profile_diagnostics(
             {"diagnostic": label_name, "column": column}
             for label_name, column in diagnostic_columns
         ],
+        "filters": filters_payload,
         "top_k": top_k,
         "index_type": "sklearn-nearest-neighbors",
         "distance_metric": "cosine",
@@ -660,6 +690,95 @@ def _diagnostic_columns(schema: dict[str, Any]) -> list[tuple[str, str]]:
     return diagnostics
 
 
+def _diagnostic_filter_specs(
+    schema: dict[str, Any],
+    indexed_profiles: pd.DataFrame,
+    *,
+    filtered_presets: bool,
+    exclude_same_plate: bool,
+    exclude_same_well: bool,
+    exclude_same_batch: bool,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    specs: list[dict[str, Any]] = [{"name": "unfiltered", "excluded_columns": []}]
+    warnings: list[str] = []
+    batch_column = schema["likely_batch_column"]
+    plate_column = schema["likely_plate_column"]
+    well_column = schema["likely_well_column"]
+
+    def add_spec(name: str, columns: list[str | None]) -> None:
+        existing_columns = [column for column in columns if column]
+        if not existing_columns:
+            warnings.append(f"Cannot create filter '{name}' because required columns are missing.")
+            return
+        if any(spec["name"] == name for spec in specs):
+            return
+        specs.append({"name": name, "excluded_columns": existing_columns})
+
+    if filtered_presets:
+        add_spec("exclude_same_plate", [plate_column])
+        add_spec("exclude_same_well", [well_column])
+        add_spec("exclude_same_plate_and_well", [plate_column, well_column])
+        if batch_column and _unique_nonmissing_count(indexed_profiles, batch_column) > 1:
+            add_spec("exclude_same_batch", [batch_column])
+
+    explicit_columns: list[str | None] = []
+    explicit_parts: list[str] = []
+    if exclude_same_plate:
+        explicit_columns.append(plate_column)
+        explicit_parts.append("plate")
+    if exclude_same_well:
+        explicit_columns.append(well_column)
+        explicit_parts.append("well")
+    if exclude_same_batch:
+        explicit_columns.append(batch_column)
+        explicit_parts.append("batch")
+        if batch_column and _unique_nonmissing_count(indexed_profiles, batch_column) <= 1:
+            warnings.append(
+                "exclude_same_batch was requested, but only one batch label is present; "
+                "filtered candidates may be empty."
+            )
+    if explicit_parts:
+        name = "exclude_same_" + "_and_".join(explicit_parts)
+        add_spec(name, explicit_columns)
+    return specs, warnings
+
+
+def _apply_neighbor_filter(
+    indexed_profiles: pd.DataFrame,
+    query_neighbors: list[list[dict[str, float | int]]],
+    *,
+    excluded_columns: list[str],
+) -> list[list[dict[str, float | int]]]:
+    if not excluded_columns:
+        return query_neighbors
+    column_values = {
+        column: indexed_profiles[column].map(_clean_label).to_numpy(dtype=str)
+        for column in excluded_columns
+    }
+    filtered: list[list[dict[str, float | int]]] = []
+    for query_index, neighbors in enumerate(query_neighbors):
+        if not neighbors:
+            filtered.append([])
+            continue
+        candidate_indices = np.array(
+            [int(neighbor["candidate_index"]) for neighbor in neighbors],
+            dtype=int,
+        )
+        keep_mask = np.ones(len(candidate_indices), dtype=bool)
+        for values in column_values.values():
+            query_value = values[query_index]
+            if query_value:
+                keep_mask &= values[candidate_indices] != query_value
+        filtered.append(
+            [
+                neighbor
+                for neighbor, keep in zip(neighbors, keep_mask, strict=False)
+                if bool(keep)
+            ]
+        )
+    return filtered
+
+
 def _drop_self_neighbors(
     neighbor_indices: np.ndarray,
     distances: np.ndarray,
@@ -693,6 +812,8 @@ def _same_label_diagnostic_rows(
     label_name: str,
     label_column: str,
     top_k: list[int],
+    filter_name: str,
+    excluded_label_columns: list[str],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for query_index, profile_id in enumerate(profile_ids):
@@ -707,14 +828,21 @@ def _same_label_diagnostic_rows(
         if _is_missing_label(shuffled_label):
             shuffled_positives[:] = False
 
+        neighbors = query_neighbors[query_index]
+        candidate_indices = [int(candidate["candidate_index"]) for candidate in neighbors]
+        positive_candidates = (
+            positives[np.array(candidate_indices)].sum() if candidate_indices else 0
+        )
         row: dict[str, Any] = {
             "profile_id": profile_id,
             "diagnostic": label_name,
+            "filter_name": filter_name,
+            "excluded_label_columns": "|".join(excluded_label_columns),
             "label_column": label_column,
             "label": label,
-            "n_positive_candidates": int(positives.sum()),
+            "n_candidates_after_filter": len(candidate_indices),
+            "n_positive_candidates": int(positive_candidates),
         }
-        neighbors = query_neighbors[query_index]
         for k in top_k:
             top = neighbors[:k]
             top_indices = [int(candidate["candidate_index"]) for candidate in top]
@@ -722,8 +850,8 @@ def _same_label_diagnostic_rows(
                 top_indices and positives[np.array(top_indices)].any()
             )
             row[f"random_same_{label_name}_at_{k}"] = _random_hit_probability(
-                len(labels) - 1,
-                int(positives.sum()),
+                len(candidate_indices),
+                int(positive_candidates),
                 k,
             )
             row[f"shuffled_same_{label_name}_at_{k}"] = bool(
@@ -739,6 +867,8 @@ def _summarize_same_label_rows(
     label_column: str,
     top_k: list[int],
     *,
+    filter_name: str,
+    excluded_label_columns: list[str],
     base_note: str = "",
 ) -> list[dict[str, Any]]:
     if not rows:
@@ -747,6 +877,11 @@ def _summarize_same_label_rows(
     evaluable = frame["n_positive_candidates"] > 0
     n_evaluable = int(evaluable.sum())
     n_positive_matches = int(frame["n_positive_candidates"].sum())
+    candidate_counts = frame["n_candidates_after_filter"].astype(int)
+    n_queries_with_candidates = int((candidate_counts > 0).sum())
+    candidate_min = int(candidate_counts.min()) if len(candidate_counts) else 0
+    candidate_median = float(candidate_counts.median()) if len(candidate_counts) else 0.0
+    candidate_max = int(candidate_counts.max()) if len(candidate_counts) else 0
     summary_rows: list[dict[str, Any]] = []
     for k in top_k:
         for prefix in ["same", "random_same", "shuffled_same"]:
@@ -758,12 +893,16 @@ def _summarize_same_label_rows(
                 label_column,
                 n_queries=int(len(frame)),
                 n_evaluable=n_evaluable,
+                n_queries_with_candidates=n_queries_with_candidates,
+                filter_name=filter_name,
                 base_note=base_note,
             )
             summary_rows.append(
                 {
                     "diagnostic": label_name,
                     "metric": column,
+                    "filter_name": filter_name,
+                    "excluded_label_columns": "|".join(excluded_label_columns),
                     "value": value_all,
                     "value_all_queries": value_all,
                     "value_evaluable_queries": value_evaluable,
@@ -772,6 +911,10 @@ def _summarize_same_label_rows(
                     "n_positive_matches": n_positive_matches,
                     "k": k,
                     "label_column": label_column,
+                    "n_queries_with_candidates": n_queries_with_candidates,
+                    "n_candidates_after_filter_min": candidate_min,
+                    "n_candidates_after_filter_median": candidate_median,
+                    "n_candidates_after_filter_max": candidate_max,
                     "warning": note,
                 }
             )
@@ -801,11 +944,21 @@ def _diagnostic_summary_note(
     *,
     n_queries: int,
     n_evaluable: int,
+    n_queries_with_candidates: int,
+    filter_name: str,
     base_note: str,
 ) -> str:
     notes = []
     if base_note:
         notes.append(base_note)
+    if filter_name != "unfiltered":
+        if n_queries_with_candidates == 0:
+            notes.append(f"No queries have candidate neighbors after filter {filter_name}.")
+        elif n_queries_with_candidates < n_queries:
+            notes.append(
+                f"Only {n_queries_with_candidates} of {n_queries} queries have candidate "
+                f"neighbors after filter {filter_name}."
+            )
     if n_evaluable == 0:
         notes.append(f"No queries have same-label positive candidates for {label_column}.")
     elif n_evaluable < n_queries:
@@ -844,6 +997,11 @@ def _clean_label(value: object) -> str:
 
 def _is_missing_label(value: object) -> bool:
     return _clean_label(value).lower() in {"", "nan", "none", "null", "<na>"}
+
+
+def _unique_nonmissing_count(frame: pd.DataFrame, column: str) -> int:
+    values = frame[column].map(_clean_label)
+    return int(values[~values.map(_is_missing_label)].nunique())
 
 
 def _ordered_columns(readable_files: list[dict[str, Any]]) -> list[str]:
