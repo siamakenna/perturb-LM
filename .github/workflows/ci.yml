@@ -45,6 +45,15 @@ jobs:
       - name: Run Phase 2 JUMP synthetic smoke
         run: python scripts/run_phase2_jump_smoke.py --out outputs/ci_phase2_jump_smoke
 
+      - name: Run Phase 2 one-command synthetic report
+        run: |
+          python scripts/run_phase2_local_report.py \
+            --data-root outputs/ci_phase2_jump_smoke/synthetic_data/jump_pilot \
+            --out outputs/ci_phase2_local_report
+          python scripts/check_phase2_readiness.py \
+            --root outputs/ci_phase2_local_report \
+            --out outputs/ci_phase2_local_report/readiness_check.json
+
       - name: Upload synthetic smoke summaries
         uses: actions/upload-artifact@v4
         if: always()
@@ -56,6 +65,9 @@ jobs:
             outputs/ci_phase2_jump_smoke/smoke_summary.json
             outputs/ci_phase2_jump_smoke/jump_pilot_diagnostics/profile_neighbor_diagnostics_summary.csv
             outputs/ci_phase2_jump_smoke/jump_pilot_diagnostics/profile_neighbor_diagnostics_summary.json
+            outputs/ci_phase2_local_report/baseline_manifest.json
+            outputs/ci_phase2_local_report/readiness_check.json
+            outputs/ci_phase2_local_report/phase2_jump_report.md
           if-no-files-found: ignore
 
   remote-jump-smoke:

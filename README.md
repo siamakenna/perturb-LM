@@ -45,7 +45,7 @@ For the real-image and model baseline workflow, see `docs/PHASE2_REAL_DATA_AND_M
 For GitHub Actions and remote smoke tests, see `docs/CI_AND_REMOTE_SMOKE.md`.
 For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERIA.md`.
 For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
-For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, and `docs/METHODS_DRAFT.md`.
+For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/EVALUATION_PROTOCOL.md`, `docs/DATA_PROVENANCE.md`, `docs/ARTIFACT_MAP.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, `docs/METHODS_DRAFT.md`, and `docs/PHASE3_PROPOSAL_TEMPLATE.md`.
 
 ## Phase 2 JUMP Pilot Commands
 
