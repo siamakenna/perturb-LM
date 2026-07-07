@@ -22,6 +22,9 @@ For the current JUMP CPJUMP1 profile track:
 - Profile audit, index build, and filtered diagnostics run on real local data.
 - Same-plate, same-well, and same-treatment diagnostics are compared to random and shuffled-label controls.
 - One-batch limitations are documented if only one batch is available.
+- `scripts/run_phase2_local_report.py` completes and writes `baseline_manifest.json`.
+- `scripts/check_phase2_readiness.py` passes, with any one-batch warning explicitly acknowledged.
+- The identifier-stripped metadata TF-IDF control is reported.
 
 ## Minimum Go Criteria
 
@@ -32,6 +35,7 @@ Move into Phase 3 only when all of the following are true:
 3. Batch, plate, well, or split leakage is measured or explicitly marked unavailable.
 4. The formal scoring unit remains perturbation-level retrieval after site/image aggregation.
 5. The first Phase 3 target embedding space is chosen before model work starts.
+6. The proposed model is expected to beat identifier-stripped metadata controls, not only random.
 
 Recommended first Phase 3 target:
 

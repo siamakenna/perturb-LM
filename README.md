@@ -45,6 +45,7 @@ For the real-image and model baseline workflow, see `docs/PHASE2_REAL_DATA_AND_M
 For GitHub Actions and remote smoke tests, see `docs/CI_AND_REMOTE_SMOKE.md`.
 For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERIA.md`.
 For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
+For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, and `docs/METHODS_DRAFT.md`.
 
 ## Phase 2 JUMP Pilot Commands
 
@@ -57,6 +58,16 @@ python scripts/run_phase2_jump_smoke.py
 ```
 
 Then, when local CPJUMP1 profile files are available:
+
+```bash
+python scripts/run_phase2_local_report.py \
+  --data-root data/raw/jump_pilot \
+  --out outputs/jump_pilot_real_baseline
+python scripts/check_phase2_readiness.py \
+  --root outputs/jump_pilot_real_baseline
+```
+
+The one-command runner wraps the explicit steps below and writes a machine-readable `baseline_manifest.json`.
 
 ```bash
 python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
@@ -88,6 +99,15 @@ Build manifests:
 ```bash
 python scripts/build_rxrx_manifests.py --dataset rxrx1 --data-root data/raw --out data/processed
 python scripts/build_rxrx_manifests.py --dataset rxrx19a --data-root data/raw --out data/processed
+```
+
+Build held-out split presets:
+
+```bash
+python scripts/build_split_presets.py \
+  --manifest data/processed/rxrx1_site_manifest.parquet \
+  --preset held_out_plate \
+  --out outputs/rxrx1_splits/held_out_plate.parquet
 ```
 
 Build queries:
