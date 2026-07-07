@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Perturb LM project dashboard: reproducible text-to-microscopy retrieval baselines, leakage checks, and Phase 3 readiness."
+    />
+    <title>Perturb LM | Reproducible Microscopy Retrieval</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Perturb LM home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>Perturb LM</span>
+      </a>
+      <nav aria-label="Primary navigation">
+        <a href="#baselines">Baselines</a>
+        <a href="#guardrails">Guardrails</a>
+        <a href="#reproduce">Reproduce</a>
+        <a href="https://github.com/siamakenna/perturb-LM">GitHub</a>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero section-shell">
+        <div class="hero-copy">
+          <p class="status-line">Parser, retrieval, and leakage validation before biological claims.</p>
+          <h1>Reproducible text-to-microscopy perturbation retrieval.</h1>
+          <p class="hero-lede">
+            Perturb LM is building a careful benchmark ladder for high-content microscopy
+            search: first metadata and profile controls, then image and alignment models
+            only after batch, plate, well, and split leakage are measured.
+          </p>
+          <div class="hero-actions" aria-label="Project links">
+            <a class="button primary" href="https://github.com/siamakenna/perturb-LM">View repository</a>
+            <a class="button secondary" href="#reproduce">Run locally</a>
+          </div>
+        </div>
+
+        <div class="visual-panel" aria-label="Retrieval validation diagram">
+          <svg viewBox="0 0 680 520" role="img" aria-labelledby="visual-title visual-desc">
+            <title id="visual-title">Perturb LM validation ladder</title>
+            <desc id="visual-desc">
+              A static diagram showing text queries, metadata controls, profile retrieval,
+              leakage checks, and future image alignment.
+            </desc>
+            <defs>
+              <linearGradient id="panelGradient" x1="0" x2="1" y1="0" y2="1">
+                <stop offset="0%" stop-color="#eefdfa" />
+                <stop offset="100%" stop-color="#fff7e8" />
+              </linearGradient>
+              <pattern id="dotGrid" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="4" cy="4" r="1.6" fill="#0f766e" opacity="0.22" />
+              </pattern>
+            </defs>
+            <rect width="680" height="520" rx="24" fill="url(#panelGradient)" />
+            <rect width="680" height="520" rx="24" fill="url(#dotGrid)" />
+            <g fill="none" stroke="#0f172a" stroke-opacity="0.18" stroke-width="2">
+              <path d="M132 130 C 230 70, 345 88, 438 148 S 575 271, 512 356" />
+              <path d="M115 324 C 221 404, 348 421, 502 337" />
+            </g>
+            <g>
+              <circle cx="132" cy="130" r="58" fill="#ffffff" stroke="#99f6e4" stroke-width="3" />
+              <circle cx="132" cy="130" r="24" fill="#0f766e" opacity="0.9" />
+              <circle cx="132" cy="130" r="9" fill="#f59e0b" />
+              <text x="132" y="218" text-anchor="middle">Text query</text>
+            </g>
+            <g>
+              <rect x="265" y="74" width="156" height="112" rx="16" fill="#ffffff" stroke="#d6e4e2" />
+              <text x="343" y="119" text-anchor="middle">Metadata</text>
+              <text x="343" y="145" text-anchor="middle">controls</text>
+            </g>
+            <g>
+              <circle cx="528" cy="165" r="70" fill="#ffffff" stroke="#fde68a" stroke-width="3" />
+              <circle cx="501" cy="146" r="13" fill="#0f766e" />
+              <circle cx="548" cy="132" r="18" fill="#f59e0b" />
+              <circle cx="552" cy="183" r="11" fill="#14b8a6" />
+              <circle cx="511" cy="198" r="8" fill="#334155" />
+              <text x="528" y="270" text-anchor="middle">Profile rows</text>
+            </g>
+            <g>
+              <rect x="86" y="322" width="206" height="108" rx="16" fill="#ffffff" stroke="#d6e4e2" />
+              <text x="189" y="366" text-anchor="middle">Leakage checks</text>
+              <text x="189" y="393" text-anchor="middle">batch · plate · well</text>
+            </g>
+            <g>
+              <rect x="396" y="338" width="196" height="104" rx="16" fill="#0f172a" />
+              <text x="494" y="381" text-anchor="middle" fill="#ffffff">Phase 3 gate</text>
+              <text x="494" y="407" text-anchor="middle" fill="#cbd5e1">models beat controls</text>
+            </g>
+          </svg>
+        </div>
+      </section>
+
+      <section class="status-grid section-shell" aria-label="Project phase status">
+        <article>
+          <span>Phase 1</span>
+          <h2>Pipeline scaffold</h2>
+          <p>RxRx parser support, manifests, query generation, aggregation, metrics, and synthetic CI.</p>
+        </article>
+        <article>
+          <span>Phase 2</span>
+          <h2>Real profile baselines</h2>
+          <p>Local JUMP CPJUMP1 profile retrieval, text-to-profile controls, and leakage diagnostics.</p>
+        </article>
+        <article>
+          <span>Phase 3</span>
+          <h2>Not started</h2>
+          <p>Alignment and image models wait until real-data controls are reproducible and stress-tested.</p>
+        </article>
+      </section>
+
+      <section id="baselines" class="section-shell split-section">
+        <div>
+          <p class="section-label">Current Real-Data Control</p>
+          <h2>Text-to-profile retrieval is now measured against stricter baselines.</h2>
+          <p>
+            The full metadata baseline is intentionally easy because it includes direct perturbation
+            identifiers. The identifier-stripped baseline removes those direct identifiers from candidate
+            text and is the more honest control for future model work.
+          </p>
+        </div>
+        <div class="table-wrap" role="region" aria-label="JUMP text-to-profile baseline results" tabindex="0">
+          <table>
+            <thead>
+              <tr>
+                <th>Mode</th>
+                <th>mAP</th>
+                <th>Hit@1</th>
+                <th>Hit@5</th>
+                <th>Hit@10</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Full metadata TF-IDF</td>
+                <td>0.9952</td>
+                <td>0.9906</td>
+                <td>0.9938</td>
+                <td>0.9984</td>
+              </tr>
+              <tr>
+                <td>Identifier-stripped TF-IDF</td>
+                <td>0.3991</td>
+                <td>0.2496</td>
+                <td>0.4774</td>
+                <td>0.5835</td>
+              </tr>
+              <tr>
+                <td>Random</td>
+                <td>0.0032</td>
+                <td>0.0000</td>
+                <td>0.0078</td>
+                <td>0.0156</td>
+              </tr>
+              <tr>
+                <td>Shuffled-label</td>
+                <td>0.0017</td>
+                <td>0.0000</td>
+                <td>0.0062</td>
+                <td>0.0156</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="guardrails" class="section-shell guardrails">
+        <div>
+          <p class="section-label">Scientific Guardrails</p>
+          <h2>What the project can say right now.</h2>
+        </div>
+        <div class="guardrail-list">
+          <article>
+            <h3>Validated</h3>
+            <p>Real local JUMP profile files can be audited, indexed, queried, and reported with controls.</p>
+          </article>
+          <article>
+            <h3>Measured</h3>
+            <p>Same-treatment retrieval is compared with random and shuffled-label baselines.</p>
+          </article>
+          <article>
+            <h3>Limited</h3>
+            <p>Current local data has one inferred batch, so batch generalization is not yet proven.</p>
+          </article>
+          <article>
+            <h3>Not claimed</h3>
+            <p>This is not yet biological image understanding or final natural-language retrieval.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="reproduce" class="section-shell reproduce">
+        <div>
+          <p class="section-label">Reproducibility Path</p>
+          <h2>Run the safe baseline workflow locally.</h2>
+        </div>
+        <ol class="steps">
+          <li><code>python scripts/run_phase2_jump_smoke.py</code></li>
+          <li><code>python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20</code></li>
+          <li><code>python scripts/build_jump_profile_index.py</code></li>
+          <li><code>python scripts/run_jump_profile_diagnostics.py --filtered-presets</code></li>
+          <li><code>python scripts/run_jump_text_profile_retrieval.py</code></li>
+          <li><code>python scripts/make_phase2_jump_report.py --out outputs/jump_pilot_phase2_report.md</code></li>
+        </ol>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Data, embeddings, indexes, model weights, raw images, and generated outputs stay out of git.</p>
+      <div>
+        <a href="https://github.com/siamakenna/perturb-LM">GitHub</a>
+        <a href="https://github.com/siamakenna/perturb-LM/blob/main/docs/PHASE2_REAL_BASELINE_STATUS.md">Baseline status</a>
+        <a href="https://github.com/siamakenna/perturb-LM/blob/main/docs/PHASE3_ENTRY_CRITERIA.md">Phase 3 criteria</a>
+      </div>
+    </footer>
+  </body>
+</html>

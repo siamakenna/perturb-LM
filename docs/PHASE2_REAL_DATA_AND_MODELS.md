@@ -28,9 +28,15 @@ python scripts/audit_jump_pilot.py
 python scripts/build_jump_profile_index.py
 python scripts/run_jump_profile_diagnostics.py
 python scripts/run_jump_profile_diagnostics.py --filtered-presets
+python scripts/make_phase2_jump_report.py --out outputs/jump_pilot_phase2_report.md
+python scripts/run_jump_text_profile_retrieval.py --out outputs/jump_text_profile
 ```
 
 The smoke command writes tiny synthetic JUMP-like files and outputs under `outputs/phase2_jump_smoke/`. It is software validation only, not a biological result. The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. The profile index writes `outputs/jump_pilot_index/index_metadata.json`. Generated smoke, inventory, index, and diagnostic outputs are local only and should not be committed.
+
+The report command rebuilds a Markdown Phase 2 summary from the inventory, index metadata, and diagnostics summary. It is the preferred way to record baseline behavior because the tables are generated from local artifacts rather than copied by hand.
+
+The text-to-profile retrieval command creates metadata-derived text queries, retrieves profile rows using TF-IDF lexical baselines over profile metadata text, and compares the result to random and shuffled-label controls. It reports both a full metadata lookup baseline and an identifier-stripped baseline that removes direct perturbation IDs/names from candidate text. This is closer to the project goal because the input is text, but it is still a metadata baseline rather than evidence of biological image understanding.
 
 For concise real-data inventory output, use:
 
@@ -38,11 +44,11 @@ For concise real-data inventory output, use:
 python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
 ```
 
-One-plate CPJUMP1 results validate the software path but are not enough for biological claims. Same-plate diagnostics become meaningful only after multiple plates are downloaded. When only some queries have same-treatment replicates, prefer `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative all-query metric.
+Small CPJUMP1 profile runs validate the software path but are not enough for biological claims. Same-batch diagnostics become meaningful only after more than one batch is available. When only some queries have same-treatment replicates, prefer `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative all-query metric.
 
-Unfiltered same-treatment retrieval can be inflated by plate, well-position, or batch structure. Filtered diagnostics remove neighbors that share obvious leakage labels with the query before scoring same-treatment hits. Interpret same-treatment retrieval most carefully after excluding both same-plate and same-well neighbors. These are still local profile diagnostics, not final biological claims.
+Unfiltered same-treatment retrieval can be inflated by plate, well-position, or batch structure. Filtered diagnostics remove neighbors that share obvious leakage labels with the query before scoring same-treatment hits. Interpret same-treatment retrieval most carefully after excluding both same-plate and same-well neighbors. Text-to-profile baselines should also report whether positive profiles span multiple plates or batches. Future model baselines should beat the identifier-stripped metadata control, not merely random. These are still local profile diagnostics and metadata baselines, not final biological claims.
 
-The next recommended real-data step is a 5-plate CPJUMP1 profile run before scaling to all profile data.
+The next recommended real-data step is to add more CPJUMP1 batches or otherwise broaden the local profile data so batch-level diagnostics become meaningful before scaling to heavier model baselines.
 
 For RxRx local assets, place real files under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
 
@@ -60,6 +66,20 @@ python scripts/audit_real_data.py --dataset rxrx1 --data-root data/raw --site-ma
 ```
 
 The audit reports local metadata files, likely embedding/profile files, image file counts, and whether manifest channel paths resolve locally.
+
+Create a readiness report before Phase 3:
+
+```bash
+python scripts/make_rxrx_readiness_report.py \
+  --dataset rxrx19a \
+  --data-root data/raw \
+  --site-manifest data/processed/rxrx19a_site_manifest.parquet \
+  --manifest-build-report data/processed/rxrx19a_manifest_build_report.json \
+  --leakage-summary outputs/rxrx19a_leakage/leakage_summary.csv \
+  --out outputs/rxrx19a_readiness_report.md
+```
+
+This report records which real RxRx assets and baseline artifacts are present. Missing optional artifacts are expected until local embeddings or images are available.
 
 ## Rendering Real Images
 

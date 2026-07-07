@@ -50,15 +50,40 @@ These diagnostics include same-batch@K, same-plate@K, same-well@K, same-perturba
 
 The default diagnostics include unfiltered rows. `--filtered-presets` keeps those rows and adds filtered same-treatment checks after excluding same-plate, same-well, and same-plate-and-well neighbors. Filtered same-treatment retrieval is stronger evidence than unfiltered retrieval because plate and well-position effects can inflate nearest-neighbor results.
 
-One-plate runs validate the software path, but they are not enough for biological claims. Same-plate diagnostics are only meaningful after multiple plates are downloaded. When only some rows have same-treatment replicates, use `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative overall view.
+Small local profile runs validate the software path, but they are not enough for biological claims. Same-batch diagnostics are only meaningful after more than one batch is available. Strong same-treatment scores after well or plate filtering should be read together with `n_evaluable_queries`, especially when only a subset of rows has same-treatment replicates after filtering.
 
-Five-profile local runs are still sanity checks, not final biological results. Strong same-treatment scores after well or plate filtering should be read together with `n_evaluable_queries`, especially when only a small subset of rows has same-treatment replicates after filtering.
+Generate a reproducible Markdown report from the local artifacts with:
+
+```bash
+python scripts/make_phase2_jump_report.py \
+  --inventory outputs/jump_pilot_inventory.json \
+  --index-metadata outputs/jump_pilot_index/index_metadata.json \
+  --diagnostics-summary outputs/jump_profile_diagnostics/profile_neighbor_diagnostics_summary.csv \
+  --diagnostics-json outputs/jump_profile_diagnostics/profile_neighbor_diagnostics_summary.json \
+  --text-profile-summary outputs/jump_text_profile/jump_text_profile_summary.csv \
+  --out outputs/jump_pilot_phase2_report.md
+```
+
+This report is generated output and should not be committed.
+
+Run the first text-conditioned JUMP baseline with:
+
+```bash
+python scripts/run_jump_text_profile_retrieval.py \
+  --data-root data/raw/jump_pilot \
+  --out outputs/jump_text_profile
+```
+
+This creates metadata-derived text queries and retrieves profile rows with a TF-IDF lexical baseline over profile metadata. It also writes random and shuffled-label controls plus per-query positive batch/plate/well span counts. This is a control baseline for future models, not a biological retrieval claim.
 
 ## Current Priority
 
 The first real-data baseline is profile-based cosine retrieval over CPJUMP1 morphology profiles. Raw JUMP images are not required yet.
 
-The next recommended real-data step is a 5-plate CPJUMP1 profile run before scaling to all available profile data.
+The first local real-data baseline run is summarized in `PHASE2_REAL_BASELINE_STATUS.md`.
+Future reruns should regenerate a local report with `scripts/make_phase2_jump_report.py`.
+
+The next recommended real-data step is to add more CPJUMP1 batches or otherwise broaden the profile data so same-batch diagnostics become meaningful, then rerun both profile-neighbor diagnostics and text-to-profile retrieval.
 
 RxRx1 remains a future/generalization track unless real RxRx1 files are added locally. RxRx1 is useful for later batch and generalization checks, but it is not the active local profile baseline unless matching files exist under `data/raw/`.
 

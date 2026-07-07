@@ -42,6 +42,9 @@ Full image archives are never downloaded by default. Metadata and embeddings are
 
 For real local RxRx metadata and embedding placement, see `docs/REAL_RXRX_SETUP.md`.
 For the real-image and model baseline workflow, see `docs/PHASE2_REAL_DATA_AND_MODELS.md`.
+For GitHub Actions and remote smoke tests, see `docs/CI_AND_REMOTE_SMOKE.md`.
+For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERIA.md`.
+For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
 
 ## Phase 2 JUMP Pilot Commands
 
@@ -59,9 +62,19 @@ Then, when local CPJUMP1 profile files are available:
 python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
 python scripts/build_jump_profile_index.py
 python scripts/run_jump_profile_diagnostics.py --filtered-presets
+python scripts/run_jump_text_profile_retrieval.py \
+  --data-root data/raw/jump_pilot \
+  --out outputs/jump_text_profile
+python scripts/make_phase2_jump_report.py \
+  --inventory outputs/jump_pilot_inventory.json \
+  --index-metadata outputs/jump_pilot_index/index_metadata.json \
+  --diagnostics-summary outputs/jump_profile_diagnostics/profile_neighbor_diagnostics_summary.csv \
+  --diagnostics-json outputs/jump_profile_diagnostics/profile_neighbor_diagnostics_summary.json \
+  --text-profile-summary outputs/jump_text_profile/jump_text_profile_summary.csv \
+  --out outputs/jump_pilot_phase2_report.md
 ```
 
-The smoke workflow validates software only. One-plate and five-profile local sanity runs are useful for checking the audit/index/diagnostics path, but they are not final biological claims. Unfiltered retrieval can be inflated by plate and well-position effects; filtered diagnostics are stronger evidence, especially when interpreted alongside `n_evaluable_queries`.
+The smoke workflow validates software only. Small local profile runs are useful for checking the audit/index/diagnostics path, but they are not final biological claims. Unfiltered retrieval can be inflated by batch, plate, and well-position effects; filtered diagnostics are stronger evidence, especially when interpreted alongside `n_evaluable_queries`. The text-to-profile command is a metadata-derived lexical baseline: future biological or VLM models should beat it under leakage-aware evaluation before making stronger claims.
 
 Dry-run safe metadata downloads:
 

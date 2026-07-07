@@ -1,0 +1,117 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_remote_jump_smoke:
+        description: "Download a tiny remote JUMP profile subset and run diagnostics"
+        required: true
+        type: boolean
+        default: false
+      jump_plate_limit:
+        description: "Number of CPJUMP1 plates to download for the manual remote smoke"
+        required: true
+        type: number
+        default: 1
+
+jobs:
+  synthetic-smoke:
+    name: Synthetic tests and smoke workflows
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+
+      - name: Run tests
+        run: python -m pytest
+
+      - name: Run Phase 1 synthetic smoke
+        run: python scripts/run_phase1_smoke.py --out outputs/ci_phase1_smoke
+
+      - name: Run Phase 2 JUMP synthetic smoke
+        run: python scripts/run_phase2_jump_smoke.py --out outputs/ci_phase2_jump_smoke
+
+      - name: Upload synthetic smoke summaries
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-smoke-summaries
+          path: |
+            outputs/ci_phase1_smoke/phase1_report.md
+            outputs/ci_phase2_jump_smoke/phase2_jump_report.md
+            outputs/ci_phase2_jump_smoke/smoke_summary.json
+            outputs/ci_phase2_jump_smoke/jump_pilot_diagnostics/profile_neighbor_diagnostics_summary.csv
+            outputs/ci_phase2_jump_smoke/jump_pilot_diagnostics/profile_neighbor_diagnostics_summary.json
+          if-no-files-found: ignore
+
+  remote-jump-smoke:
+    name: Manual remote JUMP profile smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_remote_jump_smoke == 'true' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install package
+        run: python -m pip install -e ".[dev]"
+
+      - name: Download tiny remote JUMP profile subset
+        run: |
+          python scripts/download_jump_pilot_profiles.py \
+            --plate-limit "${{ github.event.inputs.jump_plate_limit }}" \
+            --out-root data/raw/jump_pilot \
+            --manifest data/interim/jump_pilot_profile_files.csv
+
+      - name: Audit downloaded JUMP subset
+        run: |
+          python scripts/audit_jump_pilot.py \
+            --summary-only \
+            --max-columns-to-print 20 \
+            --out outputs/remote_jump_smoke/inventory.json
+
+      - name: Build profile index
+        run: |
+          python scripts/build_jump_profile_index.py \
+            --data-root data/raw/jump_pilot \
+            --out outputs/remote_jump_smoke/index
+
+      - name: Run filtered diagnostics
+        run: |
+          python scripts/run_jump_profile_diagnostics.py \
+            --data-root data/raw/jump_pilot \
+            --filtered-presets \
+            --out outputs/remote_jump_smoke/diagnostics
+
+      - name: Upload remote smoke summaries
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: remote-jump-smoke-summaries
+          path: |
+            outputs/remote_jump_smoke/inventory.json
+            outputs/remote_jump_smoke/index/index_metadata.json
+            outputs/remote_jump_smoke/diagnostics/profile_neighbor_diagnostics_summary.csv
+            outputs/remote_jump_smoke/diagnostics/profile_neighbor_diagnostics_summary.json
+          if-no-files-found: ignore

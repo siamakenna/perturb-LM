@@ -22,6 +22,7 @@ from perturb_lm.data.jump import (  # noqa: E402
     build_jump_profile_index,
     run_jump_profile_diagnostics,
 )
+from perturb_lm.reports import make_phase2_jump_report  # noqa: E402
 
 
 def write_synthetic_jump_pilot(data_root: Path) -> Path:
@@ -135,6 +136,13 @@ def run_phase2_jump_smoke(
         )
         + "\n"
     )
+    report_path = make_phase2_jump_report(
+        inventory=audit,
+        index_metadata=index_metadata,
+        diagnostics_summary=diagnostics_summary,
+        diagnostics_metadata=diagnostics_metadata,
+        out_path=out_dir / "phase2_jump_report.md",
+    )
 
     diagnostic_metrics = _summary_metrics(diagnostics_summary)
     summary = {
@@ -145,6 +153,7 @@ def run_phase2_jump_smoke(
         "index_metadata_path": str(index_metadata_path),
         "diagnostics_output_path": str(diagnostics_summary_path),
         "diagnostics_json_path": str(diagnostics_json_path),
+        "report_path": str(report_path),
         "number_of_rows_indexed": index_metadata["number_of_rows"],
         "number_of_numeric_feature_columns": index_metadata[
             "number_of_numeric_feature_columns"
@@ -178,6 +187,7 @@ def print_summary(summary: dict[str, Any]) -> None:
     print(f"Audit completed: {summary['audit_completed']}")
     print(f"Index metadata path: {summary['index_metadata_path']}")
     print(f"Diagnostics output path: {summary['diagnostics_output_path']}")
+    print(f"Report path: {summary['report_path']}")
     print(f"Rows indexed: {summary['number_of_rows_indexed']}")
     print(f"Numeric feature columns: {summary['number_of_numeric_feature_columns']}")
     if summary["diagnostics"]:

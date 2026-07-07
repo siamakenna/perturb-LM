@@ -105,3 +105,21 @@ python scripts/run_leakage_diagnostics.py --queries data/processed/rxrx19a_queri
 ```
 
 These diagnostics check whether query-positive perturbations appear across batches, plates, or splits. They are intended to catch split leakage and replicate-structure shortcuts, not to validate biological retrieval.
+
+## Readiness Report
+
+After running whichever local artifacts are available, generate a Phase 2 readiness report:
+
+```bash
+python scripts/make_rxrx_readiness_report.py \
+  --dataset rxrx1 \
+  --data-root data/raw \
+  --site-manifest data/processed/rxrx1_site_manifest.parquet \
+  --manifest-build-report data/processed/rxrx1_manifest_build_report.json \
+  --index-metadata outputs/rxrx1_index/index_metadata.json \
+  --leakage-summary outputs/rxrx1_leakage/leakage_summary.csv \
+  --composite-manifest outputs/rxrx1_composites/composite_manifest.csv \
+  --out outputs/rxrx1_readiness_report.md
+```
+
+Any optional paths that do not exist are reported as missing. The report is a local generated artifact and should not be committed.

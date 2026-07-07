@@ -12,9 +12,15 @@ Text-to-image retrieval index over RxRx19a and RxRx1, perturbation-level aggrega
 
 Real local image support, rendered microscopy composites, and zero-shot VLM baselines using OpenCLIP/BiomedCLIP. See `PHASE2_REAL_DATA_AND_MODELS.md`.
 
+The first real-data morphology-profile baseline is summarized in `PHASE2_REAL_BASELINE_STATUS.md`.
+
+Repository-level CI and the manual remote JUMP profile smoke test are documented in `CI_AND_REMOTE_SMOKE.md`.
+
 ## Phase 3
 
 Lightweight alignment from biomedical text embeddings to microscopy/profile embeddings.
+
+Start Phase 3 only after the checks in `PHASE3_ENTRY_CRITERIA.md` are satisfied.
 
 ## Phase 4
 

@@ -19,12 +19,16 @@ def test_phase2_jump_smoke_runs_full_synthetic_pipeline(tmp_path) -> None:
     assert "same_perturbation_treatment_at_1" in summary["diagnostics"]
     assert (out_dir / "jump_pilot_inventory.json").exists()
     assert (out_dir / "jump_pilot_index" / "index_metadata.json").exists()
+    assert (out_dir / "phase2_jump_report.md").exists()
     assert (
         out_dir
         / "jump_pilot_diagnostics"
         / "profile_neighbor_diagnostics_summary.csv"
     ).exists()
     smoke_summary = json.loads((out_dir / "smoke_summary.json").read_text())
+    assert smoke_summary["report_path"].replace("\\", "/").endswith(
+        "phase2_jump_report.md"
+    )
     assert smoke_summary["synthetic_data_root"].replace("\\", "/").endswith(
         "synthetic_data/jump_pilot"
     )
