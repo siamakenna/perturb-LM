@@ -5,6 +5,7 @@ __pycache__/
 /models/
 /outputs/
 /results/
+/linkedin_assets/
 *.pyc
 *.parquet
 *.npy

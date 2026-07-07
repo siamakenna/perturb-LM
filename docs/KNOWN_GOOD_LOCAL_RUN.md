@@ -1,6 +1,6 @@
 # Known-Good Local Run Checklist
 
-Use this checklist before handing the repository to a collaborator or before starting Phase 3 model work.
+Use this checklist before starting Phase 3 model work or assigning engineering tasks.
 
 ## 1. Clean Repository State
 
@@ -165,7 +165,7 @@ Expected:
 - missing image channels are reported
 - visual inspection is treated as pipeline validation only
 
-## 9. Final Handoff Check
+## 9. Final Repository Check
 
 ```bash
 git status --short
@@ -176,7 +176,7 @@ Expected:
 - only intentional source/docs/test files are tracked
 - no local data or generated outputs are staged
 
-Record for the collaborator:
+Record for project notes:
 
 - command sequence used
 - generated report directory
@@ -184,4 +184,3 @@ Record for the collaborator:
 - warnings or limitations
 - dataset paths used locally
 - known missing assets
-

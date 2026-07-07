@@ -2,9 +2,9 @@
 
 Perturb LM is a reproducible benchmark and prototype for natural-language retrieval over high-content microscopy perturbation datasets. The user-facing task is text-to-image retrieval, while formal benchmark evaluation aggregates image/site hits to the perturbation level so results are biologically meaningful and robust to replicate structure.
 
-## Current Status
+## Current Scope
 
-Bootstrap implementation. The repository includes safe downloader scaffolds, RxRx manifest builders, query generation, perturbation-level aggregation, deterministic baselines, metrics, documentation, and tiny synthetic tests that run without internet access or real datasets.
+Perturb LM includes safe downloader scaffolds, RxRx manifest builders, query generation, perturbation-level aggregation, deterministic baselines, metrics, documentation, and tiny synthetic tests that run without internet access or real datasets.
 
 ## Installation
 
@@ -14,7 +14,7 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Python 3.10 or 3.11 is recommended. Heavy ML dependencies such as FAISS, torch, transformers, OpenCLIP, and BiomedCLIP are intentionally not required yet.
+Python 3.10 or 3.11 is recommended. Heavy ML dependencies such as FAISS, torch, transformers, OpenCLIP, and BiomedCLIP are intentionally kept out of the core dependency set.
 
 ## Environment Variables
 
@@ -46,11 +46,11 @@ For GitHub Actions and remote smoke tests, see `docs/CI_AND_REMOTE_SMOKE.md`.
 For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERIA.md`.
 For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
 For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/EVALUATION_PROTOCOL.md`, `docs/DATA_PROVENANCE.md`, `docs/ARTIFACT_MAP.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, `docs/METHODS_DRAFT.md`, and `docs/PHASE3_PROPOSAL_TEMPLATE.md`.
-For collaborator handoff before Phase 3, see `docs/PHASE3_ENGINEERING_HANDOFF.md`, `docs/KNOWN_GOOD_LOCAL_RUN.md`, and `docs/PHASE3_ENGINEERING_TASKS.md`.
+For Phase 3 engineering preparation, see `docs/PHASE3_ENGINEERING_PLAN.md`, `docs/KNOWN_GOOD_LOCAL_RUN.md`, and `docs/PHASE3_ENGINEERING_TASKS.md`.
 
 ## Phase 2 JUMP Pilot Commands
 
-The active Phase 2 real-data track is JUMP CPJUMP1 profile-based retrieval under `data/raw/jump_pilot/`. Local real data is optional and ignored by git; raw microscopy images are not part of this PR path yet. This PR covers Adam's Phase 2 profile-infrastructure and diagnostics slice, not the full VLM/text-query project.
+The active Phase 2 real-data track is JUMP CPJUMP1 profile-based retrieval under `data/raw/jump_pilot/`. Local real data is optional and ignored by git. This track focuses on profile infrastructure, diagnostics, and reproducible baseline reports; raw microscopy image use remains opt-in.
 
 Run the one-command synthetic smoke workflow first:
 
@@ -168,7 +168,7 @@ streamlit run prototype/app.py
 
 Phase 1 establishes the working pipeline, perturbation-level aggregation, metrics, and baselines. It does not prove biological retrieval. Biological claims require real RxRx data, real embeddings, batch-aware splits, and later VLM/alignment baselines.
 
-## Exact Next Steps
+## Development Priorities
 
 1. Replace downloader placeholder URLs with verified public RxRx1/RxRx19a metadata and embedding URLs.
 2. Validate the real RxRx metadata parser against representative local metadata tables.

@@ -1,6 +1,6 @@
-# Phase 3 Engineering Handoff
+# Phase 3 Engineering Plan
 
-This document is the handoff brief for an engineering collaborator joining before Phase 3. The goal is to make the real-data retrieval benchmark more reliable, inspectable, and scalable before any stronger biological claim is made.
+This document defines the engineering work needed before Phase 3 model development. The goal is to make the real-data retrieval benchmark more reliable, inspectable, and scalable before any stronger biological claim is made.
 
 ## Current Project State
 
@@ -23,7 +23,7 @@ The repository already has:
 
 The strongest current claim is that the repository can run parser, baseline, split, leakage, and reproducibility checks on tiny fixtures and local real-data files when available.
 
-The project does not yet claim biological retrieval.
+The current scope is reproducibility, baseline, leakage, and readiness validation. Biological retrieval requires future leakage-aware model comparisons.
 
 ## Engineering Mission
 
@@ -198,7 +198,7 @@ Acceptance criteria:
 - no local data paths, row-level metadata, or image names are published
 - CI verifies the static site still links to the protocol and provenance docs
 
-## Collaboration Boundary
+## Project Roles
 
 Scientific lead:
 
@@ -240,4 +240,3 @@ Recommended first model target:
 ```text
 JUMP morphology/profile embedding space first, then RxRx image/site embeddings when real local RxRx embeddings are available.
 ```
-

@@ -3,7 +3,6 @@ from __future__ import annotations
 from html.parser import HTMLParser
 from pathlib import Path
 
-
 SITE_ROOT = Path("site")
 FORBIDDEN_PUBLIC_STRINGS = [
     "jump_pilot_real_baseline",
@@ -56,10 +55,10 @@ def test_static_site_index_is_parseable_and_has_core_copy() -> None:
     assert parser.has_title
     assert parser.has_description
     assert "Identifier-stripped TF-IDF" in html
-    assert "This is not yet biological image understanding" in html
+    assert "not biological image understanding" in html
     assert "https://github.com/siamakenna/perturb-LM" in parser.links
     assert (
-        "https://github.com/siamakenna/perturb-LM/blob/main/docs/PHASE3_ENGINEERING_HANDOFF.md"
+        "https://github.com/siamakenna/perturb-LM/blob/main/docs/PHASE3_ENGINEERING_PLAN.md"
         in parser.links
     )
 

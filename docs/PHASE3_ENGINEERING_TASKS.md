@@ -22,7 +22,7 @@ This is the recommended task board for the engineering collaborator.
 | Composite thumbnail workflow | ignored local thumbnails | tiny fixture test covers rendering behavior |
 | Report comparison utility | Markdown or JSON diff | two runs can be compared for metrics, leakage, and missing-data changes |
 
-## Do Not Start Yet
+## Out Of Scope For This Stage
 
 - large-scale model training
 - full raw image archive download
@@ -51,7 +51,7 @@ Scope:
 - add deterministic save/load tests for current index code
 - extend index metadata with input file size, row count, embedding dimension, and command args
 - add a compact JSON run manifest for index builds
-- update `docs/ARTIFACT_MAP.md` and `docs/PHASE3_ENGINEERING_HANDOFF.md`
+- update `docs/ARTIFACT_MAP.md` and `docs/PHASE3_ENGINEERING_PLAN.md`
 
 Why this first:
 

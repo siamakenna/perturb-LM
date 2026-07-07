@@ -1,14 +1,14 @@
 from pathlib import Path
 
-REQUIRED_HANDOFF_DOCS = [
-    Path("docs/PHASE3_ENGINEERING_HANDOFF.md"),
+REQUIRED_ENGINEERING_DOCS = [
+    Path("docs/PHASE3_ENGINEERING_PLAN.md"),
     Path("docs/KNOWN_GOOD_LOCAL_RUN.md"),
     Path("docs/PHASE3_ENGINEERING_TASKS.md"),
 ]
 
 
-def test_phase3_handoff_docs_exist_and_name_data_safety_rules() -> None:
-    for path in REQUIRED_HANDOFF_DOCS:
+def test_phase3_engineering_docs_exist_and_name_data_safety_rules() -> None:
+    for path in REQUIRED_ENGINEERING_DOCS:
         text = path.read_text()
         assert "raw image" in text.lower() or "raw microscopy images" in text.lower()
         assert "biological retrieval" in text.lower()
@@ -30,7 +30,7 @@ def test_known_good_run_includes_core_verification_commands() -> None:
         assert command in text
 
 
-def test_readme_links_to_phase3_handoff_docs() -> None:
+def test_readme_links_to_phase3_engineering_docs() -> None:
     text = Path("README.md").read_text()
-    for path in REQUIRED_HANDOFF_DOCS:
+    for path in REQUIRED_ENGINEERING_DOCS:
         assert str(path) in text
