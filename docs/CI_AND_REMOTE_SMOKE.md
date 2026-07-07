@@ -54,6 +54,8 @@ Neither path proves biological retrieval. Biological claims still require real-d
 
 The Pages workflow publishes only static HTML/CSS from `site/`. It does not include raw data, local outputs, embeddings, indexes, reports, model weights, or images from ignored directories.
 
+CI includes static-site tests that check for the required Pages files and guard against accidental publication of local artifact names, generated output paths, model files, NumPy arrays, pickle indexes, or raw profile identifiers.
+
 After the workflow runs successfully, the expected public URL is:
 
 ```text

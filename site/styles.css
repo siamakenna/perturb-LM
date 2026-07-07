@@ -34,6 +34,25 @@ body {
   color: var(--ink);
 }
 
+.skip-link {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 100;
+  transform: translateY(-180%);
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  background: var(--slate);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
 a {
   color: inherit;
 }
@@ -308,6 +327,51 @@ tbody tr:last-child td {
   gap: 16px;
 }
 
+.next-gate {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: clamp(28px, 5vw, 72px);
+  padding: clamp(78px, 12vw, 132px) 0;
+  border-top: 1px solid var(--line);
+}
+
+.gate-panel {
+  padding: 28px;
+  border: 1px solid rgba(15, 118, 110, 0.24);
+  border-radius: var(--radius);
+  background:
+    linear-gradient(135deg, rgba(204, 251, 241, 0.56), rgba(254, 243, 199, 0.5)),
+    var(--paper);
+}
+
+.gate-panel ul {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gate-panel li {
+  position: relative;
+  padding-left: 28px;
+  color: var(--slate);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.gate-panel li::before {
+  content: "";
+  position: absolute;
+  top: 0.7em;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 0 5px rgba(15, 118, 110, 0.12);
+}
+
 .reproduce {
   display: grid;
   grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
@@ -392,6 +456,26 @@ code {
   text-decoration: none;
 }
 
+.not-found {
+  min-height: 100vh;
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  padding: 56px 0;
+}
+
+.not-found h1 {
+  margin: 18px 0 0;
+}
+
+.not-found p {
+  max-width: 680px;
+}
+
+.not-found .button {
+  width: fit-content;
+}
+
 @media (max-width: 920px) {
   .site-header {
     position: static;
@@ -407,6 +491,7 @@ code {
   .hero,
   .split-section,
   .guardrails,
+  .next-gate,
   .reproduce {
     grid-template-columns: 1fr;
   }

@@ -7,10 +7,20 @@
       name="description"
       content="Perturb LM project dashboard: reproducible text-to-microscopy retrieval baselines, leakage checks, and Phase 3 readiness."
     />
+    <meta name="theme-color" content="#0f766e" />
+    <meta property="og:title" content="Perturb LM" />
+    <meta
+      property="og:description"
+      content="A reproducible benchmark ladder for text-to-microscopy perturbation retrieval, with leakage-aware controls before biological claims."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://siamakenna.github.io/perturb-LM/" />
+    <meta name="twitter:card" content="summary" />
     <title>Perturb LM | Reproducible Microscopy Retrieval</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <header class="site-header">
       <a class="brand" href="#top" aria-label="Perturb LM home">
         <span class="brand-mark" aria-hidden="true"></span>
@@ -24,7 +34,7 @@
       </nav>
     </header>
 
-    <main id="top">
+    <main id="main">
       <section class="hero section-shell">
         <div class="hero-copy">
           <p class="status-line">Parser, retrieval, and leakage validation before biological claims.</p>
@@ -190,6 +200,21 @@
             <h3>Not claimed</h3>
             <p>This is not yet biological image understanding or final natural-language retrieval.</p>
           </article>
+        </div>
+      </section>
+
+      <section id="phase3" class="section-shell next-gate">
+        <div>
+          <p class="section-label">Phase 3 Gate</p>
+          <h2>What must be true before stronger model claims.</h2>
+        </div>
+        <div class="gate-panel">
+          <ul>
+            <li>Run the same benchmark on broader batches or datasets.</li>
+            <li>Beat identifier-stripped metadata controls, not only random baselines.</li>
+            <li>Report held-out plate, batch, well, and perturbation behavior.</li>
+            <li>Keep raw data, generated reports, embeddings, and indexes outside git.</li>
+          </ul>
         </div>
       </section>
 
