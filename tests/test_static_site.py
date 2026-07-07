@@ -58,6 +58,10 @@ def test_static_site_index_is_parseable_and_has_core_copy() -> None:
     assert "Identifier-stripped TF-IDF" in html
     assert "This is not yet biological image understanding" in html
     assert "https://github.com/siamakenna/perturb-LM" in parser.links
+    assert (
+        "https://github.com/siamakenna/perturb-LM/blob/main/docs/PHASE3_ENGINEERING_HANDOFF.md"
+        in parser.links
+    )
 
 
 def test_static_site_does_not_publish_local_artifacts() -> None:

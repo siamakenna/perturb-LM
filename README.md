@@ -46,6 +46,7 @@ For GitHub Actions and remote smoke tests, see `docs/CI_AND_REMOTE_SMOKE.md`.
 For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERIA.md`.
 For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
 For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/EVALUATION_PROTOCOL.md`, `docs/DATA_PROVENANCE.md`, `docs/ARTIFACT_MAP.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, `docs/METHODS_DRAFT.md`, and `docs/PHASE3_PROPOSAL_TEMPLATE.md`.
+For collaborator handoff before Phase 3, see `docs/PHASE3_ENGINEERING_HANDOFF.md`, `docs/KNOWN_GOOD_LOCAL_RUN.md`, and `docs/PHASE3_ENGINEERING_TASKS.md`.
 
 ## Phase 2 JUMP Pilot Commands
 
