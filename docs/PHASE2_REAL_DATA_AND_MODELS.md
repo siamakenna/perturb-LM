@@ -2,22 +2,49 @@
 
 Phase 2 turns the Phase 1 parser/retrieval scaffold into a real-image benchmark path. The goal is still careful retrieval validation, not a claim that the system has solved biological search.
 
+This PR covers Adam's Phase 2 JUMP profile-infrastructure and diagnostics slice. It does not try to finish the full VLM, raw-image, or text-query/RAG project.
+
 ## Scope
 
-Use real local metadata, optional local embeddings/profiles, and selected local microscopy channel images. Do not download full raw image archives by default. Full archive downloads remain opt-in only.
+Use real local metadata and local embeddings/profiles first, then selected local microscopy channel images later. Do not download full raw image archives by default. Full archive downloads remain opt-in only.
 
 The immediate benchmark ladder is:
 
-1. Metadata lexical retrieval from Phase 1.
-2. Image/profile nearest-neighbor retrieval using local morphology embeddings or profiles.
-3. Zero-shot VLM baselines on rendered RGB microscopy composites.
-4. Lightweight alignment from biomedical text embeddings to microscopy/profile embeddings.
+1. JUMP CPJUMP1 profile inventory and profile-based retrieval.
+2. Metadata lexical retrieval from Phase 1 where matching local metadata exists.
+3. Image/profile nearest-neighbor retrieval using local morphology embeddings or profiles.
+4. Zero-shot VLM baselines on rendered RGB microscopy composites.
+5. Lightweight alignment from biomedical text embeddings to microscopy/profile embeddings.
 
 Formal scoring remains perturbation-level after image/site aggregation.
 
 ## Local Asset Flow
 
-Place real assets under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
+The active real Cell Painting profile track is JUMP CPJUMP1 under `data/raw/jump_pilot/`.
+
+```bash
+python scripts/run_phase2_jump_smoke.py
+python scripts/audit_jump_pilot.py
+python scripts/build_jump_profile_index.py
+python scripts/run_jump_profile_diagnostics.py
+python scripts/run_jump_profile_diagnostics.py --filtered-presets
+```
+
+The smoke command writes tiny synthetic JUMP-like files and outputs under `outputs/phase2_jump_smoke/`. It is software validation only, not a biological result. The audit writes `outputs/jump_pilot_inventory.json` and reports expected metadata files, profile files, row and column counts, Metadata columns, numeric feature columns, likely batch/plate/well columns, likely perturbation columns, and warnings. The profile index writes `outputs/jump_pilot_index/index_metadata.json`. Generated smoke, inventory, index, and diagnostic outputs are local only and should not be committed.
+
+For concise real-data inventory output, use:
+
+```bash
+python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
+```
+
+One-plate CPJUMP1 results validate the software path but are not enough for biological claims. Same-plate diagnostics become meaningful only after multiple plates are downloaded. When only some queries have same-treatment replicates, prefer `value_evaluable_queries` for replicate-sensitive interpretation and keep `value_all_queries` as the conservative all-query metric.
+
+Unfiltered same-treatment retrieval can be inflated by plate, well-position, or batch structure. Filtered diagnostics remove neighbors that share obvious leakage labels with the query before scoring same-treatment hits. Interpret same-treatment retrieval most carefully after excluding both same-plate and same-well neighbors. These are still local profile diagnostics, not final biological claims.
+
+The next recommended real-data step is a 5-plate CPJUMP1 profile run before scaling to all profile data.
+
+For RxRx local assets, place real files under `data/raw/` as described in `docs/REAL_RXRX_SETUP.md`.
 
 Then run:
 
@@ -66,10 +93,13 @@ Do not commit these generated artifacts.
 
 Image/profile baseline:
 
-- Load local embeddings or profile features.
-- Align rows to `site_id` or another declared ID column.
-- Build the sklearn cosine index with `scripts/build_index.py`.
-- Evaluate nearest-neighbor behavior with batch and perturbation diagnostics.
+- Load local CPJUMP1 profile features before raw images.
+- Detect Metadata columns separately from numeric Cell Painting feature columns.
+- Track profile IDs plus likely batch, plate, well, and perturbation/treatment columns.
+- Build the sklearn cosine index with `scripts/build_jump_profile_index.py`.
+- Evaluate nearest-neighbor behavior with same-batch, same-plate, same-well, and same-perturbation/treatment diagnostics.
+- Compare unfiltered diagnostics with `--filtered-presets` to test whether same-treatment retrieval survives same-plate and same-well exclusions.
+- Treat one-plate same-plate scores as software validation only.
 
 Zero-shot VLM baseline:
 
@@ -89,7 +119,8 @@ Lightweight alignment:
 
 - Random retrieval.
 - Shuffled-label retrieval.
-- Same-batch and same-plate diagnostics.
+- Same-batch, same-plate, same-well, and same-perturbation diagnostics.
+- Filtered same-treatment diagnostics that exclude same-plate and same-well neighbors.
 - Leakage diagnostics for query positives across batches, plates, and splits.
 - Held-out perturbation evaluation when labels allow.
 
