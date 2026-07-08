@@ -18,7 +18,7 @@ CI uploads compact summaries as GitHub Actions artifacts. It does not commit out
 | Script | Inputs | Outputs | Commit? |
 | --- | --- | --- | --- |
 | `scripts/audit_jump_pilot.py` | `data/raw/jump_pilot/` | `inventory.json` | no |
-| `scripts/build_jump_profile_index.py` | local profile tables | index files, `index_metadata.json` | no |
+| `scripts/build_jump_profile_index.py` | local profile tables | index files, `index_metadata.json`, `artifact_manifest.json`, `runtime_log.json` | no |
 | `scripts/run_jump_profile_diagnostics.py` | local profile tables | diagnostics CSV/JSON | no |
 | `scripts/run_jump_text_profile_retrieval.py` | local profile tables | text-profile CSV/JSON | no |
 | `scripts/make_phase2_jump_report.py` | generated summaries | Markdown report | no |
@@ -70,3 +70,15 @@ The public site is deployed by `.github/workflows/pages.yml`.
 - parquet outputs
 - NumPy arrays
 - local result directories
+
+## Artifact Manifest Policy
+
+JUMP profile index builds now write `artifact_manifest.json` and `runtime_log.json`
+inside the index output directory. The manifest records paths, file sizes, row
+counts, feature counts, index type, distance metric, command metadata, and
+best-effort git metadata. It does not copy raw profile rows, embeddings, image
+data, or row-level result tables into the manifest.
+
+Generated manifests and runtime logs describe local artifacts, so they stay in
+ignored output directories unless a tiny synthetic fixture explicitly requires
+otherwise.

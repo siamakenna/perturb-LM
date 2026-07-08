@@ -53,6 +53,18 @@ Scope:
 - add a compact JSON run manifest for index builds
 - update `docs/ARTIFACT_MAP.md` and `docs/PHASE3_ENGINEERING_PLAN.md`
 
+Implementation note:
+
+- JUMP profile index builds write `artifact_manifest.json` and `runtime_log.json`
+  beside the existing index artifacts.
+- The artifact manifest records paths, sizes, counts, command metadata, and
+  best-effort git metadata only; it does not include raw profile rows or
+  embeddings.
+- Deterministic save/load tests use tiny synthetic profile rows to verify
+  nearest-neighbor IDs, distances, feature-column order, and row metadata order.
+- Held-out split and leakage summary exports remain part of the second suggested
+  pull request.
+
 Why this first:
 
 The benchmark will need trustworthy artifacts before stronger models are useful.

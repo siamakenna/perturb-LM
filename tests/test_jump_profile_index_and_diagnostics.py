@@ -84,7 +84,11 @@ def test_build_jump_profile_index_writes_metadata_and_reuses_index_artifacts(tmp
     assert embeddings.shape == (5, 2)
     assert list(id_mapping.columns) == ["profile_id", "row_index"]
     assert (out_dir / "profile_metadata.csv").exists()
+    assert (out_dir / "artifact_manifest.json").exists()
+    assert (out_dir / "runtime_log.json").exists()
     assert saved_metadata["index_type"] == "sklearn-nearest-neighbors"
+    assert saved_metadata["artifact_manifest_path"] == str(out_dir / "artifact_manifest.json")
+    assert saved_metadata["runtime_log_path"] == str(out_dir / "runtime_log.json")
 
 
 def test_jump_profile_index_infers_batch_from_profile_path(tmp_path) -> None:

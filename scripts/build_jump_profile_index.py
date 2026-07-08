@@ -59,8 +59,12 @@ def main() -> None:
         profile_files=args.profile_file,
         expected_profile_kind=args.expected_profile_kind,
         max_rows=args.max_rows,
+        script_name=Path(__file__).name,
+        command=sys.argv,
     )
     print(f"Wrote JUMP profile index metadata to {args.out / 'index_metadata.json'}")
+    print(f"Wrote artifact manifest to {args.out / 'artifact_manifest.json'}")
+    print(f"Wrote runtime log to {args.out / 'runtime_log.json'}")
     print(
         "Indexed "
         f"{metadata['number_of_rows']} rows with "

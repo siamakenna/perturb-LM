@@ -20,13 +20,31 @@ By default this reads profile-like CSV/TSV files under `data/raw/jump_pilot/` an
 
 ```text
 outputs/jump_pilot_index/index_metadata.json
+outputs/jump_pilot_index/artifact_manifest.json
+outputs/jump_pilot_index/runtime_log.json
 outputs/jump_pilot_index/embeddings.npy
 outputs/jump_pilot_index/id_mapping.csv
 outputs/jump_pilot_index/profile_metadata.csv
 outputs/jump_pilot_index/sklearn_nearest_neighbors.pkl
 ```
 
+`artifact_manifest.json` records the input profile paths, file sizes, generated
+output paths, row count, numeric feature count, embedding dimension, index type,
+distance metric, command metadata, warnings, and best-effort git metadata. It is
+metadata only: it does not copy raw profile rows, embeddings, image data, or
+row-level result tables.
+
+`runtime_log.json` records start/end time, elapsed seconds, Python/platform
+details, and best-effort memory measurements. On platforms where process memory
+is unavailable, the field is left null and a warning is recorded instead of
+crashing the build.
+
 Generated outputs are local-only artifacts and should not be committed.
+
+The deterministic save/load tests build a tiny synthetic JUMP profile index,
+load the saved sklearn index and metadata back, and verify nearest-neighbor
+identities, distances, feature-column order, and row metadata order. This is an
+engineering reproducibility check only.
 
 Run leakage-aware profile diagnostics with:
 

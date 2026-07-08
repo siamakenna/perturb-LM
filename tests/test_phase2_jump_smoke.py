@@ -19,6 +19,8 @@ def test_phase2_jump_smoke_runs_full_synthetic_pipeline(tmp_path) -> None:
     assert "same_perturbation_treatment_at_1" in summary["diagnostics"]
     assert (out_dir / "jump_pilot_inventory.json").exists()
     assert (out_dir / "jump_pilot_index" / "index_metadata.json").exists()
+    assert (out_dir / "jump_pilot_index" / "artifact_manifest.json").exists()
+    assert (out_dir / "jump_pilot_index" / "runtime_log.json").exists()
     assert (out_dir / "phase2_jump_report.md").exists()
     assert (
         out_dir
