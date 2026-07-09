@@ -56,6 +56,20 @@ python scripts/run_jump_profile_diagnostics.py --exclude-same-plate --exclude-sa
 
 The diagnostics report same-batch@K, same-plate@K, same-well@K, and same-perturbation/treatment@K when the corresponding columns exist. Random and shuffled-label controls are included as guardrails.
 
+In addition to the detailed diagnostics files, each diagnostics run writes
+aggregate public-safe leakage summaries:
+
+```text
+outputs/jump_pilot_diagnostics/leakage_summary.csv
+outputs/jump_pilot_diagnostics/leakage_summary.json
+outputs/jump_pilot_diagnostics/dashboard_leakage_summary.json
+```
+
+These files contain aggregate counts, rates, `n_queries`,
+`n_evaluable_queries`, skipped diagnostics, and warnings only. They do not
+include row-level metadata, local file paths, image names, embeddings, or raw
+local identifiers.
+
 The summary CSV includes both `value_all_queries` and `value_evaluable_queries`. Use `value_evaluable_queries` when only some queries have same-treatment or same-well positives, and read `n_evaluable_queries` before interpreting any diagnostic. Same-plate diagnostics are not informative in a one-plate run because every nearest neighbor is necessarily from the same plate.
 
 Unfiltered same-treatment retrieval can be inflated by plate, well-position, or batch structure. Filtered diagnostics are stronger evidence than unfiltered diagnostics because they remove neighbors that share obvious leakage labels with the query before scoring same-treatment hits. The preset run keeps the unfiltered rows and adds `exclude_same_plate`, `exclude_same_well`, and `exclude_same_plate_and_well`; `exclude_same_batch` is included when multiple batch labels are available.

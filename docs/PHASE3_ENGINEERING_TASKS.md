@@ -84,6 +84,19 @@ Scope:
 - export small dashboard-safe leakage summaries
 - add tests using synthetic fixtures only
 
+Implementation note:
+
+- Split preset builds write `split_summary.json` and `split_summary.csv` next to
+  the generated split manifest.
+- JUMP profile diagnostics write `leakage_summary.json`, `leakage_summary.csv`,
+  and `dashboard_leakage_summary.json` under the diagnostics output directory.
+- RxRx query-positive leakage diagnostics also write
+  `dashboard_leakage_summary.json`.
+- These summaries are aggregate and public-safe: they report counts, rates,
+  skipped diagnostics, and warnings, not row-level metadata, local paths, image
+  names, embeddings, or raw local identifiers.
+- One-batch and missing-label limitations are explicit warnings, not crashes.
+
 Why this second:
 
 It turns baseline scores into interpretable evidence instead of raw performance numbers.
