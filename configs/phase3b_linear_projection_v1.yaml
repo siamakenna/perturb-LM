@@ -1,0 +1,87 @@
+{
+  "dataset_track": "jump_cpjump1_profiles",
+  "profile_data_root": "data/raw/jump_pilot",
+  "output_root": "outputs/phase3b_linear_projection_v1",
+  "primary_split": "held_out_plate",
+  "secondary_splits": [
+    "held_out_treatment",
+    "exclude_same_plate",
+    "exclude_same_well",
+    "exclude_same_plate_and_well"
+  ],
+  "unavailable_splits": {
+    "held_out_batch": {
+      "available": false,
+      "reason": "The current local JUMP subset contains one inferred batch; record this limitation rather than fabricating a batch split."
+    }
+  },
+  "seeds": [0, 1, 2, 3, 4],
+  "top_k": [1, 5, 10],
+  "preprocessing": {
+    "feature_policy": "cell_painting_numeric_only",
+    "imputation": "median",
+    "scaling": "standard",
+    "fit_scope": "train_only",
+    "near_zero_variance_threshold": 1e-12,
+    "save_fitted_objects_under": "outputs/phase3b_linear_projection_v1/preprocessing"
+  },
+  "minimum_evaluable_queries": 1,
+  "aggregation": "perturbation_level",
+  "query_text": {
+    "allowed_fields": [
+      "Metadata_gene",
+      "Metadata_pert_type",
+      "Metadata_control_type",
+      "Metadata_target_sequence",
+      "Metadata_negcon_control_type"
+    ],
+    "prohibited_identifier_fields": [
+      "Metadata_broad_sample",
+      "Metadata_pert_iname",
+      "Metadata_InChIKey",
+      "Metadata_smiles",
+      "Metadata_Plate",
+      "Metadata_Well",
+      "Metadata_Batch",
+      "profile_id",
+      "source_profile_file",
+      "source_profile_row"
+    ]
+  },
+  "metrics": [
+    "mean_average_precision",
+    "hit_at_1",
+    "hit_at_5",
+    "hit_at_10",
+    "recall_at_1",
+    "recall_at_5",
+    "recall_at_10",
+    "enrichment_over_random",
+    "n_total_queries",
+    "n_evaluable_queries",
+    "same_plate_rate",
+    "same_well_rate",
+    "same_batch_rate",
+    "same_treatment_rate"
+  ],
+  "controls": [
+    "random",
+    "shuffled_label",
+    "metadata_tfidf",
+    "identifier_stripped_tfidf",
+    "frozen_text_embeddings",
+    "linear_projection"
+  ],
+  "leakage_filters": [
+    "exclude_same_plate",
+    "exclude_same_well",
+    "exclude_same_plate_and_well"
+  ],
+  "artifact_policy": {
+    "commit_generated_outputs": false,
+    "commit_embeddings": false,
+    "commit_model_weights": false,
+    "commit_indexes": false,
+    "commit_row_level_data": false
+  }
+}
