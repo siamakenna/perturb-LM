@@ -806,37 +806,27 @@ def _diagnostic_filter_specs(
 
 def _apply_neighbor_filter(
     indexed_profiles: pd.DataFrame,
-    query_neighbors: list[list[dict[str, float | int]]],
+    query_neighbors: list[np.ndarray],
     *,
     excluded_columns: list[str],
-) -> list[list[dict[str, float | int]]]:
+) -> list[np.ndarray]:
     if not excluded_columns:
         return query_neighbors
     column_values = {
         column: indexed_profiles[column].map(_clean_label).to_numpy(dtype=str)
         for column in excluded_columns
     }
-    filtered: list[list[dict[str, float | int]]] = []
+    filtered: list[np.ndarray] = []
     for query_index, neighbors in enumerate(query_neighbors):
-        if not neighbors:
-            filtered.append([])
+        if len(neighbors) == 0:
+            filtered.append(neighbors)
             continue
-        candidate_indices = np.array(
-            [int(neighbor["candidate_index"]) for neighbor in neighbors],
-            dtype=int,
-        )
-        keep_mask = np.ones(len(candidate_indices), dtype=bool)
+        keep_mask = np.ones(len(neighbors), dtype=bool)
         for values in column_values.values():
             query_value = values[query_index]
             if query_value:
-                keep_mask &= values[candidate_indices] != query_value
-        filtered.append(
-            [
-                neighbor
-                for neighbor, keep in zip(neighbors, keep_mask, strict=False)
-                if bool(keep)
-            ]
-        )
+                keep_mask &= values[neighbors] != query_value
+        filtered.append(neighbors[keep_mask])
     return filtered
 
 
@@ -844,23 +834,12 @@ def _drop_self_neighbors(
     neighbor_indices: np.ndarray,
     distances: np.ndarray,
     top_k: int,
-) -> list[list[dict[str, float | int]]]:
-    rows: list[list[dict[str, float | int]]] = []
+) -> list[np.ndarray]:
+    _ = distances
+    rows: list[np.ndarray] = []
     for query_index, neighbors in enumerate(neighbor_indices):
-        query_rows: list[dict[str, float | int]] = []
-        for distance, candidate_index in zip(distances[query_index], neighbors, strict=False):
-            if int(candidate_index) == query_index:
-                continue
-            query_rows.append(
-                {
-                    "candidate_index": int(candidate_index),
-                    "distance": float(distance),
-                    "score": 1.0 - float(distance),
-                }
-            )
-            if len(query_rows) == top_k:
-                break
-        rows.append(query_rows)
+        candidate_indices = neighbors[neighbors != query_index][:top_k].astype(int, copy=False)
+        rows.append(candidate_indices)
     return rows
 
 
@@ -868,7 +847,7 @@ def _same_label_diagnostic_rows(
     profile_ids: list[str],
     labels: np.ndarray,
     shuffled_labels: np.ndarray,
-    query_neighbors: list[list[dict[str, float | int]]],
+    query_neighbors: list[np.ndarray],
     *,
     label_name: str,
     label_column: str,
@@ -889,11 +868,8 @@ def _same_label_diagnostic_rows(
         if _is_missing_label(shuffled_label):
             shuffled_positives[:] = False
 
-        neighbors = query_neighbors[query_index]
-        candidate_indices = [int(candidate["candidate_index"]) for candidate in neighbors]
-        positive_candidates = (
-            positives[np.array(candidate_indices)].sum() if candidate_indices else 0
-        )
+        candidate_indices = query_neighbors[query_index]
+        positive_candidates = positives[candidate_indices].sum() if len(candidate_indices) else 0
         row: dict[str, Any] = {
             "profile_id": profile_id,
             "diagnostic": label_name,
@@ -905,10 +881,9 @@ def _same_label_diagnostic_rows(
             "n_positive_candidates": int(positive_candidates),
         }
         for k in top_k:
-            top = neighbors[:k]
-            top_indices = [int(candidate["candidate_index"]) for candidate in top]
+            top_indices = candidate_indices[:k]
             row[f"same_{label_name}_at_{k}"] = bool(
-                top_indices and positives[np.array(top_indices)].any()
+                len(top_indices) and positives[top_indices].any()
             )
             row[f"random_same_{label_name}_at_{k}"] = _random_hit_probability(
                 len(candidate_indices),
@@ -916,7 +891,7 @@ def _same_label_diagnostic_rows(
                 k,
             )
             row[f"shuffled_same_{label_name}_at_{k}"] = bool(
-                top_indices and shuffled_positives[np.array(top_indices)].any()
+                len(top_indices) and shuffled_positives[top_indices].any()
             )
         rows.append(row)
     return rows
