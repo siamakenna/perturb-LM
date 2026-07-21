@@ -153,3 +153,28 @@ def test_neighbor_leakage_summary_exports_evaluable_counts_and_safe_payload(tmp_
     assert "raw_diagnostic" not in dashboard_text
     assert "raw_metric" not in dashboard_text
     assert "Metadata_" not in dashboard_text
+
+
+def test_neighbor_leakage_summary_uses_public_skipped_diagnostic_names() -> None:
+    payload = build_neighbor_leakage_summary(
+        pd.DataFrame(),
+        {
+            "dataset": "jump_pilot",
+            "diagnostic_columns": [
+                {"diagnostic": "batch"},
+                {"diagnostic": "plate"},
+                {"diagnostic": "well"},
+            ],
+        },
+    )
+    dashboard_text = json.dumps(payload, sort_keys=True)
+
+    assert "No treatment label column was available." in dashboard_text
+    assert "perturbation_treatment" not in dashboard_text
+    assert "source_profile_file" not in dashboard_text
+    assert "profile_id" not in dashboard_text
+    assert "raw_diagnostic" not in dashboard_text
+    assert "raw_metric" not in dashboard_text
+    assert "Metadata_" not in dashboard_text
+    assert ".npy" not in dashboard_text
+    assert ".pkl" not in dashboard_text

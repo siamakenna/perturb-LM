@@ -219,13 +219,14 @@ def build_neighbor_leakage_summary(
     for diagnostic in EXPECTED_LEAKAGE_DIAGNOSTICS:
         if diagnostic in produced_diagnostics:
             continue
+        public_diagnostic = _public_diagnostic_name(diagnostic)
         if diagnostic not in available_metadata:
-            reason = f"No {diagnostic} label column was available."
+            reason = f"No {public_diagnostic} label column was available."
         else:
-            reason = f"No same-{_public_diagnostic_name(diagnostic)} rows were produced."
+            reason = f"No same-{public_diagnostic} rows were produced."
         skipped.append(
             {
-                "diagnostic": _public_diagnostic_name(diagnostic),
+                "diagnostic": public_diagnostic,
                 "reason": reason,
             }
         )
