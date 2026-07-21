@@ -10,6 +10,8 @@ import pandas as pd
 from perturb_lm.retrieval.text_profile import (
     build_metadata_text_queries,
     run_text_profile_retrieval,
+    run_text_profile_retrieval_multi_seed,
+    summarize_multiseed_text_profile_retrieval,
 )
 
 
@@ -119,3 +121,89 @@ def test_run_jump_text_profile_retrieval_cli_writes_outputs(tmp_path) -> None:
     metadata = json.loads((out / "jump_text_profile_metadata.json").read_text())
     assert metadata["number_of_queries"] == 2
     assert "identifier_stripped_tfidf" in metadata["modes"]
+
+
+def test_run_text_profile_retrieval_multi_seed_reports_stability_and_enrichment(tmp_path) -> None:
+    data_root = tmp_path / "jump_pilot"
+    write_text_profile_fixture(data_root)
+
+    by_seed, aggregate, metadata = run_text_profile_retrieval_multi_seed(
+        data_root,
+        top_k=[1, 5],
+        seeds=[0, 1, 2, 3, 4],
+        bootstrap_samples=20,
+    )
+
+    aggregate_metrics = set(aggregate["metric"])
+    random_map = aggregate.set_index(["mode", "metric"])
+
+    assert metadata["seeds"] == [0, 1, 2, 3, 4]
+    assert set(by_seed["seed"]) == {0, 1, 2, 3, 4}
+    assert "enrichment_over_random::mean_average_precision" in aggregate_metrics
+    assert "n_evaluable_queries" in aggregate_metrics
+    assert random_map.loc[("random", "n_evaluable_queries"), "mean"] == 2.0
+    assert {
+        "mean",
+        "std",
+        "min",
+        "max",
+        "median",
+        "ci95_low",
+        "ci95_high",
+    }.issubset(aggregate.columns)
+
+
+def test_run_jump_text_profile_retrieval_cli_writes_multiseed_outputs(tmp_path) -> None:
+    data_root = tmp_path / "jump_pilot"
+    write_text_profile_fixture(data_root)
+    out = tmp_path / "text_profile_multiseed"
+
+    subprocess.run(
+        [
+            sys.executable,
+            "scripts/run_jump_text_profile_retrieval.py",
+            "--data-root",
+            str(data_root),
+            "--out",
+            str(out),
+            "--top-k",
+            "1",
+            "5",
+            "--seeds",
+            "0",
+            "1",
+            "2",
+        ],
+        check=True,
+    )
+
+    assert (out / "jump_text_profile_summary_by_seed.csv").exists()
+    assert (out / "jump_text_profile_multiseed_summary.csv").exists()
+    metadata = json.loads((out / "jump_text_profile_multiseed_metadata.json").read_text())
+    assert metadata["seed_count"] == 3
+
+
+def test_multiseed_summary_handles_unavailable_metrics_and_query_count_changes() -> None:
+    by_seed = pd.DataFrame(
+        {
+            "seed": [0, 1, 2, 0, 1, 2],
+            "mode": ["random", "random", "random", "random", "random", "random"],
+            "metric": [
+                "mean_average_precision",
+                "mean_average_precision",
+                "mean_average_precision",
+                "n_evaluable_queries",
+                "n_evaluable_queries",
+                "n_evaluable_queries",
+            ],
+            "value": [0.1, float("nan"), 0.3, 2, 1, 3],
+        }
+    )
+
+    aggregate = summarize_multiseed_text_profile_retrieval(by_seed, bootstrap_samples=10)
+    by_metric = aggregate.set_index("metric")
+
+    assert by_metric.loc["mean_average_precision", "finite_seed_count"] == 2
+    assert by_metric.loc["mean_average_precision", "mean"] == 0.2
+    assert by_metric.loc["n_evaluable_queries", "min"] == 1.0
+    assert by_metric.loc["n_evaluable_queries", "max"] == 3.0

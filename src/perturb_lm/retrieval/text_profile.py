@@ -229,6 +229,62 @@ def run_text_profile_retrieval(
     return per_query, hits, summary, metadata
 
 
+def run_text_profile_retrieval_multi_seed(
+    data_root: Path | str = Path("data/raw/jump_pilot"),
+    *,
+    queries: pd.DataFrame | None = None,
+    label_column: str | None = None,
+    profile_files: list[Path | str] | None = None,
+    max_rows: int | None = None,
+    query_limit: int | None = None,
+    top_k: list[int] | None = None,
+    seeds: list[int] | None = None,
+    bootstrap_samples: int = 1000,
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, Any]]:
+    """Run metadata controls across deterministic seeds and summarize stability."""
+
+    seeds = seeds or [0, 1, 2, 3, 4]
+    if len(seeds) < 3:
+        raise ValueError("At least three seeds are required for multi-seed baselines.")
+    if len(set(seeds)) != len(seeds) or any(seed < 0 for seed in seeds):
+        raise ValueError("Seeds must be unique non-negative integers.")
+
+    all_summary_rows: list[pd.DataFrame] = []
+    metadata: dict[str, Any] | None = None
+    for seed in seeds:
+        _, _, summary, run_metadata = run_text_profile_retrieval(
+            data_root,
+            queries=queries,
+            label_column=label_column,
+            profile_files=profile_files,
+            max_rows=max_rows,
+            query_limit=query_limit,
+            top_k=top_k,
+            seed=seed,
+        )
+        seed_summary = summary.copy()
+        seed_summary["seed"] = seed
+        all_summary_rows.append(_with_enrichment_over_random(seed_summary))
+        metadata = run_metadata
+
+    by_seed = pd.concat(all_summary_rows, ignore_index=True)
+    aggregate = summarize_multiseed_text_profile_retrieval(
+        by_seed,
+        bootstrap_samples=bootstrap_samples,
+    )
+    result_metadata = {
+        **(metadata or {}),
+        "seeds": seeds,
+        "seed_count": len(seeds),
+        "bootstrap_samples": bootstrap_samples,
+        "warnings": [
+            *((metadata or {}).get("warnings", [])),
+            "Multi-seed summaries measure baseline stability, not model training success.",
+        ],
+    }
+    return by_seed, aggregate, result_metadata
+
+
 def summarize_text_profile_retrieval(per_query: pd.DataFrame, *, top_k: list[int]) -> pd.DataFrame:
     """Summarize text-to-profile retrieval rows by mode."""
 
@@ -291,6 +347,90 @@ def summarize_text_profile_retrieval(per_query: pd.DataFrame, *, top_k: list[int
                 ]
             )
     return pd.DataFrame(rows)
+
+
+def summarize_multiseed_text_profile_retrieval(
+    by_seed_summary: pd.DataFrame,
+    *,
+    bootstrap_samples: int = 1000,
+    ci: float = 0.95,
+) -> pd.DataFrame:
+    """Aggregate per-seed baseline metrics with simple bootstrap confidence intervals."""
+
+    required = {"seed", "mode", "metric", "value"}
+    missing = sorted(required.difference(by_seed_summary.columns))
+    if missing:
+        raise ValueError(f"Multi-seed summary is missing required columns: {missing}")
+    rows: list[dict[str, object]] = []
+    rng = np.random.default_rng(0)
+    alpha = (1 - ci) / 2
+    for (mode, metric), group in by_seed_summary.groupby(["mode", "metric"], sort=False):
+        values = group["value"].to_numpy(dtype=float)
+        finite = values[np.isfinite(values)]
+        if len(finite):
+            boot_means = np.array(
+                [
+                    float(np.mean(rng.choice(finite, size=len(finite), replace=True)))
+                    for _ in range(max(bootstrap_samples, 1))
+                ]
+            )
+            ci_low, ci_high = np.quantile(boot_means, [alpha, 1 - alpha])
+            row = {
+                "mode": mode,
+                "metric": metric,
+                "seed_count": int(len(group)),
+                "finite_seed_count": int(len(finite)),
+                "mean": float(np.mean(finite)),
+                "std": float(np.std(finite, ddof=1)) if len(finite) > 1 else 0.0,
+                "min": float(np.min(finite)),
+                "max": float(np.max(finite)),
+                "median": float(np.median(finite)),
+                "ci95_low": float(ci_low),
+                "ci95_high": float(ci_high),
+            }
+        else:
+            row = {
+                "mode": mode,
+                "metric": metric,
+                "seed_count": int(len(group)),
+                "finite_seed_count": 0,
+                "mean": np.nan,
+                "std": np.nan,
+                "min": np.nan,
+                "max": np.nan,
+                "median": np.nan,
+                "ci95_low": np.nan,
+                "ci95_high": np.nan,
+            }
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _with_enrichment_over_random(summary: pd.DataFrame) -> pd.DataFrame:
+    rows = [summary]
+    random_map = (
+        summary[summary["mode"] == "random"].set_index("metric")["value"].astype(float).to_dict()
+    )
+    enrichment_rows: list[dict[str, object]] = []
+    for _, row in summary.iterrows():
+        metric = str(row["metric"])
+        if metric not in random_map:
+            continue
+        random_value = float(random_map[metric])
+        mode_value = float(row["value"])
+        if metric.startswith("n_") or not np.isfinite(random_value) or random_value <= 0:
+            continue
+        enrichment_rows.append(
+            {
+                "mode": row["mode"],
+                "metric": f"enrichment_over_random::{metric}",
+                "value": mode_value / random_value if np.isfinite(mode_value) else np.nan,
+                "seed": row.get("seed"),
+            }
+        )
+    if enrichment_rows:
+        rows.append(pd.DataFrame(enrichment_rows))
+    return pd.concat(rows, ignore_index=True)
 
 
 def _score_queries(
