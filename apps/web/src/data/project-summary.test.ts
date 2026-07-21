@@ -13,6 +13,20 @@ describe("project summary", () => {
 
   it("does not present a completed learned model result", () => {
     expect(summary.learnedModelStatus).toBe("pending");
+    expect(summary.heldOutBatchStatus).toBe("unavailable");
+    expect(summary.syntheticDisclaimer).toBe("Illustrative interface demo — not real model output");
     expect(summary.currentClaimStatus.toLowerCase()).not.toContain("learned model outperforms");
+  });
+
+  it("gates pending learned methods from numeric dashboard scores", () => {
+    const pendingRows = summary.methodComparison.filter((row) => !row.hasResult);
+
+    expect(pendingRows.length).toBeGreaterThan(0);
+    for (const row of pendingRows) {
+      expect(row.map).toBeNull();
+      expect(row.ciLow).toBeNull();
+      expect(row.ciHigh).toBeNull();
+      expect(row.note.toLowerCase()).toMatch(/pending|planned|unavailable/);
+    }
   });
 });
