@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
-from perturb_lm.data.jump import build_jump_profile_index, run_jump_profile_diagnostics
+from perturb_lm.data.jump import (
+    _apply_neighbor_filter,
+    _drop_self_neighbors,
+    build_jump_profile_index,
+    run_jump_profile_diagnostics,
+)
 from perturb_lm.retrieval.index import load_index_matrix
 
 
@@ -211,3 +217,26 @@ def test_jump_profile_filtered_diagnostics_warn_when_no_candidates_remain(tmp_pa
     assert "No queries have candidate neighbors after filter exclude_same_plate" in treatment[
         "warning"
     ]
+
+
+def test_jump_profile_diagnostics_use_compact_neighbor_arrays() -> None:
+    neighbor_indices = np.array(
+        [
+            [0, 1, 2],
+            [1, 0, 2],
+            [2, 1, 0],
+        ]
+    )
+    distances = np.zeros_like(neighbor_indices, dtype=float)
+    neighbors = _drop_self_neighbors(neighbor_indices, distances, top_k=2)
+    frame = pd.DataFrame({"Metadata_Plate": ["p1", "p1", "p2"]})
+
+    filtered = _apply_neighbor_filter(
+        frame,
+        neighbors,
+        excluded_columns=["Metadata_Plate"],
+    )
+
+    assert neighbors[0].tolist() == [1, 2]
+    assert all(hasattr(row, "dtype") for row in neighbors)
+    assert filtered[0].tolist() == [2]
