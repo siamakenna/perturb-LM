@@ -150,3 +150,6 @@ def test_neighbor_leakage_summary_exports_evaluable_counts_and_safe_payload(tmp_
     assert "source_profile_file" not in dashboard_text
     assert str(tmp_path) not in dashboard_text
     assert "profile_id" not in dashboard_text
+    assert "raw_diagnostic" not in dashboard_text
+    assert "raw_metric" not in dashboard_text
+    assert "Metadata_" not in dashboard_text

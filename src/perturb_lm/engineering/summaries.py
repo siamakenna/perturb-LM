@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import json
+import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import pandas as pd
 
@@ -171,20 +173,22 @@ def build_neighbor_leakage_summary(
 
     metadata = metadata or {}
     rows: list[dict[str, Any]] = []
-    warnings = [str(warning) for warning in metadata.get("warnings", [])]
+    warnings = [_public_warning(str(warning)) for warning in metadata.get("warnings", [])]
     if not summary.empty and "warning" in summary.columns:
         warnings.extend(
-            str(warning)
+            _public_warning(str(warning))
             for warning in summary["warning"].dropna().astype(str)
             if warning.strip()
         )
 
+    produced_diagnostics: set[str] = set()
     for _, row in summary.iterrows():
         raw_metric = str(row.get("metric", ""))
         diagnostic = str(row.get("diagnostic", ""))
         public_prefix = EXPECTED_LEAKAGE_DIAGNOSTICS.get(diagnostic)
         if not public_prefix or not raw_metric.startswith(f"same_{diagnostic}_at_"):
             continue
+        produced_diagnostics.add(diagnostic)
         k = _safe_int(row.get("k"))
         n_queries = _safe_int(row.get("n_queries"))
         n_evaluable = _safe_int(row.get("n_evaluable_queries"))
@@ -193,9 +197,7 @@ def build_neighbor_leakage_summary(
         rows.append(
             {
                 "diagnostic": _public_diagnostic_name(diagnostic),
-                "raw_diagnostic": diagnostic,
                 "metric": f"{public_prefix}_at_{k}",
-                "raw_metric": raw_metric,
                 "filter_name": str(row.get("filter_name", "")),
                 "k": k,
                 "n_queries": n_queries,
@@ -204,11 +206,10 @@ def build_neighbor_leakage_summary(
                 "rate_all_queries": rate_all,
                 "rate_evaluable_queries": rate_evaluable,
                 "n_queries_with_candidates": _safe_int(row.get("n_queries_with_candidates")),
-                "warning": str(row.get("warning", "") or ""),
+                "warning": _public_warning(str(row.get("warning", "") or "")),
             }
         )
 
-    available_raw = {row["raw_diagnostic"] for row in rows}
     skipped = []
     available_metadata = {
         str(item.get("diagnostic", ""))
@@ -216,7 +217,7 @@ def build_neighbor_leakage_summary(
         if isinstance(item, dict)
     }
     for diagnostic in EXPECTED_LEAKAGE_DIAGNOSTICS:
-        if diagnostic in available_raw:
+        if diagnostic in produced_diagnostics:
             continue
         if diagnostic not in available_metadata:
             reason = f"No {diagnostic} label column was available."
@@ -225,7 +226,6 @@ def build_neighbor_leakage_summary(
         skipped.append(
             {
                 "diagnostic": _public_diagnostic_name(diagnostic),
-                "raw_diagnostic": diagnostic,
                 "reason": reason,
             }
         )
@@ -475,6 +475,44 @@ def _safe_float(value: object) -> float:
 
 def _public_diagnostic_name(diagnostic: str) -> str:
     return "treatment" if diagnostic == "perturbation_treatment" else diagnostic
+
+
+def _public_warning(warning: str) -> str:
+    """Remove internal column names from warnings intended for public summaries."""
+
+    replacements = {
+        **{
+            column: "batch label"
+            for column in BATCH_COLUMN_CANDIDATES
+            if column.startswith("Metadata_")
+        },
+        **{
+            column: "plate label"
+            for column in PLATE_COLUMN_CANDIDATES
+            if column.startswith("Metadata_")
+        },
+        **{
+            column: "well label"
+            for column in WELL_COLUMN_CANDIDATES
+            if column.startswith("Metadata_")
+        },
+        **{
+            column: "treatment label"
+            for column in TREATMENT_COLUMN_CANDIDATES
+            if column.startswith("Metadata_")
+        },
+        "source_profile_file": "source file marker",
+        "profile_id": "profile identifier",
+    }
+    public = str(warning)
+    ordered_replacements = sorted(
+        replacements.items(),
+        key=lambda item: len(item[0]),
+        reverse=True,
+    )
+    for raw, replacement in ordered_replacements:
+        public = public.replace(raw, replacement)
+    return re.sub(r"\bMetadata_[A-Za-z0-9_]+\b", "metadata label", public)
 
 
 def _dedupe(values: Iterable[str]) -> list[str]:
