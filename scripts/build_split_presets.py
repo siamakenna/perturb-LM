@@ -19,6 +19,7 @@ from perturb_lm.splits import (  # noqa: E402
     assign_held_out_plate_split,
     assign_held_out_well_split,
 )
+from perturb_lm.engineering.summaries import build_split_summary, write_split_summary  # noqa: E402
 
 PRESETS = {
     "held_out_well": assign_held_out_well_split,
@@ -69,9 +70,21 @@ def main() -> None:
         kwargs["batch_columns"] = args.batch_column
     split_manifest = PRESETS[args.preset](manifest, **kwargs)
     write_table(split_manifest, args.out)
+    split_summary = build_split_summary(
+        split_manifest,
+        split_name=args.preset,
+        split_type=args.preset,
+        split_column=args.split_column,
+        batch_columns=args.batch_column,
+    )
+    summary_paths = write_split_summary(split_summary, args.out.parent)
     summary = split_manifest[args.split_column].value_counts().to_dict()
     print(f"Wrote {args.preset} manifest to {args.out}")
     print(f"Split counts: {summary}")
+    print(
+        "Wrote split summary to "
+        f"{summary_paths['split_summary_csv']} and {summary_paths['split_summary_json']}"
+    )
 
 
 if __name__ == "__main__":

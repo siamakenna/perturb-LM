@@ -28,6 +28,10 @@ def test_run_phase2_local_report_writes_manifest_and_report(tmp_path) -> None:
     assert "identifier_stripped_tfidf" in manifest["text_profile_modes"]
     assert (out / "phase2_jump_report.md").exists()
     assert (out / "baseline_manifest.json").exists()
+    assert (out / "diagnostics" / "leakage_summary.csv").exists()
+    assert (out / "diagnostics" / "leakage_summary.json").exists()
+    assert (out / "diagnostics" / "dashboard_leakage_summary.json").exists()
+    assert "dashboard_leakage_summary_json" in manifest["paths"]
 
 
 def test_check_phase2_readiness_passes_on_synthetic_report(tmp_path) -> None:
@@ -99,3 +103,5 @@ def test_build_split_presets_cli_writes_held_out_plate_split(tmp_path) -> None:
 
     assert "test" in set(split_manifest["split"])
     assert split_manifest.groupby(["experiment", "plate"])["split"].nunique().max() == 1
+    assert (tmp_path / "split_summary.csv").exists()
+    assert (tmp_path / "split_summary.json").exists()

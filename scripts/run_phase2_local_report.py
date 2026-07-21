@@ -17,6 +17,10 @@ from perturb_lm.data.jump import (  # noqa: E402
     build_jump_profile_index,
     run_jump_profile_diagnostics,
 )
+from perturb_lm.engineering.summaries import (  # noqa: E402
+    build_neighbor_leakage_summary,
+    write_leakage_summary,
+)
 from perturb_lm.reports import make_phase2_jump_report  # noqa: E402
 from perturb_lm.retrieval.text_profile import run_text_profile_retrieval  # noqa: E402
 
@@ -63,6 +67,8 @@ def run_phase2_local_report(
     diagnostics_json_path = diagnostics_dir / "profile_neighbor_diagnostics_summary.json"
     per_query.to_csv(diagnostics_per_query_path, index=False)
     diagnostics_summary.to_csv(diagnostics_summary_path, index=False)
+    leakage_payload = build_neighbor_leakage_summary(diagnostics_summary, diagnostics_metadata)
+    leakage_paths = write_leakage_summary(leakage_payload, diagnostics_dir)
     diagnostics_json_path.write_text(
         json.dumps(
             {
@@ -118,6 +124,9 @@ def run_phase2_local_report(
             "index_metadata": index_metadata_path,
             "diagnostics_summary": diagnostics_summary_path,
             "diagnostics_json": diagnostics_json_path,
+            "leakage_summary_csv": leakage_paths["leakage_summary_csv"],
+            "leakage_summary_json": leakage_paths["leakage_summary_json"],
+            "dashboard_leakage_summary_json": leakage_paths["dashboard_leakage_summary_json"],
             "text_profile_summary": text_summary_path,
             "text_profile_metadata": text_metadata_path,
             "report": report_path,

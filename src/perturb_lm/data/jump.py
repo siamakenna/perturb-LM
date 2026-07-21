@@ -12,6 +12,13 @@ import numpy as np
 import pandas as pd
 from pandas.errors import EmptyDataError
 
+from perturb_lm.engineering.artifacts import (
+    build_artifact_manifest,
+    file_size_map,
+    normalize_command,
+    write_artifact_manifest,
+)
+from perturb_lm.engineering.runtime import RuntimeLogger, write_runtime_log
 from perturb_lm.retrieval.embeddings import EmbeddingLoadResult, normalize_embeddings
 from perturb_lm.retrieval.index import build_sklearn_index, save_sklearn_index
 
@@ -389,11 +396,15 @@ def build_jump_profile_index(
     profile_files: list[Path | str] | None = None,
     expected_profile_kind: str = EXPECTED_PROFILE_KIND,
     max_rows: int | None = None,
+    script_name: str | None = None,
+    command: str | list[str] | None = None,
 ) -> dict[str, Any]:
     """Build and save a sklearn cosine index from local JUMP profile tables."""
 
+    runtime = RuntimeLogger.start()
     root = Path(data_root)
     out_dir = Path(out_dir)
+    normalized_command = normalize_command(command)
     profiles, loaded_paths, load_warnings = load_jump_profile_tables(
         root,
         profile_files=profile_files,
@@ -425,12 +436,24 @@ def build_jump_profile_index(
     saved = save_sklearn_index(result, out_dir, dataset=DATASET, id_column="profile_id")
     profile_metadata_path = out_dir / "profile_metadata.csv"
     profile_metadata.to_csv(profile_metadata_path, index=False)
+    manifest_path = out_dir / "artifact_manifest.json"
+    runtime_log_path = out_dir / "runtime_log.json"
+    output_paths = [
+        saved.embeddings_path,
+        saved.id_mapping_path,
+        saved.index_path,
+        profile_metadata_path,
+        saved.metadata_path,
+        runtime_log_path,
+        manifest_path,
+    ]
 
     metadata = {
         "dataset": DATASET,
         "local_data_root": str(root),
         "input_profile_file_path": str(loaded_paths[0]) if loaded_paths else "",
         "input_profile_file_paths": [str(path) for path in loaded_paths],
+        "input_profile_file_sizes": file_size_map(loaded_paths),
         "number_of_rows": int(len(indexed_profiles)),
         "number_of_numeric_feature_columns": int(len(feature_columns)),
         "number_of_metadata_columns": int(len(schema["metadata_columns"])),
@@ -447,11 +470,49 @@ def build_jump_profile_index(
         "index_type": "sklearn-nearest-neighbors",
         "distance_metric": "cosine",
         "output_directory": str(out_dir),
+        "output_artifact_paths": [str(path) for path in output_paths],
+        "artifact_manifest_path": str(manifest_path),
+        "runtime_log_path": str(runtime_log_path),
+        "script_name": script_name,
+        "command": normalized_command,
         "warnings": warnings,
         "local_only_note": LOCAL_ONLY_NOTE,
         **result.summary(),
     }
     saved.metadata_path.write_text(json.dumps(metadata, indent=2) + "\n")
+    runtime_payload = runtime.finish(
+        extra={
+            "artifact_type": "jump_profile_index",
+            "dataset": DATASET,
+            "row_count": int(len(indexed_profiles)),
+            "feature_count": int(len(feature_columns)),
+            "embedding_dimension": int(embeddings.shape[1]),
+            "index_type": "sklearn-nearest-neighbors",
+            "distance_metric": "cosine",
+            "output_directory": str(out_dir),
+        },
+        warnings=warnings,
+    )
+    write_runtime_log(runtime_log_path, runtime_payload)
+    manifest = build_artifact_manifest(
+        artifact_type="jump_profile_index",
+        input_paths=loaded_paths,
+        output_paths=output_paths,
+        dataset=DATASET,
+        row_count=len(indexed_profiles),
+        feature_count=len(feature_columns),
+        embedding_dimension=embeddings.shape[1],
+        index_type="sklearn-nearest-neighbors",
+        distance_metric="cosine",
+        warnings=warnings,
+        notes=[
+            LOCAL_ONLY_NOTE,
+            "Manifest records paths, sizes, counts, and metadata only; no row data is copied.",
+        ],
+        script_name=script_name,
+        command=normalized_command,
+    )
+    write_artifact_manifest(manifest_path, manifest)
     return metadata
 
 

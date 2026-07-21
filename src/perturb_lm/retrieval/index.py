@@ -23,6 +23,14 @@ class SavedIndex:
     index_path: Path
 
 
+@dataclass(frozen=True)
+class LoadedSklearnIndex:
+    index: NearestNeighbors
+    embeddings: np.ndarray
+    id_mapping: pd.DataFrame
+    metadata: dict[str, object]
+
+
 def nearest_neighbors(embeddings: np.ndarray, metadata: pd.DataFrame, top_k: int = 10) -> pd.DataFrame:
     """Return self-nearest neighbors for an embedding matrix and aligned metadata."""
 
@@ -102,3 +110,18 @@ def load_index_matrix(index_dir: Path) -> tuple[np.ndarray, pd.DataFrame, dict[s
     id_mapping = pd.read_csv(index_dir / "id_mapping.csv")
     metadata = json.loads((index_dir / "index_metadata.json").read_text())
     return embeddings, id_mapping, metadata
+
+
+def load_sklearn_index(index_dir: Path) -> LoadedSklearnIndex:
+    """Load a saved sklearn index and its aligned matrix/metadata artifacts."""
+
+    index_dir = Path(index_dir)
+    embeddings, id_mapping, metadata = load_index_matrix(index_dir)
+    with (index_dir / "sklearn_nearest_neighbors.pkl").open("rb") as handle:
+        index = pickle.load(handle)
+    return LoadedSklearnIndex(
+        index=index,
+        embeddings=embeddings,
+        id_mapping=id_mapping,
+        metadata=metadata,
+    )

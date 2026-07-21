@@ -7,6 +7,7 @@ from perturb_lm.diagnostics import (
     query_positive_leakage_diagnostics,
     summarize_leakage_diagnostics,
 )
+from perturb_lm.engineering.summaries import build_query_leakage_dashboard_summary
 from perturb_lm.queries.build_queries import build_queries
 from perturb_lm.splits import (
     assign_held_out_batch_split,
@@ -62,3 +63,8 @@ def test_query_positive_leakage_diagnostics_flag_cross_split_positives(tmp_path)
     assert first_positive["positive_cross_plate"]
     assert first_positive["positive_cross_split"]
     assert summary.set_index("metric").loc["queries_with_positive_cross_batch", "value"] > 0
+    dashboard = build_query_leakage_dashboard_summary(summary, dataset="rxrx1")
+    dashboard_metrics = {row["metric"]: row for row in dashboard["metrics"]}
+    assert dashboard["report_type"] == "dashboard_query_leakage_summary"
+    assert dashboard_metrics["queries_with_positive_cross_batch"]["count"] > 0
+    assert "positive_batches" not in str(dashboard)

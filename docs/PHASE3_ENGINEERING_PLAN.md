@@ -17,6 +17,10 @@ The repository already has:
 - JUMP CPJUMP1 profile audit/index/diagnostics
 - text-to-profile metadata baselines
 - leakage-aware diagnostics
+- JUMP profile index artifact manifests and runtime logs
+- deterministic JUMP profile index save/load validation on tiny fixtures
+- aggregate held-out split summaries
+- dashboard-safe leakage summary exports
 - reproducibility/readiness checks
 - synthetic tests and CI smoke runs
 - a public GitHub Pages dashboard
@@ -134,6 +138,7 @@ Acceptance criteria:
 - index build records input file, row counts, dimensions, generated files, and timestamp
 - reload test confirms the same nearest neighbors for a small deterministic fixture
 - missing or mismatched embeddings fail with an actionable error
+- generated `artifact_manifest.json` and `runtime_log.json` stay local and ignored
 
 ### 2. Split And Leakage Stress Tests
 
@@ -151,6 +156,7 @@ Acceptance criteria:
 - every filtered result reports `n_evaluable_queries`
 - one-batch or missing-label limitations are explicitly reported
 - no result table is interpreted without leakage diagnostics
+- split and leakage summaries are aggregate review artifacts, not row-level data exports
 
 ### 3. Artifact Manifests
 
@@ -167,6 +173,7 @@ Acceptance criteria:
 - manifest names all input files without copying data into git
 - manifest lists every generated output path
 - readiness checker can validate the manifest
+- manifests record paths, file sizes, counts, and metadata only, not raw data
 
 ### 4. Optional Image Visualization
 
@@ -197,6 +204,7 @@ Acceptance criteria:
 - dashboard inputs are small summaries only
 - no local data paths, row-level metadata, or image names are published
 - CI verifies the static site still links to the protocol and provenance docs
+- dashboard-safe leakage summaries expose counts, rates, skipped diagnostics, and warnings only
 
 ## Project Roles
 

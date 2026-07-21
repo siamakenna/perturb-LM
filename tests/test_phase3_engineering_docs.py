@@ -33,4 +33,4 @@ def test_known_good_run_includes_core_verification_commands() -> None:
 def test_readme_links_to_phase3_engineering_docs() -> None:
     text = Path("README.md").read_text()
     for path in REQUIRED_ENGINEERING_DOCS:
-        assert str(path) in text
+        assert path.as_posix() in text

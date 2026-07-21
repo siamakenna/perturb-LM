@@ -53,6 +53,18 @@ Scope:
 - add a compact JSON run manifest for index builds
 - update `docs/ARTIFACT_MAP.md` and `docs/PHASE3_ENGINEERING_PLAN.md`
 
+Implementation note:
+
+- JUMP profile index builds write `artifact_manifest.json` and `runtime_log.json`
+  beside the existing index artifacts.
+- The artifact manifest records paths, sizes, counts, command metadata, and
+  best-effort git metadata only; it does not include raw profile rows or
+  embeddings.
+- Deterministic save/load tests use tiny synthetic profile rows to verify
+  nearest-neighbor IDs, distances, feature-column order, and row metadata order.
+- Held-out split and leakage summary exports remain part of the second suggested
+  pull request.
+
 Why this first:
 
 The benchmark will need trustworthy artifacts before stronger models are useful.
@@ -71,6 +83,19 @@ Scope:
 - report non-evaluable query counts for each split/filter
 - export small dashboard-safe leakage summaries
 - add tests using synthetic fixtures only
+
+Implementation note:
+
+- Split preset builds write `split_summary.json` and `split_summary.csv` next to
+  the generated split manifest.
+- JUMP profile diagnostics write `leakage_summary.json`, `leakage_summary.csv`,
+  and `dashboard_leakage_summary.json` under the diagnostics output directory.
+- RxRx query-positive leakage diagnostics also write
+  `dashboard_leakage_summary.json`.
+- These summaries are aggregate and public-safe: they report counts, rates,
+  skipped diagnostics, and warnings, not row-level metadata, local paths, image
+  names, embeddings, or raw local identifiers.
+- One-batch and missing-label limitations are explicit warnings, not crashes.
 
 Why this second:
 

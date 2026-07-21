@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from perturb_lm.diagnostics import query_positive_leakage_diagnostics, summarize_leakage_diagnostics
+from perturb_lm.engineering.summaries import build_query_leakage_dashboard_summary
 
 
 def load_table(path: Path) -> pd.DataFrame:
@@ -38,12 +39,19 @@ def main() -> None:
     diagnostics_path = args.out / "query_positive_leakage_diagnostics.csv"
     summary_csv = args.out / "leakage_summary.csv"
     summary_json = args.out / "leakage_summary.json"
+    dashboard_json = args.out / "dashboard_leakage_summary.json"
     diagnostics.to_csv(diagnostics_path, index=False)
     summary.to_csv(summary_csv, index=False)
     summary_json.write_text(json.dumps(dict(zip(summary["metric"], summary["value"], strict=False)), indent=2) + "\n")
+    dashboard = build_query_leakage_dashboard_summary(
+        summary,
+        dataset=str(queries["dataset"].iloc[0]) if "dataset" in queries.columns and len(queries) else "",
+    )
+    dashboard_json.write_text(json.dumps(dashboard, indent=2, sort_keys=True) + "\n")
 
     print(f"Wrote query leakage diagnostics to {diagnostics_path}")
     print(f"Wrote leakage summary to {summary_csv} and {summary_json}")
+    print(f"Wrote dashboard-safe leakage summary to {dashboard_json}")
 
 
 if __name__ == "__main__":

@@ -15,6 +15,10 @@ from perturb_lm.data.jump import (  # noqa: E402
     EXPECTED_PROFILE_KIND,
     run_jump_profile_diagnostics,
 )
+from perturb_lm.engineering.summaries import (  # noqa: E402
+    build_neighbor_leakage_summary,
+    write_leakage_summary,
+)
 
 
 def main() -> None:
@@ -105,6 +109,8 @@ def main() -> None:
     metadata_path = args.out / "profile_neighbor_diagnostics_summary.json"
     per_query.to_csv(per_query_path, index=False)
     summary.to_csv(summary_path, index=False)
+    leakage_payload = build_neighbor_leakage_summary(summary, metadata)
+    leakage_paths = write_leakage_summary(leakage_payload, args.out)
     metadata_path.write_text(
         json.dumps(
             {
@@ -117,6 +123,12 @@ def main() -> None:
     )
     print(f"Wrote per-query diagnostics to {per_query_path}")
     print(f"Wrote diagnostics summary to {summary_path} and {metadata_path}")
+    print(
+        "Wrote aggregate leakage summary to "
+        f"{leakage_paths['leakage_summary_csv']}, "
+        f"{leakage_paths['leakage_summary_json']}, and "
+        f"{leakage_paths['dashboard_leakage_summary_json']}"
+    )
 
 
 if __name__ == "__main__":
