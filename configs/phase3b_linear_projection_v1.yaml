@@ -23,16 +23,27 @@
     "scaling": "standard",
     "fit_scope": "train_only",
     "near_zero_variance_threshold": 1e-12,
+    "harmonization_policy": "strict_intersection",
     "save_fitted_objects_under": "outputs/phase3b_linear_projection_v1/preprocessing"
   },
-  "minimum_evaluable_queries": 1,
+  "evaluable_query_thresholds": {
+    "held_out_plate": 500,
+    "held_out_treatment": 100,
+    "held_out_well": 100,
+    "exclude_same_plate": 100,
+    "exclude_same_well": 100,
+    "exclude_same_plate_and_well": 100,
+    "held_out_batch": {
+      "available": false,
+      "reason": "Held-out batch is unavailable until multiple compatible batches pass feature harmonization and evaluable-query thresholds."
+    }
+  },
   "aggregation": "perturbation_level",
   "query_text": {
     "allowed_fields": [
       "Metadata_gene",
       "Metadata_pert_type",
       "Metadata_control_type",
-      "Metadata_target_sequence",
       "Metadata_negcon_control_type"
     ],
     "prohibited_identifier_fields": [
@@ -40,6 +51,7 @@
       "Metadata_pert_iname",
       "Metadata_InChIKey",
       "Metadata_smiles",
+      "Metadata_target_sequence",
       "Metadata_Plate",
       "Metadata_Well",
       "Metadata_Batch",

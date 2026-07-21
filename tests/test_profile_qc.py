@@ -44,11 +44,11 @@ def test_profile_qc_reports_aggregate_feature_quality_without_identifiers() -> N
         }
     )
 
-    report = profile_qc_from_frames([frame_a, frame_b])
+    report = profile_qc_from_frames([frame_a])
     safe = dashboard_safe_profile_qc_summary(report)
     serialized = json.dumps(safe)
 
-    assert safe["total_profile_rows"] == 4
+    assert safe["total_profile_rows"] == 3
     assert safe["missing_value_count"] >= 4
     assert safe["infinite_value_count"] == 1
     assert safe["all_missing_feature_count"] >= 1
@@ -56,13 +56,20 @@ def test_profile_qc_reports_aggregate_feature_quality_without_identifiers() -> N
     assert safe["near_zero_variance_feature_count"] >= 1
     assert safe["duplicate_feature_value_count"] >= 1
     assert safe["extreme_value_count"] >= 1
-    assert safe["schema_consistent_across_files"] is False
-    assert safe["features_present_in_some_files_missing_from_others_count"] > 0
+    assert safe["schema_consistent_across_files"] is True
     assert "Metadata_" not in serialized
     assert "BRD-" not in serialized
     assert "plate-" not in serialized
     assert "Cells_" not in serialized
     assert "/" not in serialized
+
+    combined = dashboard_safe_profile_qc_summary(profile_qc_from_frames([frame_a, frame_b]))
+    assert combined["schema_consistent_across_files"] is False
+    assert combined["union_numeric_morphology_feature_count"] > combined[
+        "intersection_numeric_morphology_feature_count"
+    ]
+    assert combined["features_missing_from_at_least_one_file_count"] > 0
+    assert combined["schema_group_count"] == 2
 
 
 def test_profile_qc_counts_duplicate_column_names() -> None:
@@ -109,3 +116,4 @@ def test_run_jump_profile_qc_cli_writes_dashboard_safe_output(tmp_path: Path) ->
     safe = json.loads((out / "jump_profile_qc_dashboard_safe.json").read_text())
     assert safe["profile_file_count"] == 1
     assert safe["total_profile_rows"] == 2
+    assert (out / "jump_profile_harmonization_report.json").exists()

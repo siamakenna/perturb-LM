@@ -36,10 +36,16 @@ def main() -> None:
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument("--data-root", type=Path, default=Path("data/raw/jump_pilot"))
+    parser.add_argument("--profile-file", type=Path, action="append", default=None)
     parser.add_argument("--queries", type=Path, default=None)
     parser.add_argument("--label-column", default=None)
     parser.add_argument("--max-rows", type=int, default=None)
     parser.add_argument("--query-limit", type=int, default=None)
+    parser.add_argument(
+        "--query-selection-mode",
+        choices=["all", "random", "stratified"],
+        default=None,
+    )
     parser.add_argument("--top-k", type=int, nargs="+", default=[1, 5, 10])
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--seeds", type=int, nargs="+", default=None)
@@ -59,8 +65,10 @@ def main() -> None:
                 args.data_root,
                 queries=queries,
                 label_column=args.label_column,
+                profile_files=args.profile_file,
                 max_rows=args.max_rows,
                 query_limit=args.query_limit,
+                query_selection_mode=args.query_selection_mode,
                 top_k=args.top_k,
                 seed=args.seed,
             )
@@ -78,12 +86,14 @@ def main() -> None:
         print(summary.to_string(index=False))
     else:
         with runtime.stage("retrieval"):
-            by_seed, aggregate, metadata = run_text_profile_retrieval_multi_seed(
+            by_seed, aggregate, bootstrap, metadata = run_text_profile_retrieval_multi_seed(
                 args.data_root,
                 queries=queries,
                 label_column=args.label_column,
+                profile_files=args.profile_file,
                 max_rows=args.max_rows,
                 query_limit=args.query_limit,
+                query_selection_mode=args.query_selection_mode,
                 top_k=args.top_k,
                 seeds=args.seeds,
                 bootstrap_samples=args.bootstrap_samples,
@@ -91,6 +101,10 @@ def main() -> None:
         with runtime.stage("report_generation"):
             by_seed.to_csv(args.out / "jump_text_profile_summary_by_seed.csv", index=False)
             aggregate.to_csv(args.out / "jump_text_profile_multiseed_summary.csv", index=False)
+            bootstrap.to_csv(
+                args.out / "jump_text_profile_query_bootstrap_summary.csv",
+                index=False,
+            )
             (args.out / "jump_text_profile_multiseed_metadata.json").write_text(
                 json.dumps(metadata, indent=2) + "\n"
             )

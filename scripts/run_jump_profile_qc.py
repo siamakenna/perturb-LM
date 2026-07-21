@@ -33,6 +33,11 @@ def main() -> None:
     parser.add_argument("--max-rows", type=int, default=None)
     parser.add_argument("--near-zero-variance-threshold", type=float, default=1e-12)
     parser.add_argument("--extreme-value-threshold", type=float, default=1e6)
+    parser.add_argument(
+        "--harmonization-policy",
+        choices=["strict_intersection", "primary_schema_only", "explicit_feature_map"],
+        default="strict_intersection",
+    )
     parser.add_argument("--out", type=Path, default=Path("outputs/jump_profile_qc"))
     args = parser.parse_args()
 
@@ -45,6 +50,7 @@ def main() -> None:
             options=ProfileQcOptions(
                 near_zero_variance_threshold=args.near_zero_variance_threshold,
                 extreme_value_threshold=args.extreme_value_threshold,
+                harmonization_policy=args.harmonization_policy,
             ),
         )
     with runtime.stage("report_generation"):
@@ -59,6 +65,10 @@ def main() -> None:
     print("JUMP profile QC complete")
     print(f"profile_file_count: {safe['profile_file_count']}")
     print(f"total_profile_rows: {safe['total_profile_rows']}")
+    print(
+        "intersection_numeric_morphology_feature_count: "
+        f"{safe['intersection_numeric_morphology_feature_count']}"
+    )
     print(
         "usable_numeric_morphology_column_count: "
         f"{safe['usable_numeric_morphology_column_count']}"

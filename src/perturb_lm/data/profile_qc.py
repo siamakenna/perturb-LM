@@ -26,6 +26,7 @@ from perturb_lm.data.jump import (
 
 DEFAULT_NEAR_ZERO_VARIANCE_THRESHOLD = 1e-12
 DEFAULT_EXTREME_VALUE_THRESHOLD = 1e6
+HARMONIZATION_POLICIES = {"strict_intersection", "primary_schema_only", "explicit_feature_map"}
 
 
 @dataclass(frozen=True)
@@ -34,6 +35,7 @@ class ProfileQcOptions:
 
     near_zero_variance_threshold: float = DEFAULT_NEAR_ZERO_VARIANCE_THRESHOLD
     extreme_value_threshold: float = DEFAULT_EXTREME_VALUE_THRESHOLD
+    harmonization_policy: str = "strict_intersection"
 
 
 def run_jump_profile_qc(
@@ -78,6 +80,8 @@ def profile_qc_from_frames(
     if not frames:
         raise ValueError("At least one profile table is required for profile QC.")
     options = options or ProfileQcOptions()
+    if options.harmonization_policy not in HARMONIZATION_POLICIES:
+        raise ValueError(f"Unsupported harmonization policy: {options.harmonization_policy}")
     warnings: list[str] = []
     total_rows = int(sum(len(frame) for frame in frames))
     duplicate_column_count = int(sum(frame.columns.duplicated().sum() for frame in frames))
@@ -86,8 +90,12 @@ def profile_qc_from_frames(
     dtype_by_feature: dict[str, set[str]] = {}
     per_file_feature_counts: list[int] = []
     aggregate_feature_frame_parts: list[pd.DataFrame] = []
+    harmonized_feature_frame_parts: list[pd.DataFrame] = []
     duplicate_profile_rows = 0
     replicate_frames: list[pd.DataFrame] = []
+    numeric_feature_sets: list[set[str]] = []
+    schema_rows: dict[str, int] = {}
+    schema_files: dict[str, int] = {}
 
     for frame in frames:
         schema = detect_jump_profile_schema(frame)
@@ -96,6 +104,10 @@ def profile_qc_from_frames(
         numeric_feature_columns = [
             column for column in candidate_columns if _is_numeric_column(frame, column)
         ]
+        numeric_feature_sets.append(set(numeric_feature_columns))
+        schema_key = _schema_key(numeric_feature_columns)
+        schema_rows[schema_key] = schema_rows.get(schema_key, 0) + int(len(frame))
+        schema_files[schema_key] = schema_files.get(schema_key, 0) + 1
         per_file_feature_counts.append(len(numeric_feature_columns))
         for column in numeric_feature_columns:
             selected = frame[column]
@@ -113,18 +125,33 @@ def profile_qc_from_frames(
         if not replicate_frame.empty:
             replicate_frames.append(replicate_frame)
 
-    if aggregate_feature_frame_parts:
-        aggregate_features = pd.concat(aggregate_feature_frame_parts, ignore_index=True)
-    else:
-        aggregate_features = pd.DataFrame()
+    if not aggregate_feature_frame_parts:
         warnings.append("No numeric morphology profile columns were available for QC.")
 
+    union_numeric_features = set().union(*numeric_feature_sets) if numeric_feature_sets else set()
+    intersection_numeric_features = (
+        set.intersection(*numeric_feature_sets) if numeric_feature_sets else set()
+    )
+    for frame, feature_set in zip(frames, numeric_feature_sets, strict=False):
+        selected = _harmonized_feature_columns(
+            feature_set,
+            intersection_numeric_features,
+            numeric_feature_sets[0] if numeric_feature_sets else set(),
+            options.harmonization_policy,
+        )
+        if selected:
+            harmonized_feature_frame_parts.append(_numeric_feature_frame(frame, sorted(selected)))
+    harmonized_features = (
+        pd.concat(harmonized_feature_frame_parts, ignore_index=True)
+        if harmonized_feature_frame_parts
+        else pd.DataFrame()
+    )
     stats = _feature_stats(
-        aggregate_features,
+        harmonized_features,
         near_zero_variance_threshold=options.near_zero_variance_threshold,
         extreme_value_threshold=options.extreme_value_threshold,
     )
-    duplicate_feature_value_count = _duplicate_feature_value_count(aggregate_features)
+    duplicate_feature_value_count = _duplicate_feature_value_count(harmonized_features)
     dtype_inconsistency_count = int(
         sum(1 for dtypes in dtype_by_feature.values() if len(dtypes) > 1)
     )
@@ -143,6 +170,8 @@ def profile_qc_from_frames(
         "candidate_morphology_column_count": int(
             len(set().union(*feature_sets)) if feature_sets else 0
         ),
+        "union_numeric_morphology_feature_count": int(len(union_numeric_features)),
+        "intersection_numeric_morphology_feature_count": int(len(intersection_numeric_features)),
         "usable_numeric_morphology_column_count": int(stats["usable_numeric_feature_count"]),
         "missing_value_count": int(stats["missing_value_count"]),
         "infinite_value_count": int(stats["infinite_value_count"]),
@@ -158,7 +187,16 @@ def profile_qc_from_frames(
         "extreme_value_count": int(stats["extreme_value_count"]),
         "schema_consistent_across_files": bool(schema_consistent),
         "features_present_in_some_files_missing_from_others_count": features_present_some_missing,
+        "features_missing_from_at_least_one_file_count": features_present_some_missing,
         "dtype_inconsistency_count": dtype_inconsistency_count,
+        "definition_or_naming_conflict_count": dtype_inconsistency_count,
+        "schema_group_count": int(len(schema_files)),
+        "schema_group_summary": _schema_group_summary(
+            schema_files,
+            schema_rows,
+            numeric_feature_sets,
+        ),
+        "harmonization_policy": options.harmonization_policy,
         "per_file_numeric_feature_count_min": int(
             min(per_file_feature_counts) if per_file_feature_counts else 0
         ),
@@ -175,6 +213,10 @@ def profile_qc_from_frames(
     }
     if not schema_consistent:
         report["warnings"].append("Profile feature schemas differ across input files.")
+    if options.harmonization_policy == "strict_intersection" and not schema_consistent:
+        report["warnings"].append(
+            "Strict-intersection harmonization is required before multi-batch benchmarking."
+        )
     if dtype_inconsistency_count:
         report["warnings"].append(
             "One or more morphology feature columns have inconsistent dtypes."
@@ -196,6 +238,8 @@ def dashboard_safe_profile_qc_summary(report: dict[str, Any]) -> dict[str, Any]:
         "profile_file_count",
         "total_profile_rows",
         "candidate_morphology_column_count",
+        "union_numeric_morphology_feature_count",
+        "intersection_numeric_morphology_feature_count",
         "usable_numeric_morphology_column_count",
         "missing_value_count",
         "infinite_value_count",
@@ -209,7 +253,12 @@ def dashboard_safe_profile_qc_summary(report: dict[str, Any]) -> dict[str, Any]:
         "extreme_value_count",
         "schema_consistent_across_files",
         "features_present_in_some_files_missing_from_others_count",
+        "features_missing_from_at_least_one_file_count",
         "dtype_inconsistency_count",
+        "definition_or_naming_conflict_count",
+        "schema_group_count",
+        "schema_group_summary",
+        "harmonization_policy",
         "per_file_numeric_feature_count_min",
         "per_file_numeric_feature_count_max",
         "replicate_group_summary",
@@ -230,15 +279,36 @@ def write_profile_qc_outputs(report: dict[str, Any], out_dir: Path | str) -> dic
     dashboard_path = out / "jump_profile_qc_dashboard_safe.json"
     csv_path = out / "jump_profile_qc_summary.csv"
     markdown_path = out / "jump_profile_qc_report.md"
+    harmonization_path = out / "jump_profile_harmonization_report.json"
     json_path.write_text(json.dumps(report, indent=2) + "\n")
     dashboard_path.write_text(json.dumps(safe, indent=2) + "\n")
     pd.DataFrame([_flatten_for_csv(safe)]).to_csv(csv_path, index=False)
     markdown_path.write_text(_markdown_report(safe))
+    harmonization_path.write_text(
+        json.dumps(
+            {
+                "harmonization_policy": report.get("harmonization_policy"),
+                "union_numeric_morphology_feature_count": report.get(
+                    "union_numeric_morphology_feature_count"
+                ),
+                "intersection_numeric_morphology_feature_count": report.get(
+                    "intersection_numeric_morphology_feature_count"
+                ),
+                "schema_group_count": report.get("schema_group_count"),
+                "schema_group_summary": report.get("schema_group_summary"),
+                "warnings": report.get("warnings", []),
+            },
+            indent=2,
+            sort_keys=True,
+        )
+        + "\n"
+    )
     return {
         "summary_json": str(json_path),
         "dashboard_safe_json": str(dashboard_path),
         "summary_csv": str(csv_path),
         "summary_markdown": str(markdown_path),
+        "harmonization_json": str(harmonization_path),
     }
 
 
@@ -314,6 +384,53 @@ def _duplicate_feature_value_count(features: pd.DataFrame) -> int:
     comparable = features.replace([np.inf, -np.inf], np.nan)
     transposed = comparable.T
     return int(transposed.duplicated().sum())
+
+
+def _schema_key(columns: list[str]) -> str:
+    digest = json.dumps(sorted(columns), separators=(",", ":"))
+    import hashlib
+
+    return hashlib.sha256(digest.encode("utf-8")).hexdigest()
+
+
+def _harmonized_feature_columns(
+    feature_set: set[str],
+    intersection: set[str],
+    primary_schema: set[str],
+    policy: str,
+) -> set[str]:
+    if policy == "strict_intersection":
+        return set(intersection)
+    if policy == "primary_schema_only":
+        return set(feature_set).intersection(primary_schema)
+    if policy == "explicit_feature_map":
+        raise ValueError("explicit_feature_map requires a feature map and is not implicit.")
+    raise ValueError(f"Unsupported harmonization policy: {policy}")
+
+
+def _schema_group_summary(
+    schema_files: dict[str, int],
+    schema_rows: dict[str, int],
+    feature_sets: list[set[str]],
+) -> list[dict[str, int]]:
+    unique_feature_counts = sorted(
+        {
+            _schema_key(sorted(feature_set)): len(feature_set)
+            for feature_set in feature_sets
+        }.items()
+    )
+    feature_count_by_key = dict(unique_feature_counts)
+    rows = []
+    for index, key in enumerate(sorted(schema_files), start=1):
+        rows.append(
+            {
+                "schema_group": index,
+                "file_count": int(schema_files[key]),
+                "row_count": int(schema_rows[key]),
+                "numeric_feature_count": int(feature_count_by_key.get(key, 0)),
+            }
+        )
+    return rows
 
 
 def _replicate_columns(frame: pd.DataFrame, schema: dict[str, Any]) -> pd.DataFrame:

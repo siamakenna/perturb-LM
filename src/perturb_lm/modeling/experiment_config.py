@@ -9,11 +9,26 @@ from typing import Any
 SUPPORTED_SPLITS = {
     "held_out_plate",
     "held_out_treatment",
+    "held_out_well",
     "exclude_same_plate",
     "exclude_same_well",
     "exclude_same_plate_and_well",
 }
 SUPPORTED_UNAVAILABLE_SPLITS = {"held_out_batch"}
+SUPPORTED_THRESHOLD_SPLITS = {
+    "held_out_plate",
+    "held_out_treatment",
+    "held_out_well",
+    "exclude_same_plate",
+    "exclude_same_well",
+    "exclude_same_plate_and_well",
+    "held_out_batch",
+}
+SUPPORTED_HARMONIZATION_POLICIES = {
+    "strict_intersection",
+    "primary_schema_only",
+    "explicit_feature_map",
+}
 SUPPORTED_CONTROLS = {
     "random",
     "shuffled_label",
@@ -44,7 +59,7 @@ REQUIRED_CONFIG_KEYS = {
     "seeds",
     "top_k",
     "preprocessing",
-    "minimum_evaluable_queries",
+    "evaluable_query_thresholds",
     "aggregation",
     "query_text",
     "metrics",
@@ -81,12 +96,11 @@ def validate_phase3b_config(config: dict[str, Any]) -> dict[str, Any]:
     _validate_seeds(config["seeds"])
     _validate_top_k(config["top_k"])
     _validate_preprocessing(config["preprocessing"])
+    _validate_evaluable_query_thresholds(config["evaluable_query_thresholds"], config)
     _validate_query_text(config["query_text"])
     _validate_metrics(config["metrics"])
     _validate_controls(config["controls"])
     _validate_artifact_policy(config["artifact_policy"])
-    if int(config["minimum_evaluable_queries"]) <= 0:
-        raise ValueError("minimum_evaluable_queries must be positive.")
     if config["aggregation"] != "perturbation_level":
         raise ValueError("aggregation must be perturbation_level.")
     return config
@@ -137,6 +151,7 @@ def _validate_preprocessing(preprocessing: Any) -> None:
         "scaling",
         "fit_scope",
         "near_zero_variance_threshold",
+        "harmonization_policy",
     }
     missing = sorted(required.difference(preprocessing))
     if missing:
@@ -153,6 +168,36 @@ def _validate_preprocessing(preprocessing: Any) -> None:
     )
     if float(preprocessing["near_zero_variance_threshold"]) < 0:
         raise ValueError("near_zero_variance_threshold must be non-negative.")
+    if preprocessing["harmonization_policy"] not in SUPPORTED_HARMONIZATION_POLICIES:
+        raise ValueError("preprocessing.harmonization_policy is unsupported.")
+
+
+def _validate_evaluable_query_thresholds(
+    thresholds: Any,
+    config: dict[str, Any],
+) -> None:
+    if not isinstance(thresholds, dict):
+        raise ValueError("evaluable_query_thresholds must be a mapping.")
+    requested = {config["primary_split"], *config["secondary_splits"]}
+    requested.update(config.get("unavailable_splits", {}).keys())
+    missing = sorted(requested.difference(thresholds))
+    if missing:
+        raise ValueError(f"Missing evaluable-query thresholds for requested splits: {missing}")
+    unsupported = sorted(set(thresholds).difference(SUPPORTED_THRESHOLD_SPLITS))
+    if unsupported:
+        raise ValueError(f"Unsupported evaluable-query threshold splits: {unsupported}")
+    for split, value in thresholds.items():
+        if isinstance(value, dict):
+            if value.get("available") is not False or "reason" not in value:
+                raise ValueError(
+                    "Unavailable split threshold must include "
+                    f"available=false and reason: {split}"
+                )
+            continue
+        if not isinstance(value, int) or value < 2:
+            raise ValueError(
+                f"Scientific evaluable-query threshold for {split} must be at least 2."
+            )
 
 
 def _validate_query_text(query_text: Any) -> None:

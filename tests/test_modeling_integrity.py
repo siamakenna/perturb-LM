@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from perturb_lm.modeling.integrity import (
+    evaluate_split_evaluable_thresholds,
     split_public_checksum,
     validate_query_text_no_identifier_leakage,
     validate_split_integrity,
@@ -134,3 +135,22 @@ def test_retrieval_filter_split_types_warn_but_do_not_require_treatment_overlap(
 
     assert report.ok
     assert any("retrieval filter" in warning for warning in report.warnings)
+
+
+def test_split_specific_thresholds_distinguish_pass_failed_and_unavailable() -> None:
+    thresholds = {
+        "held_out_plate": 500,
+        "held_out_treatment": 100,
+        "held_out_batch": {"available": False, "reason": "one compatible batch"},
+    }
+    observed = {
+        "held_out_plate": {"n_total_queries": 600, "n_evaluable_queries": 550},
+        "held_out_treatment": {"n_total_queries": 120, "n_evaluable_queries": 80},
+    }
+
+    result = evaluate_split_evaluable_thresholds(observed, thresholds)
+    statuses = result.set_index("split")["status"].to_dict()
+
+    assert statuses["held_out_plate"] == "passed"
+    assert statuses["held_out_treatment"] == "failed"
+    assert statuses["held_out_batch"] == "unavailable"

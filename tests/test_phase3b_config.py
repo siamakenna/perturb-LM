@@ -34,8 +34,19 @@ def _valid_config() -> dict:
             "scaling": "standard",
             "fit_scope": "train_only",
             "near_zero_variance_threshold": 1e-12,
+            "harmonization_policy": "strict_intersection",
         },
-        "minimum_evaluable_queries": 1,
+        "evaluable_query_thresholds": {
+            "held_out_treatment": 100,
+            "held_out_plate": 500,
+            "exclude_same_plate": 100,
+            "exclude_same_well": 100,
+            "exclude_same_plate_and_well": 100,
+            "held_out_batch": {
+                "available": False,
+                "reason": "Only one inferred batch is available.",
+            },
+        },
         "aggregation": "perturbation_level",
         "query_text": {
             "allowed_fields": ["Metadata_gene", "Metadata_pert_type"],
@@ -77,6 +88,9 @@ def test_phase3b_config_file_validates() -> None:
 
     assert config["primary_split"] == "held_out_plate"
     assert config["seeds"] == [0, 1, 2, 3, 4]
+    assert "Metadata_target_sequence" not in config["query_text"]["allowed_fields"]
+    assert "Metadata_target_sequence" in config["query_text"]["prohibited_identifier_fields"]
+    assert config["evaluable_query_thresholds"]["held_out_plate"] == 500
 
 
 def test_phase3b_config_rejects_missing_required_field() -> None:
@@ -112,4 +126,12 @@ def test_phase3b_config_rejects_prohibited_text_fields() -> None:
     config["query_text"]["allowed_fields"].append("Metadata_broad_sample")
 
     with pytest.raises(ValueError, match="Prohibited identifier fields"):
+        validate_phase3b_config(config)
+
+
+def test_phase3b_config_rejects_one_query_scientific_threshold() -> None:
+    config = _valid_config()
+    config["evaluable_query_thresholds"]["held_out_treatment"] = 1
+
+    with pytest.raises(ValueError, match="at least 2"):
         validate_phase3b_config(config)

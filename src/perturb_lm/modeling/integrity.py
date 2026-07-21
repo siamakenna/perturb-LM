@@ -94,6 +94,49 @@ def validate_split_integrity(
     return _report(frame, split_column=split_column, errors=errors, warnings=warnings)
 
 
+def evaluate_split_evaluable_thresholds(
+    observed_counts: dict[str, dict[str, int | bool | str]],
+    thresholds: dict[str, int | dict[str, object]],
+    *,
+    allow_synthetic_overrides: bool = False,
+) -> pd.DataFrame:
+    """Evaluate split-specific total/evaluable query thresholds."""
+
+    rows: list[dict[str, object]] = []
+    for split, threshold in thresholds.items():
+        observed = observed_counts.get(split, {})
+        total = int(observed.get("n_total_queries", 0) or 0)
+        evaluable = int(observed.get("n_evaluable_queries", 0) or 0)
+        if isinstance(threshold, dict):
+            rows.append(
+                {
+                    "split": split,
+                    "status": "unavailable",
+                    "threshold": None,
+                    "n_total_queries": total,
+                    "n_evaluable_queries": evaluable,
+                    "reason": str(threshold.get("reason", "Split is unavailable.")),
+                }
+            )
+            continue
+        if threshold < 2 and not allow_synthetic_overrides:
+            raise ValueError("Scientific runs cannot use evaluable-query thresholds below 2.")
+        status = "passed" if evaluable >= threshold else "failed"
+        rows.append(
+            {
+                "split": split,
+                "status": status,
+                "threshold": int(threshold),
+                "n_total_queries": total,
+                "n_evaluable_queries": evaluable,
+                "reason": ""
+                if status == "passed"
+                else f"{split} has {evaluable} evaluable queries below threshold {threshold}.",
+            }
+        )
+    return pd.DataFrame(rows)
+
+
 def validate_query_text_no_identifier_leakage(
     queries: pd.DataFrame,
     *,
