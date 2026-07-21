@@ -31,6 +31,10 @@ prototype = [
 text = [
   "sentence-transformers>=3",
 ]
+phase3c = [
+  "torch>=2.3,<2.8",
+  "transformers>=4.44,<5",
+]
 
 [project.scripts]
 perturb-lm = "perturb_lm.cli.main:app"
