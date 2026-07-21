@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+"""Check public website summary numbers against the readiness report."""
+
+from __future__ import annotations
+
+import json
+import re
+import sys
+from pathlib import Path
+from typing import Any
+
+ROOT = Path(__file__).resolve().parents[1]
+SUMMARY_PATH = ROOT / "apps" / "web" / "src" / "data" / "project-summary.json"
+READINESS_PATH = ROOT / "docs" / "PHASE3B_FOUNDATION_READINESS.md"
+
+
+def main() -> None:
+    summary = json.loads(SUMMARY_PATH.read_text())
+    readiness = READINESS_PATH.read_text()
+    errors: list[str] = []
+
+    expected = {
+        "profileCount": _extract_int(readiness, r"\| profile rows \| ([0-9,]+) \|"),
+        "featureCount": _extract_int(
+            readiness,
+            r"\| usable numeric morphology features \| ([0-9,]+) \|",
+        ),
+        "queryCount": _extract_int(readiness, r"total queries: ([0-9,]+)"),
+        "lexicalBaselineMap": _extract_float(
+            readiness,
+            r"\| identifier-stripped TF-IDF \| ([0-9.]+) \|",
+        ),
+        "ciLow": _extract_float(
+            readiness,
+            r"\| identifier-stripped TF-IDF \| mAP \| [0-9.]+ \| ([0-9.]+) to",
+        ),
+        "ciHigh": _extract_float(
+            readiness,
+            r"\| identifier-stripped TF-IDF \| mAP \| [0-9.]+ \| [0-9.]+ to ([0-9.]+) \|",
+        ),
+    }
+
+    _compare(errors, "profileCount", summary.get("profileCount"), expected["profileCount"])
+    _compare(errors, "featureCount", summary.get("featureCount"), expected["featureCount"])
+    _compare(errors, "queryCount", summary.get("queryCount"), expected["queryCount"])
+    _compare_float(
+        errors,
+        "lexicalBaselineMap",
+        summary.get("lexicalBaselineMap"),
+        expected["lexicalBaselineMap"],
+    )
+    ci = summary.get("confidenceInterval", {})
+    _compare_float(errors, "confidenceInterval.low", ci.get("low"), expected["ciLow"])
+    _compare_float(errors, "confidenceInterval.high", ci.get("high"), expected["ciHigh"])
+
+    model_status = str(summary.get("learnedModelStatus", "")).strip().lower()
+    claim_status = str(summary.get("currentClaimStatus", "")).lower()
+    if model_status != "pending":
+        errors.append("learnedModelStatus must remain pending until real model results exist.")
+    completed_terms = ["completed model", "model result achieved", "learned model outperforms"]
+    if model_status == "pending" and any(term in claim_status for term in completed_terms):
+        errors.append("currentClaimStatus implies a completed model result while status is pending.")
+
+    serialized = json.dumps(summary, sort_keys=True).lower()
+    forbidden = ["metadata_target_sequence", "brdn", "/users/", "data/raw", ".npy", ".pkl"]
+    for token in forbidden:
+        if token in serialized:
+            errors.append(f"Public summary contains forbidden token: {token}")
+
+    if errors:
+        print("Public copy consistency check failed:", file=sys.stderr)
+        for error in errors:
+            print(f"- {error}", file=sys.stderr)
+        raise SystemExit(1)
+    print("Public copy consistency check passed.")
+
+
+def _extract_int(text: str, pattern: str) -> int:
+    match = re.search(pattern, text)
+    if not match:
+        raise ValueError(f"Pattern not found: {pattern}")
+    return int(match.group(1).replace(",", ""))
+
+
+def _extract_float(text: str, pattern: str) -> float:
+    match = re.search(pattern, text)
+    if not match:
+        raise ValueError(f"Pattern not found: {pattern}")
+    return float(match.group(1))
+
+
+def _compare(errors: list[str], name: str, observed: Any, expected: Any) -> None:
+    if observed != expected:
+        errors.append(f"{name} differs: observed {observed!r}, expected {expected!r}.")
+
+
+def _compare_float(errors: list[str], name: str, observed: Any, expected: float) -> None:
+    try:
+        value = float(observed)
+    except (TypeError, ValueError):
+        errors.append(f"{name} is not numeric: {observed!r}.")
+        return
+    if round(value, 4) != round(expected, 4):
+        errors.append(f"{name} differs: observed {value!r}, expected {expected!r}.")
+
+
+if __name__ == "__main__":
+    main()

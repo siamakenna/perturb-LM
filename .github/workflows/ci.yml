@@ -46,6 +46,9 @@ jobs:
       - name: Run tests
         run: python -m pytest
 
+      - name: Check public copy consistency
+        run: python scripts/check_public_copy_consistency.py
+
       - name: Run Phase 1 synthetic smoke
         run: python scripts/run_phase1_smoke.py --out outputs/ci_phase1_smoke
 
