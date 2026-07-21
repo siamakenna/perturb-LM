@@ -61,6 +61,12 @@ jobs:
             --out outputs/ci_phase3b_projection_smoke \
             --seed 0
 
+      - name: Run Phase 3C synthetic alignment smoke
+        run: |
+          python scripts/run_phase3c_alignment_smoke.py \
+            --out outputs/ci_phase3c_alignment_smoke \
+            --seed 0
+
       - name: Run Phase 2 one-command synthetic report
         run: |
           python scripts/run_phase2_local_report.py \
@@ -83,6 +89,8 @@ jobs:
             outputs/ci_phase2_jump_smoke/jump_pilot_diagnostics/profile_neighbor_diagnostics_summary.json
             outputs/ci_phase3b_projection_smoke/phase3b_projection_smoke_summary.json
             outputs/ci_phase3b_projection_smoke/runtime_dashboard_safe.json
+            outputs/ci_phase3c_alignment_smoke/phase3c_alignment_summary.csv
+            outputs/ci_phase3c_alignment_smoke/phase3c_public_safe_manifest.json
             outputs/ci_phase2_local_report/baseline_manifest.json
             outputs/ci_phase2_local_report/readiness_check.json
             outputs/ci_phase2_local_report/phase2_jump_report.md
