@@ -1,12 +1,68 @@
-# Perturb LM
+# Perturb-LM: Leakage-Aware Language Retrieval of Cell Painting Morphology
 
-Perturb LM is a reproducible benchmark and prototype for natural-language retrieval over high-content microscopy perturbation datasets. The user-facing task is text-to-image retrieval, while formal benchmark evaluation aggregates image/site hits to the perturbation level so results are biologically meaningful and robust to replicate structure.
+Perturb-LM is a leakage-aware benchmark for aligning natural-language descriptions of biological perturbations with Cell Painting morphology profiles. Unlike conventional retrieval setups, it evaluates predictions at the perturbation level and explicitly controls for treatment identifiers, target sequences, replicate structure, plate effects, and well effects.
 
-## Current Scope
+Using 4,524 CPJUMP1 profiles represented by 904 morphology features, the current foundation establishes reproducible quality control, train-only preprocessing, deterministic evaluation, query-level uncertainty, and strong lexical controls. The next experiment tests whether frozen biomedical text embeddings, aligned through a lightweight projection, can outperform an identifier-stripped TF-IDF baseline under held-out plate and treatment evaluation.
 
-Perturb LM includes safe downloader scaffolds, RxRx manifest builders, query generation, perturbation-level aggregation, deterministic baselines, metrics, documentation, and tiny synthetic tests that run without internet access or real datasets.
+## Research Question
 
-## Installation
+Can frozen biomedical language representations retrieve perturbation-induced cellular morphology better than strong identifier-stripped lexical controls?
+
+## Why Leakage Matters
+
+High-content microscopy screens contain rich perturbation-induced phenotypes, but naive retrieval evaluation can be inflated by non-biological shortcuts:
+
+- direct treatment names or compound identifiers;
+- target sequences that uniquely identify an intervention;
+- replicate structure;
+- plate and well-position effects;
+- batch effects;
+- inconsistent feature schemas;
+- evaluating on the same perturbations used for training.
+
+Perturb-LM treats these as first-order evaluation problems rather than cleanup details.
+
+## Current Benchmark
+
+The active benchmark is text-to-morphology-profile retrieval on JUMP CPJUMP1 Cell Painting profiles. It is not yet validated text-to-image retrieval.
+
+Public-safe aggregate state:
+
+| Item | Current value |
+| --- | ---: |
+| Profiles | 4,524 |
+| Primary morphology features | 904 |
+| Full benchmark queries | 641 |
+| Identifier-stripped TF-IDF mAP | 0.2513 |
+| mAP 95% query-bootstrap CI | 0.2445 to 0.2582 |
+| Held-out batch | unavailable |
+| Learned model result | pending |
+
+The identifier-stripped TF-IDF result is a lexical control, not a learned model result.
+
+## Current Evidence
+
+Established now:
+
+- the original local CPJUMP1 profile subset has a consistent 904-feature schema;
+- the full-query lexical benchmark runs with random and shuffled-label controls;
+- target sequences and direct treatment identifiers are prohibited from identifier-stripped query text;
+- train-only preprocessing, deterministic query selection, and query-bootstrap uncertainty are implemented;
+- split and leakage integrity checks report evaluability instead of silently dropping non-evaluable cases.
+
+The current evidence supports software and benchmark readiness. It does not establish broad biological natural-language retrieval.
+
+## Planned Alignment Experiment
+
+Working hypothesis:
+
+> Frozen biomedical language representations contain enough mechanistic information to support retrieval of perturbation-induced morphology after lightweight alignment, but success must be demonstrated against identifier-stripped lexical controls under held-out and leakage-aware evaluation.
+
+The next model experiment freezes a biomedical text encoder and trains a small regularized linear projection into the existing 904-feature morphology-profile space. The learned projection must outperform identifier-stripped TF-IDF under held-out plate and held-out treatment evaluation. Beating random or shuffled-label controls alone is not enough.
+
+## Quick Start
+
+Install the Python package for local development:
 
 ```bash
 python -m venv .venv
@@ -14,166 +70,72 @@ source .venv/bin/activate
 python -m pip install -e ".[dev]"
 ```
 
-Python 3.10 or 3.11 is recommended. Heavy ML dependencies such as FAISS, torch, transformers, OpenCLIP, and BiomedCLIP are intentionally kept out of the core dependency set.
-
-## Environment Variables
-
-Copy `.env.example` if you want local path overrides:
+Run the full test suite:
 
 ```bash
-cp .env.example .env
+python -m pytest
 ```
 
-Supported variables:
-
-- `PERTURB_LM_DATA_ROOT`
-- `PERTURB_LM_RAW_DIR`
-- `PERTURB_LM_PROCESSED_DIR`
-- `PERTURB_LM_OUTPUT_DIR`
-- `PERTURB_LM_MODEL_DIR`
-
-Defaults are `data/raw`, `data/processed`, `outputs`, and `models`.
-
-## Safe Data Policy
-
-Full image archives are never downloaded by default. Metadata and embeddings are the first supported downloads. Raw images must be explicitly requested and require `--confirm-large-download`. Data, embeddings, images, model files, parquet files, numpy arrays, and generated outputs should not be committed.
-
-## Phase 1 Commands
-
-For real local RxRx metadata and embedding placement, see `docs/REAL_RXRX_SETUP.md`.
-For the real-image and model baseline workflow, see `docs/PHASE2_REAL_DATA_AND_MODELS.md`.
-For GitHub Actions and remote smoke tests, see `docs/CI_AND_REMOTE_SMOKE.md`.
-For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERIA.md`.
-For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
-For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/EVALUATION_PROTOCOL.md`, `docs/DATA_PROVENANCE.md`, `docs/ARTIFACT_MAP.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, `docs/METHODS_DRAFT.md`, and `docs/PHASE3_PROPOSAL_TEMPLATE.md`.
-For Phase 3 engineering preparation, see `docs/PHASE3_ENGINEERING_PLAN.md`, `docs/KNOWN_GOOD_LOCAL_RUN.md`, and `docs/PHASE3_ENGINEERING_TASKS.md`.
-For reproducible setup, pinned constraints, and public-safe environment reporting, see `docs/ENVIRONMENT_REPRODUCIBILITY.md`.
-For the Phase 3B foundation-hardening readiness summary, see `docs/PHASE3B_FOUNDATION_READINESS.md`.
-
-## Phase 2 JUMP Pilot Commands
-
-The active Phase 2 real-data track is JUMP CPJUMP1 profile-based retrieval under `data/raw/jump_pilot/`. Local real data is optional and ignored by git. This track focuses on profile infrastructure, diagnostics, and reproducible baseline reports; raw microscopy image use remains opt-in.
-
-Run the one-command synthetic smoke workflow first:
-
-```bash
-python scripts/run_phase2_jump_smoke.py
-```
-
-Then, when local CPJUMP1 profile files are available:
-
-```bash
-python scripts/run_phase2_local_report.py \
-  --data-root data/raw/jump_pilot \
-  --out outputs/jump_pilot_real_baseline
-python scripts/check_phase2_readiness.py \
-  --root outputs/jump_pilot_real_baseline
-```
-
-The one-command runner wraps the explicit steps below and writes a machine-readable `baseline_manifest.json`.
-
-```bash
-python scripts/audit_jump_pilot.py --summary-only --max-columns-to-print 20
-python scripts/build_jump_profile_index.py
-python scripts/run_jump_profile_diagnostics.py --filtered-presets
-python scripts/run_jump_text_profile_retrieval.py \
-  --data-root data/raw/jump_pilot \
-  --out outputs/jump_text_profile
-python scripts/make_phase2_jump_report.py \
-  --inventory outputs/jump_pilot_inventory.json \
-  --index-metadata outputs/jump_pilot_index/index_metadata.json \
-  --diagnostics-summary outputs/jump_profile_diagnostics/profile_neighbor_diagnostics_summary.csv \
-  --diagnostics-json outputs/jump_profile_diagnostics/profile_neighbor_diagnostics_summary.json \
-  --text-profile-summary outputs/jump_text_profile/jump_text_profile_summary.csv \
-  --out outputs/jump_pilot_phase2_report.md
-```
-
-The smoke workflow validates software only. Small local profile runs are useful for checking the audit/index/diagnostics path, but they are not final biological claims. Unfiltered retrieval can be inflated by batch, plate, and well-position effects; filtered diagnostics are stronger evidence, especially when interpreted alongside `n_evaluable_queries`. The text-to-profile command is a metadata-derived lexical baseline: future biological or VLM models should beat it under leakage-aware evaluation before making stronger claims.
-
-Dry-run safe metadata downloads:
-
-```bash
-python scripts/download_rxrx.py --dataset rxrx1 --download metadata --dry-run
-python scripts/download_rxrx.py --dataset rxrx19a --download metadata --dry-run
-```
-
-Build manifests:
-
-```bash
-python scripts/build_rxrx_manifests.py --dataset rxrx1 --data-root data/raw --out data/processed
-python scripts/build_rxrx_manifests.py --dataset rxrx19a --data-root data/raw --out data/processed
-```
-
-Build held-out split presets:
-
-```bash
-python scripts/build_split_presets.py \
-  --manifest data/processed/rxrx1_site_manifest.parquet \
-  --preset held_out_plate \
-  --out outputs/rxrx1_splits/held_out_plate.parquet
-```
-
-Build queries:
-
-```bash
-python scripts/build_queries.py --dataset rxrx1 --manifest data/processed/rxrx1_perturbation_manifest.parquet --out data/processed
-python scripts/build_queries.py --dataset rxrx19a --manifest data/processed/rxrx19a_perturbation_manifest.parquet --out data/processed
-```
-
-Run retrieval:
-
-```bash
-python scripts/run_retrieval.py --dataset rxrx1 --queries data/processed/rxrx1_queries.csv --site-manifest data/processed/rxrx1_site_manifest.parquet --mode lexical --top-k 50 --out outputs/rxrx1_phase1
-python scripts/run_retrieval.py --dataset rxrx19a --queries data/processed/rxrx19a_queries.csv --site-manifest data/processed/rxrx19a_site_manifest.parquet --mode lexical --top-k 50 --out outputs/rxrx19a_phase1
-```
-
-Run evaluation:
-
-```bash
-python scripts/run_eval.py --dataset rxrx1 --queries data/processed/rxrx1_queries.csv --site-results outputs/rxrx1_phase1/rxrx1_site_retrieval_results.parquet --perturbation-results outputs/rxrx1_phase1/rxrx1_perturbation_retrieval_results.parquet --site-manifest data/processed/rxrx1_site_manifest.parquet --out outputs/rxrx1_phase1_eval
-```
-
-Run the fixture smoke test:
+Run the synthetic smoke workflows:
 
 ```bash
 python scripts/run_phase1_smoke.py --out outputs/phase1_smoke
+python scripts/run_phase2_jump_smoke.py --out outputs/phase2_jump_smoke
+python scripts/run_phase3b_projection_smoke.py --out outputs/phase3b_projection_smoke --seed 0
 ```
 
-Run tests:
+Check public-facing copy consistency:
 
 ```bash
-pytest
+python scripts/check_public_copy_consistency.py
 ```
 
-Build an optional sklearn embedding index when local embeddings are available:
+When local CPJUMP1 profile files are available, generated reports and indexes should be written under ignored output directories.
 
-```bash
-python scripts/build_index.py --dataset rxrx1 --manifest data/processed/rxrx1_site_manifest.parquet --embeddings data/raw/rxrx1_embeddings.csv --out outputs/rxrx1_index
-```
+## Repository Structure
 
-Create a Phase 1 Markdown report:
+| Path | Purpose |
+| --- | --- |
+| `src/perturb_lm/` | Python package for data loading, retrieval, diagnostics, modeling contracts, and reporting |
+| `scripts/` | Reproducible command-line workflows and checks |
+| `tests/` | Synthetic fixtures and regression tests |
+| `docs/` | Methods, claims, reproducibility, and readiness documentation |
+| `apps/web/` | Public research prototype website |
+| `site/` | Earlier static project dashboard |
+| `configs/` | Experiment and validation configuration |
 
-```bash
-python scripts/make_phase1_report.py --dataset rxrx1 --queries data/processed/rxrx1_queries.csv --site-manifest data/processed/rxrx1_site_manifest.parquet --perturbation-results outputs/rxrx1_phase1/rxrx1_perturbation_retrieval_results.parquet --metrics outputs/rxrx1_phase1_eval/metrics_summary.csv --mode lexical --out outputs/rxrx1_phase1_report
-```
+## Reproducibility And Data Policy
 
-## Prototype
+Full raw image archives are never downloaded by default. Metadata and profiles are used first, and raw image downloads must remain opt-in. The repository must not commit real profiles, embeddings, generated outputs, model weights, indexes, row-level result tables, `.env`, or virtual environments.
 
-The Streamlit prototype is optional and not required for tests:
+Generated outputs belong under ignored directories such as `outputs/`, `results/`, or `models/`.
 
-```bash
-python -m pip install -e ".[prototype]"
-streamlit run prototype/app.py
-```
+Engineering reproducibility references:
 
-## Scientific Caution
+- `docs/PHASE3_ENGINEERING_PLAN.md`
+- `docs/KNOWN_GOOD_LOCAL_RUN.md`
+- `docs/PHASE3_ENGINEERING_TASKS.md`
 
-Phase 1 establishes the working pipeline, perturbation-level aggregation, metrics, and baselines. It does not prove biological retrieval. Biological claims require real RxRx data, real embeddings, batch-aware splits, and later VLM/alignment baselines.
+## Current Limitations
 
-## Development Priorities
+- The real biomedical text-alignment experiment has not started.
+- Split-specific learned-model results remain pending.
+- Held-out-batch evaluation is unavailable because the current local benchmark has one inferred primary batch.
+- An additional profile plate is available only as a compatibility investigation because it changes the feature schema.
+- The active benchmark is profile-based; image-level retrieval remains a longer-term direction.
+- Perturbation-level aggregation is necessary for evaluation, but it does not automatically make results biologically meaningful.
 
-1. Replace downloader placeholder URLs with verified public RxRx1/RxRx19a metadata and embedding URLs.
-2. Validate the real RxRx metadata parser against representative local metadata tables.
-3. Add batch-aware split generation and leakage diagnostics.
-4. Add rendered microscopy composite generation for selective image samples or thumbnails.
-5. Add OpenCLIP and BiomedCLIP zero-shot baselines as optional extras, not core dependencies.
+## Development Roadmap
+
+1. Evaluate frozen biomedical text encoders.
+2. Fit and test a regularized linear projection.
+3. Run split-specific held-out plate and treatment evaluation.
+4. Compare individual and replicate-consensus morphology profiles.
+5. Add biologically meaningful hard negatives.
+6. Harmonize a second batch for external validation.
+7. Link profile-level retrieval to representative microscopy images.
+8. Add interpretable morphology attribution.
+
+## Citation Status
+
+Perturb-LM is an active research prototype. A manuscript citation is not available yet. Until then, cite the repository and clearly state the commit or release used.
