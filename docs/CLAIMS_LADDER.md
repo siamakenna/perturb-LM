@@ -23,6 +23,7 @@ Allowed claim:
 - Gains persist under held-out plate and held-out treatment conditions.
 - Gains persist after same-plate and same-well retrieval filtering.
 - Replicate-consensus morphology profiles improve robustness.
+- The Phase 3C synthetic smoke validates the alignment contract, but it is not biological evidence.
 
 Allowed future claim, if supported:
 

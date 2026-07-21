@@ -90,6 +90,18 @@ Check public-facing copy consistency:
 python scripts/check_public_copy_consistency.py
 ```
 
+Run the Phase 3C synthetic alignment smoke:
+
+```bash
+python scripts/run_phase3c_alignment_smoke.py --out outputs/phase3c_alignment_smoke --seed 0
+```
+
+For the optional frozen BiomedBERT encoder path:
+
+```bash
+python -m pip install -e ".[phase3c,dev]"
+```
+
 When local CPJUMP1 profile files are available, generated reports and indexes should be written under ignored output directories.
 
 ## Repository Structure
