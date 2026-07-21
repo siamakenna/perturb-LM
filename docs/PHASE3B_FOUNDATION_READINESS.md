@@ -151,19 +151,21 @@ Stochastic controls retain seed-level variability in the local aggregate tables.
 
 ## Split Thresholds
 
-Configured scientific evaluable-query thresholds:
+The 641 total/evaluable query count applies to the corrected full-query lexical baseline before split-specific model evaluation. It should not be read as independently measured evidence for every held-out split or leakage filter.
 
-| Split or filter | Threshold | Current status |
-| --- | ---: | --- |
-| held-out plate | 500 | pass with 641 evaluable queries |
-| held-out treatment | 100 | pass with 641 evaluable queries |
-| held-out well | 100 | pass with 641 evaluable queries |
-| exclude same plate | 100 | pass with 641 evaluable queries |
-| exclude same well | 100 | pass with 641 evaluable queries |
-| exclude same plate and well | 100 | pass with 641 evaluable queries |
-| held-out batch | unavailable | one inferred batch and incompatible multi-file schema investigation |
+Configured scientific evaluable-query thresholds and currently available local aggregate artifacts:
 
-Held-out treatment is expected to have no train/test treatment overlap by design. Zero train/test treatment overlap is not itself a split failure.
+| Split or filter | Configured threshold | Foundation-validation status | Local aggregate artifact | Actual model-run status |
+| --- | ---: | --- | --- | --- |
+| held-out plate | 500 | Split summary generated; split-integrity accounting reports 699 evaluable treatment-overlap rows. | `outputs/jump_pilot_real_baseline/splits/held_out_plate/split_summary.json` | pending |
+| held-out treatment | 100 | Split summary generated; treatment overlap count is 0 by design and is not a failed held-out-treatment split. | `outputs/jump_pilot_real_baseline/splits/held_out_treatment/split_summary.json` | pending |
+| held-out well | 100 | Split summary generated; split-integrity accounting reports 131 evaluable treatment-overlap rows. | `outputs/jump_pilot_real_baseline/splits/held_out_well/split_summary.json` | pending |
+| exclude same plate | 100 | Profile-neighbor diagnostic generated; 4,524 total and 4,190 treatment-evaluable queries after filtering. | `outputs/jump_pilot_real_baseline/diagnostics/profile_neighbor_diagnostics_summary.csv` | pending |
+| exclude same well | 100 | Profile-neighbor diagnostic generated; 4,524 total and 762 treatment-evaluable queries after filtering. | `outputs/jump_pilot_real_baseline/diagnostics/profile_neighbor_diagnostics_summary.csv` | pending |
+| exclude same plate and well | 100 | Profile-neighbor diagnostic generated; 4,524 total and 762 treatment-evaluable queries after filtering. | `outputs/jump_pilot_real_baseline/diagnostics/profile_neighbor_diagnostics_summary.csv` | pending |
+| held-out batch | unavailable | Split summary generated; unavailable because the current local subset has one inferred batch and the multi-file compatibility investigation changes the feature schema. | `outputs/jump_pilot_real_baseline/splits/held_out_batch/split_summary.json` | unavailable |
+
+The held-out split summaries and profile-neighbor diagnostics are foundation-validation artifacts, not completed Phase 3B model-evaluation results. Held-out treatment is expected to have no train/test treatment overlap by design. Zero train/test treatment overlap is not itself a split failure; the later model evaluation must test whether unseen-treatment text queries retrieve their held-out profiles or biologically related labels.
 
 ## Added Guardrails
 
