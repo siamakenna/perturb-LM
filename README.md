@@ -47,6 +47,8 @@ For the checklist before alignment/modeling work, see `docs/PHASE3_ENTRY_CRITERI
 For the public project dashboard, see `site/index.html`. It is deployed by `.github/workflows/pages.yml` when GitHub Pages is enabled for the repository.
 For scope and manuscript-style guardrails, see `docs/CLAIMS_LADDER.md`, `docs/EVALUATION_PROTOCOL.md`, `docs/DATA_PROVENANCE.md`, `docs/ARTIFACT_MAP.md`, `docs/PHASE2_REPRODUCIBILITY_CHECKLIST.md`, `docs/METHODS_DRAFT.md`, and `docs/PHASE3_PROPOSAL_TEMPLATE.md`.
 For Phase 3 engineering preparation, see `docs/PHASE3_ENGINEERING_PLAN.md`, `docs/KNOWN_GOOD_LOCAL_RUN.md`, and `docs/PHASE3_ENGINEERING_TASKS.md`.
+For reproducible setup, pinned constraints, and public-safe environment reporting, see `docs/ENVIRONMENT_REPRODUCIBILITY.md`.
+For the Phase 3B foundation-hardening readiness summary, see `docs/PHASE3B_FOUNDATION_READINESS.md`.
 
 ## Phase 2 JUMP Pilot Commands
 
