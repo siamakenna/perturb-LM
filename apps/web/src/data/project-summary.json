@@ -1,0 +1,33 @@
+{
+  "projectName": "Perturb-LM",
+  "preferredTitle": "Perturb-LM: Leakage-Aware Language Retrieval of Cell Painting Morphology",
+  "shortDescription": "A leakage-aware benchmark for aligning natural-language descriptions of biological perturbations with Cell Painting morphology profiles.",
+  "researchQuestion": "Can frozen biomedical language representations retrieve perturbation-induced cellular morphology better than strong identifier-stripped lexical controls?",
+  "hypothesis": "Frozen biomedical language representations contain enough mechanistic information to support retrieval of perturbation-induced morphology after lightweight alignment, but success must be demonstrated against identifier-stripped lexical controls under held-out and leakage-aware evaluation.",
+  "profileCount": 4524,
+  "featureCount": 904,
+  "queryCount": 641,
+  "lexicalBaselineName": "identifier-stripped TF-IDF",
+  "lexicalBaselineMap": 0.2513,
+  "confidenceInterval": {
+    "metric": "mAP",
+    "level": "95% query-bootstrap",
+    "low": 0.2445,
+    "high": 0.2582
+  },
+  "learnedModelStatus": "pending",
+  "currentClaimStatus": "Benchmark foundation validated; biological retrieval and learned-model superiority are not established.",
+  "knownLimitations": [
+    "The real biomedical text-alignment experiment has not started.",
+    "Split-specific learned-model results remain pending.",
+    "Held-out-batch evaluation is unavailable.",
+    "The additional profile plate changes the feature schema and is only a compatibility investigation.",
+    "The current benchmark is text-to-morphology-profile retrieval, not validated text-to-image retrieval."
+  ],
+  "nextExperiment": "Freeze a biomedical text encoder and train a small regularized linear projection into the 904-feature morphology-profile space, then evaluate against identifier-stripped TF-IDF under held-out and leakage-aware splits.",
+  "publicSourceLabels": [
+    "JUMP CPJUMP1 Cell Painting profiles",
+    "Identifier-stripped lexical baseline",
+    "Public-safe aggregate readiness report"
+  ]
+}

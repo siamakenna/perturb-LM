@@ -1,102 +1,53 @@
 # Claims Ladder
 
-This project should make claims only at the level that the current evidence supports.
+Perturb-LM should only make claims that the current evidence supports. This ladder separates established engineering and benchmark facts from the biological claims that still require stronger evidence.
 
-## Level 0: Software Plumbing
+## Established Now
 
-Supported when synthetic fixtures pass:
-
-- parsers run
-- manifests validate
-- queries build
-- retrieval/evaluation scripts complete
-- reports generate
-
-Allowed claim:
-
-> The software path runs on tiny fixtures.
-
-Not allowed:
-
-> The model retrieves biology.
-
-## Level 1: Real-Data Asset Readiness
-
-Supported when local audits find real metadata, profiles, embeddings, or images and reports show which artifacts were used.
+- The software and benchmark pipeline are reproducible on synthetic tests and local aggregate workflows.
+- The original local CPJUMP1 profile subset has a consistent 904-feature schema.
+- Direct identifier leakage is explicitly controlled.
+- Target sequences are prohibited from identifier-stripped query and candidate text.
+- Lexical, random, and shuffled-label baselines run across the full query set.
+- Query-level uncertainty and evaluable-query counts are reported.
+- The current active benchmark is text-to-morphology-profile retrieval.
 
 Allowed claim:
 
-> Real local assets can move through the repo without committing data.
+> Perturb-LM provides a reproducible, leakage-aware benchmark foundation for text-to-morphology-profile retrieval on CPJUMP1 profiles.
 
-Not allowed:
+## Testable Next
 
-> The retrieval result is biologically meaningful.
+- Frozen text embeddings carry useful morphology-relevant information.
+- Linear alignment improves retrieval over identifier-stripped TF-IDF.
+- Gains persist under held-out plate and held-out treatment conditions.
+- Gains persist after same-plate and same-well retrieval filtering.
+- Replicate-consensus morphology profiles improve robustness.
 
-## Level 2: Metadata/Profile Control Retrieval
+Allowed future claim, if supported:
 
-Supported by the current JUMP profile baseline:
+> A frozen biomedical text representation with lightweight alignment improves over identifier-stripped lexical controls under the specified held-out evaluation.
 
-- real CPJUMP1 profiles are audited and indexed
-- profile-neighbor diagnostics run
-- same-treatment retrieval is compared with random and shuffled-label controls
-- text-to-profile metadata baselines run
-- direct identifier and identifier-stripped controls are separated
+## Requires Stronger Evidence
 
-Allowed claim:
+- Pathway-level biological retrieval.
+- Generalization across batches.
+- Image-level retrieval.
+- Performance on other Cell Painting datasets.
+- Retrieval of biologically related perturbations beyond exact-label matching.
+- External validation with accepted biological annotations.
 
-> Real profile and metadata-control baselines are reproducible and leakage-aware.
+## Prohibited Current Claims
 
-Not allowed:
+- Broad biological understanding.
+- Clinical utility.
+- Causal mechanism discovery.
+- Batch-generalized performance.
+- Validated natural-language microscopy search.
+- Validated text-to-image retrieval.
+- Superiority of a learned model before the real experiment runs.
+- Biological meaning solely because results are aggregated at the perturbation level.
 
-> Natural-language biological retrieval has been demonstrated.
+Current boundary:
 
-## Level 3: Leakage-Aware Generalization
-
-Supported only after broader splits are run:
-
-- held-out plates
-- held-out wells/images
-- held-out perturbations
-- held-out batches when labels allow
-- cross-batch positives measured
-
-Allowed claim:
-
-> Retrieval remains above controls under specified held-out acquisition or perturbation splits.
-
-Not allowed:
-
-> The system understands microscopy images unless image/model baselines are included.
-
-## Level 4: Text-To-Image Or Text-To-Profile Modeling
-
-Supported only after a model beats:
-
-- random controls
-- shuffled-label controls
-- full metadata TF-IDF
-- identifier-stripped metadata TF-IDF
-- leakage-aware split baselines
-
-Allowed claim:
-
-> The model improves over metadata controls under leakage-aware evaluation.
-
-Not allowed:
-
-> Biological discovery, unless validated by external biological evidence.
-
-## Level 5: Biological Retrieval Claim
-
-Requires all earlier levels plus:
-
-- independent validation data or accepted biological annotations
-- careful negative controls
-- held-out perturbation or mechanism evaluation
-- reviewable methods and artifacts
-
-Allowed claim:
-
-> Under the specified benchmark, the method retrieves biologically related perturbations beyond metadata and leakage controls.
-
-This is a future target, not the current project state.
+> The project is ready to test a learned alignment model, but it has not yet shown biological natural-language retrieval.

@@ -6,6 +6,7 @@ requests>=2.31
 tqdm>=4.66
 typer>=0.12
 scikit-learn>=1.4
+PyYAML>=6
 certifi>=2025.10.5
 pytest>=8
 ruff>=0.6
