@@ -1,5 +1,7 @@
 # Phase 2 Real Data And Model Design
 
+> **Status: Historical reference.** This document preserves the Phase 2 real-data design path. Use `docs/README.md` for current navigation and `docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md` for the active planned model experiment.
+
 Phase 2 turns the Phase 1 parser/retrieval scaffold into a real-image benchmark path. The goal is still careful retrieval validation, not a claim that the system has solved biological search.
 
 The Phase 2 path covers JUMP profile infrastructure, diagnostics, and reproducible baseline reports. VLM, raw-image, and text-query/RAG work are scoped as later project layers.

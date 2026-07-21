@@ -1,5 +1,7 @@
 # Phase 3A JUMP Real-Data Readiness
 
+> **Status: Historical readiness report.** This report records aggregate results from the Phase 3A local real-data readiness pass. Do not reinterpret these results as learned-model evidence.
+
 Date: 2026-07-21
 
 Branch: `phase3a-jump-real-data-readiness`
@@ -197,4 +199,3 @@ Frozen biomedical text encoder with a small linear projection into the JUMP morp
 ```
 
 The experiment should remain a controlled retrieval baseline until it beats identifier-stripped metadata controls under the same split and leakage conditions.
-

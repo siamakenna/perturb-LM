@@ -97,6 +97,11 @@ export default function DashboardPage() {
             value={<span className="text-xl capitalize">{summary.learnedModelStatus}</span>}
             hint="No learned model result is public."
           />
+          <MetricCard
+            label="Selected encoder"
+            value={<span className="text-xl">{summary.selectedEncoder.shortName}</span>}
+            hint={`Revision pinned; run ${summary.selectedEncoder.runStatus}.`}
+          />
         </dl>
       </Section>
 

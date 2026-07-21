@@ -17,6 +17,15 @@
     "low": 0.2445,
     "high": 0.2582
   },
+  "phase3cImplementationStatus": "ready",
+  "selectedEncoder": {
+    "model": "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext",
+    "shortName": "BiomedBERT",
+    "pinnedRevision": "e1354b7a3a09615f6aba48dfad4b7a613eef7062",
+    "embeddingDimension": 768,
+    "runStatus": "pending"
+  },
+  "projectedModelStatus": "pending",
   "learnedModelStatus": "pending",
   "liveModelSearchStatus": "unavailable",
   "currentClaimStatus": "Benchmark foundation validated; biological retrieval and learned-model superiority are not established.",
@@ -102,7 +111,7 @@
       "key": "encoder_run",
       "label": "Real encoder run",
       "status": "pending",
-      "detail": "Frozen biomedical text embeddings have not produced benchmark results."
+      "detail": "BiomedBERT is selected and pinned; frozen embeddings have not produced benchmark results."
     },
     {
       "key": "projection",

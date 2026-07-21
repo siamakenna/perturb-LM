@@ -12,11 +12,13 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SUMMARY_PATH = ROOT / "apps" / "web" / "src" / "data" / "project-summary.json"
 READINESS_PATH = ROOT / "docs" / "PHASE3B_FOUNDATION_READINESS.md"
+PHASE3C_PATH = ROOT / "docs" / "PHASE3C_TEXT_PROFILE_ALIGNMENT.md"
 
 
 def main() -> None:
     summary = json.loads(SUMMARY_PATH.read_text())
     readiness = READINESS_PATH.read_text()
+    phase3c = PHASE3C_PATH.read_text()
     errors: list[str] = []
 
     expected = {
@@ -40,6 +42,8 @@ def main() -> None:
         ),
         "randomMap": _extract_float(readiness, r"\| random \| ([0-9.]+) \|"),
         "shuffledMap": _extract_float(readiness, r"\| shuffled label \| ([0-9.]+) \|"),
+        "selectedEncoder": _extract_text(phase3c, r"- Model: `([^`]+)`"),
+        "selectedEncoderRevision": _extract_text(phase3c, r"- Pinned revision: `([^`]+)`"),
     }
 
     _compare(errors, "profileCount", summary.get("profileCount"), expected["profileCount"])
@@ -59,6 +63,20 @@ def main() -> None:
     claim_status = str(summary.get("currentClaimStatus", "")).lower()
     if model_status != "pending":
         errors.append("learnedModelStatus must remain pending until real model results exist.")
+    if str(summary.get("phase3cImplementationStatus", "")).strip().lower() != "ready":
+        errors.append("phase3cImplementationStatus must be ready after infrastructure merge.")
+    if str(summary.get("projectedModelStatus", "")).strip().lower() != "pending":
+        errors.append("projectedModelStatus must remain pending until real projection results exist.")
+    selected_encoder = summary.get("selectedEncoder", {})
+    _compare(errors, "selectedEncoder.model", selected_encoder.get("model"), expected["selectedEncoder"])
+    _compare(
+        errors,
+        "selectedEncoder.pinnedRevision",
+        selected_encoder.get("pinnedRevision"),
+        expected["selectedEncoderRevision"],
+    )
+    if str(selected_encoder.get("runStatus", "")).strip().lower() != "pending":
+        errors.append("selectedEncoder.runStatus must remain pending until real encoder results exist.")
     if str(summary.get("heldOutBatchStatus", "")).strip().lower() != "unavailable":
         errors.append("heldOutBatchStatus must remain unavailable until a second batch exists.")
     if str(summary.get("syntheticDisclaimer", "")).strip() != (
@@ -121,6 +139,13 @@ def _extract_float(text: str, pattern: str) -> float:
     if not match:
         raise ValueError(f"Pattern not found: {pattern}")
     return float(match.group(1))
+
+
+def _extract_text(text: str, pattern: str) -> str:
+    match = re.search(pattern, text)
+    if not match:
+        raise ValueError(f"Pattern not found: {pattern}")
+    return match.group(1)
 
 
 def _compare(errors: list[str], name: str, observed: Any, expected: Any) -> None:

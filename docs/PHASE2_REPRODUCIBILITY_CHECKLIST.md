@@ -1,5 +1,7 @@
 # Phase 2 Reproducibility Checklist
 
+> **Status: Historical checklist.** Keep this as a record of the Phase 2 readiness pass. Current validation entry points are indexed in `docs/README.md`.
+
 Use this checklist before starting Phase 3 model work.
 
 ## Required Commands
