@@ -17,6 +17,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)", "Inter", "ui-sans-serif", "system-ui"],
         mono: ["var(--font-geist-mono)", "SFMono-Regular", "Menlo", "monospace"],
+        display: ["Source Serif 4", "Georgia", "Times New Roman", "serif"],
       },
     },
   },

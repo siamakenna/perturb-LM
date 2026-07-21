@@ -37,7 +37,7 @@ const sections = [
 
 export default function MethodsPage() {
   return (
-    <main className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
+    <main id="main" className="mx-auto max-w-5xl px-4 py-16 sm:px-6 lg:px-8">
       <h1 className="text-5xl font-semibold leading-tight">Methods overview</h1>
       <p className="mt-5 max-w-3xl text-lg leading-8 text-ink/70">
         This page summarizes the public-safe benchmark methods. It intentionally

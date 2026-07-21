@@ -4,6 +4,7 @@ import summary from "@/data/project-summary.json";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { SyntheticDisclaimer } from "@/components/perturb/primitives";
 
 const benchmarkCards = [
   { label: "profiles", value: summary.profileCount.toLocaleString() },
@@ -22,7 +23,7 @@ const pipeline = [
 
 export default function HomePage() {
   return (
-    <main id="overview">
+    <main id="main">
       <section className="relative overflow-hidden">
         <div className="micro-dot-field absolute inset-x-0 top-0 h-96 opacity-60" aria-hidden="true" />
         <div className="section-entry relative mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 lg:py-28">
@@ -50,10 +51,10 @@ export default function HomePage() {
                 Try the illustrative demo <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
-                href="/methods"
+                href="/dashboard"
                 className="inline-flex h-12 items-center rounded-md border border-ink/15 bg-white/70 px-5 text-sm font-semibold text-ink transition hover:bg-white"
               >
-                Read methods overview
+                Benchmark dashboard
               </Link>
             </div>
           </div>
@@ -78,6 +79,9 @@ export default function HomePage() {
               {summary.confidenceInterval.high.toFixed(4)}. This is a lexical
               control, not a learned-model result.
             </p>
+            <div className="mt-5">
+              <SyntheticDisclaimer compact />
+            </div>
           </Card>
         </div>
       </section>
@@ -183,6 +187,7 @@ export default function HomePage() {
             <span>Research prototype. Model evaluation pending.</span>
           </div>
           <div className="flex flex-wrap gap-4">
+            <Link href="/dashboard" className="hover:text-ink">Dashboard</Link>
             <Link href="/methods" className="hover:text-ink">Methods</Link>
             <Link href="/demo" className="hover:text-ink">Prototype</Link>
             <Link href="https://github.com/siamakenna/perturb-LM" className="hover:text-ink">
