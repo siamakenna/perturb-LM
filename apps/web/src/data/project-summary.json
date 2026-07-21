@@ -9,6 +9,8 @@
   "queryCount": 641,
   "lexicalBaselineName": "identifier-stripped TF-IDF",
   "lexicalBaselineMap": 0.2513,
+  "heldOutBatchStatus": "unavailable",
+  "syntheticDisclaimer": "Illustrative interface demo — not real model output",
   "confidenceInterval": {
     "metric": "mAP",
     "level": "95% query-bootstrap",
@@ -16,7 +18,195 @@
     "high": 0.2582
   },
   "learnedModelStatus": "pending",
+  "liveModelSearchStatus": "unavailable",
   "currentClaimStatus": "Benchmark foundation validated; biological retrieval and learned-model superiority are not established.",
+  "methodComparison": [
+    {
+      "key": "random",
+      "label": "Random",
+      "map": 0.0034,
+      "ciLow": null,
+      "ciHigh": null,
+      "note": "Uniform random ranking control from the corrected full-query baseline.",
+      "hasResult": true
+    },
+    {
+      "key": "shuffled_label",
+      "label": "Shuffled labels",
+      "map": 0.0018,
+      "ciLow": null,
+      "ciHigh": null,
+      "note": "Label-permutation control preserving benchmark marginals.",
+      "hasResult": true
+    },
+    {
+      "key": "identifier_stripped_tfidf",
+      "label": "Identifier-stripped TF-IDF",
+      "map": 0.2513,
+      "ciLow": 0.2445,
+      "ciHigh": 0.2582,
+      "note": "Primary lexical baseline over identifier-stripped query text.",
+      "hasResult": true
+    },
+    {
+      "key": "frozen_biomedbert",
+      "label": "Frozen BiomedBERT embeddings",
+      "map": null,
+      "ciLow": null,
+      "ciHigh": null,
+      "note": "Pending real experiment. No score is shown until the run completes.",
+      "hasResult": false
+    },
+    {
+      "key": "linear_projection",
+      "label": "Frozen embeddings + linear projection",
+      "map": null,
+      "ciLow": null,
+      "ciHigh": null,
+      "note": "Pending real experiment. Requires frozen embeddings and train-only fitting.",
+      "hasResult": false
+    },
+    {
+      "key": "replicate_consensus",
+      "label": "Replicate-consensus alignment",
+      "map": null,
+      "ciLow": null,
+      "ciHigh": null,
+      "note": "Planned ablation. No consensus-model score exists yet.",
+      "hasResult": false
+    },
+    {
+      "key": "held_out_batch",
+      "label": "Held-out batch evaluation",
+      "map": null,
+      "ciLow": null,
+      "ciHigh": null,
+      "note": "Unavailable until a second compatible batch is integrated.",
+      "hasResult": false
+    }
+  ],
+  "researchStatus": [
+    {
+      "key": "foundation",
+      "label": "Foundation",
+      "status": "validated",
+      "detail": "Pipeline scaffold, preprocessing, query construction, and public-copy consistency are validated."
+    },
+    {
+      "key": "lexical",
+      "label": "Lexical benchmark",
+      "status": "validated",
+      "detail": "Identifier-stripped TF-IDF baseline completed with query-bootstrap CI."
+    },
+    {
+      "key": "encoder_run",
+      "label": "Real encoder run",
+      "status": "pending",
+      "detail": "Frozen biomedical text embeddings have not produced benchmark results."
+    },
+    {
+      "key": "projection",
+      "label": "Linear projection result",
+      "status": "pending",
+      "detail": "Regularized text-to-profile projection results remain pending."
+    },
+    {
+      "key": "held_out_batch",
+      "label": "Held-out batch",
+      "status": "unavailable",
+      "detail": "The current local dataset has one inferred batch; batch generalization cannot be claimed."
+    },
+    {
+      "key": "live_model",
+      "label": "Live model integration",
+      "status": "unavailable",
+      "detail": "No live model is served by the public prototype."
+    }
+  ],
+  "splitReadiness": [
+    {
+      "key": "held_out_plate",
+      "label": "Held-out plate",
+      "status": "ready",
+      "detail": "Configured for split-specific evaluation with independently reported query counts."
+    },
+    {
+      "key": "held_out_treatment",
+      "label": "Held-out treatment",
+      "status": "ready",
+      "detail": "Configured for unseen-treatment evaluation without train/test treatment overlap."
+    },
+    {
+      "key": "exclude_same_plate",
+      "label": "Exclude same plate",
+      "status": "ready",
+      "detail": "Retrieval filter removes same-plate candidates."
+    },
+    {
+      "key": "exclude_same_well",
+      "label": "Exclude same well",
+      "status": "ready",
+      "detail": "Retrieval filter removes same-well candidates."
+    },
+    {
+      "key": "exclude_same_plate_and_well",
+      "label": "Exclude same plate and well",
+      "status": "ready",
+      "detail": "Strict combined filter for leakage-aware ranking."
+    },
+    {
+      "key": "held_out_batch",
+      "label": "Held-out batch",
+      "status": "unavailable",
+      "detail": "Requires a second compatible batch."
+    }
+  ],
+  "leakageControls": [
+    "Treatment identifiers are removed from identifier-stripped text.",
+    "Target sequences are prohibited from query construction.",
+    "Plate, well, and batch identifiers are excluded from public query text.",
+    "Preprocessing and model fitting must use training data only.",
+    "Every split/filter must report its own evaluable-query count.",
+    "Public reports expose aggregate metrics only, not row-level CPJUMP1 records."
+  ],
+  "roadmap": [
+    {
+      "key": "frozen_biomedbert",
+      "label": "Frozen BiomedBERT baseline",
+      "status": "next",
+      "detail": "Run frozen embeddings against the benchmark and report leakage-aware metrics."
+    },
+    {
+      "key": "linear_projection",
+      "label": "Regularized linear projection",
+      "status": "next",
+      "detail": "Fit a small projection with train-only preprocessing and held-out evaluation."
+    },
+    {
+      "key": "replicate_consensus",
+      "label": "Replicate-consensus profiles",
+      "status": "planned",
+      "detail": "Compare individual profile targets to mean or median perturbation consensus targets."
+    },
+    {
+      "key": "hard_negatives",
+      "label": "Hard-negative-ready evaluation",
+      "status": "planned",
+      "detail": "Prepare biologically related but label-distinct comparison groups."
+    },
+    {
+      "key": "second_batch",
+      "label": "Second-batch harmonization",
+      "status": "planned",
+      "detail": "Integrate a compatible batch before making batch-generalization claims."
+    },
+    {
+      "key": "image_linkage",
+      "label": "Representative image linkage",
+      "status": "exploratory",
+      "detail": "Future qualitative inspection only; current benchmark remains profile-based."
+    }
+  ],
   "knownLimitations": [
     "The real biomedical text-alignment experiment has not started.",
     "Split-specific learned-model results remain pending.",

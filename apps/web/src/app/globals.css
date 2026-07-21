@@ -35,6 +35,48 @@ body {
   color: #142136;
 }
 
+.card-soft {
+  border: 1px solid rgba(20, 33, 54, 0.10);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 1px 0 rgba(20, 33, 54, 0.02), 0 1px 2px rgba(20, 33, 54, 0.03);
+}
+
+.card-paper {
+  border: 1px solid rgba(20, 33, 54, 0.10);
+  border-radius: 10px;
+  background: rgba(247, 244, 238, 0.74);
+}
+
+.chip {
+  display: inline-flex;
+  min-height: 1.75rem;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 999px;
+  border: 1px solid rgba(20, 33, 54, 0.12);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 0.25rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(20, 33, 54, 0.72);
+}
+
+.grid-field {
+  background-image:
+    linear-gradient(to right, rgba(20, 33, 54, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(20, 33, 54, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.wells-field {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(31, 138, 131, 0.14) 0 6px, transparent 7px),
+    radial-gradient(circle at 60% 55%, rgba(106, 90, 215, 0.12) 0 5px, transparent 6px),
+    radial-gradient(circle at 80% 20%, rgba(31, 138, 131, 0.10) 0 4px, transparent 5px),
+    radial-gradient(circle at 35% 80%, rgba(106, 90, 215, 0.10) 0 5px, transparent 6px);
+}
+
 .micro-dot-field {
   background-image: radial-gradient(rgba(20, 33, 54, 0.13) 1px, transparent 1px);
   background-size: 22px 22px;

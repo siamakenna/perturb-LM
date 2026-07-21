@@ -118,6 +118,9 @@ When local CPJUMP1 profile files are available, generated reports and indexes sh
 
 ## Reproducibility And Data Policy
 
+The web prototype includes `/dashboard`, `/demo`, `/methods`, and `POST /api/search`.
+Dashboard values are public-safe aggregates and learned model results remain pending.
+
 Full raw image archives are never downloaded by default. Metadata and profiles are used first, and raw image downloads must remain opt-in. The repository must not commit real profiles, embeddings, generated outputs, model weights, indexes, row-level result tables, `.env`, or virtual environments.
 
 Generated outputs belong under ignored directories such as `outputs/`, `results/`, or `models/`.

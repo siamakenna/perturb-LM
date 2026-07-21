@@ -38,6 +38,8 @@ def main() -> None:
             readiness,
             r"\| identifier-stripped TF-IDF \| mAP \| [0-9.]+ \| [0-9.]+ to ([0-9.]+) \|",
         ),
+        "randomMap": _extract_float(readiness, r"\| random \| ([0-9.]+) \|"),
+        "shuffledMap": _extract_float(readiness, r"\| shuffled label \| ([0-9.]+) \|"),
     }
 
     _compare(errors, "profileCount", summary.get("profileCount"), expected["profileCount"])
@@ -57,9 +59,41 @@ def main() -> None:
     claim_status = str(summary.get("currentClaimStatus", "")).lower()
     if model_status != "pending":
         errors.append("learnedModelStatus must remain pending until real model results exist.")
+    if str(summary.get("heldOutBatchStatus", "")).strip().lower() != "unavailable":
+        errors.append("heldOutBatchStatus must remain unavailable until a second batch exists.")
+    if str(summary.get("syntheticDisclaimer", "")).strip() != (
+        "Illustrative interface demo — not real model output"
+    ):
+        errors.append("syntheticDisclaimer changed from the required public-safe wording.")
     completed_terms = ["completed model", "model result achieved", "learned model outperforms"]
     if model_status == "pending" and any(term in claim_status for term in completed_terms):
         errors.append("currentClaimStatus implies a completed model result while status is pending.")
+    methods = {str(item.get("key")): item for item in summary.get("methodComparison", [])}
+    _compare_float(errors, "methodComparison.random.map", methods.get("random", {}).get("map"), expected["randomMap"])
+    _compare_float(
+        errors,
+        "methodComparison.shuffled_label.map",
+        methods.get("shuffled_label", {}).get("map"),
+        expected["shuffledMap"],
+    )
+    _compare_float(
+        errors,
+        "methodComparison.identifier_stripped_tfidf.map",
+        methods.get("identifier_stripped_tfidf", {}).get("map"),
+        expected["lexicalBaselineMap"],
+    )
+    for key, item in methods.items():
+        is_pending_model = key in {
+            "frozen_biomedbert",
+            "linear_projection",
+            "replicate_consensus",
+            "held_out_batch",
+        }
+        if is_pending_model:
+            if item.get("hasResult") is not False:
+                errors.append(f"Pending method {key} must have hasResult=false.")
+            if item.get("map") is not None or item.get("ciLow") is not None or item.get("ciHigh") is not None:
+                errors.append(f"Pending method {key} must not expose numeric scores.")
 
     serialized = json.dumps(summary, sort_keys=True).lower()
     forbidden = ["metadata_target_sequence", "brdn", "/users/", "data/raw", ".npy", ".pkl"]

@@ -11,6 +11,14 @@ pnpm run dev
 
 Then open `http://localhost:3000`.
 
+Routes:
+
+- `/` public overview
+- `/dashboard` benchmark dashboard with public-safe aggregate metrics
+- `/demo` synthetic search interface
+- `/methods` public-safe methods overview
+- `POST /api/search` mock-provider search contract
+
 ## Checks
 
 ```bash
