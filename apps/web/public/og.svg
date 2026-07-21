@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#f7f4ee"/>
+  <g opacity="0.35">
+    <circle cx="180" cy="150" r="3" fill="#142136"/>
+    <circle cx="240" cy="210" r="3" fill="#142136"/>
+    <circle cx="300" cy="150" r="3" fill="#142136"/>
+    <circle cx="920" cy="180" r="3" fill="#142136"/>
+    <circle cx="980" cy="240" r="3" fill="#142136"/>
+    <circle cx="1040" cy="180" r="3" fill="#142136"/>
+  </g>
+  <rect x="80" y="80" width="1040" height="470" rx="28" fill="#ffffff" opacity="0.78" stroke="#142136" stroke-opacity="0.12"/>
+  <text x="130" y="200" font-family="Arial, sans-serif" font-size="62" font-weight="700" fill="#142136">Perturb-LM</text>
+  <text x="130" y="280" font-family="Arial, sans-serif" font-size="38" fill="#142136">Leakage-aware language retrieval of</text>
+  <text x="130" y="330" font-family="Arial, sans-serif" font-size="38" fill="#142136">Cell Painting morphology</text>
+  <text x="130" y="430" font-family="Arial, sans-serif" font-size="28" fill="#1f8a83">4,524 profiles · 904 features · model evaluation pending</text>
+</svg>

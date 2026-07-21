@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Perturb-LM">
+  <rect width="64" height="64" rx="12" fill="#142136"/>
+  <circle cx="21" cy="23" r="5" fill="#62c7bd"/>
+  <circle cx="42" cy="20" r="4" fill="#8d80ff"/>
+  <circle cx="38" cy="42" r="6" fill="#f7f4ee"/>
+  <path d="M19 39c9-12 19-16 30-13" fill="none" stroke="#f7f4ee" stroke-width="4" stroke-linecap="round"/>
+</svg>
