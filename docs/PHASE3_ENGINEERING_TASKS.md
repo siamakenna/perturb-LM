@@ -1,5 +1,7 @@
 # Phase 3 Engineering Tasks
 
+> **Status: Historical task list.** This checklist is retained for traceability. Current validation and modeling documents are indexed in `docs/README.md`.
+
 This is the recommended task board for the engineering collaborator.
 
 ## Highest Priority

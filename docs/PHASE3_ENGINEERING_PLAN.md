@@ -1,5 +1,7 @@
 # Phase 3 Engineering Plan
 
+> **Status: Historical plan.** This document records engineering planning decisions. Current project navigation is maintained in `docs/README.md`.
+
 This document defines the engineering work needed before Phase 3 model development. The goal is to make the real-data retrieval benchmark more reliable, inspectable, and scalable before any stronger biological claim is made.
 
 ## Current Project State

@@ -1,5 +1,7 @@
 # Phase 2 Real Baseline Status
 
+> **Status: Historical.** This document records a completed Phase 2 local baseline snapshot. Current entry points are `README.md`, `docs/README.md`, `docs/METHODS_DRAFT.md`, and `docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md`.
+
 This note records the first real-data Phase 2 retrieval baseline run. The run used local JUMP CPJUMP1 profile files only. It does not use raw microscopy images, VLMs, or aligned text/image models yet.
 
 ## Local Data Used

@@ -1,5 +1,7 @@
 # Phase 3B Foundation Readiness
 
+> **Status: Historical readiness report.** This report records the Phase 3B foundation state before the Phase 3C alignment experiment. The recorded metrics and limitations should remain tied to the artifacts that produced them.
+
 Branch: `phase3b-foundation-hardening`
 
 This branch hardens the project before any biomedical text-encoder experiment. It does not train a real encoder, generate production text embeddings, add FAISS, download raw microscopy images, or make biological retrieval claims.

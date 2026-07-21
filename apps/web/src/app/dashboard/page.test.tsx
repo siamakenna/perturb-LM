@@ -12,6 +12,8 @@ describe("DashboardPage", () => {
     expect(screen.getAllByText(summary.queryCount.toLocaleString())[0]).toBeInTheDocument();
     expect(screen.getAllByText(summary.lexicalBaselineMap.toFixed(4))[0]).toBeInTheDocument();
     expect(screen.getAllByText(summary.syntheticDisclaimer)[0]).toBeInTheDocument();
+    expect(screen.getByText(summary.selectedEncoder.shortName)).toBeInTheDocument();
+    expect(screen.getByText(/Revision pinned; run pending/i)).toBeInTheDocument();
   });
 
   it("keeps pending learned-model rows score-free", () => {

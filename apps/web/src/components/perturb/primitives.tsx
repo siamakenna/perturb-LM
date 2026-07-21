@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { DEMO_DISCLAIMER } from "@/lib/search/types";
 
 export type StatusLevel =
   | "validated"
@@ -128,7 +129,7 @@ export function SyntheticDisclaimer({ compact = false }: { compact?: boolean }) 
       role="status"
     >
       <span aria-hidden="true">●</span>
-      Illustrative interface demo — not real model output
+      {DEMO_DISCLAIMER}
     </div>
   );
 }

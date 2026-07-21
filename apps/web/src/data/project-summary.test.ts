@@ -12,6 +12,15 @@ describe("project summary", () => {
   });
 
   it("does not present a completed learned model result", () => {
+    expect(summary.phase3cImplementationStatus).toBe("ready");
+    expect(summary.selectedEncoder.model).toBe(
+      "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext",
+    );
+    expect(summary.selectedEncoder.pinnedRevision).toBe(
+      "e1354b7a3a09615f6aba48dfad4b7a613eef7062",
+    );
+    expect(summary.selectedEncoder.runStatus).toBe("pending");
+    expect(summary.projectedModelStatus).toBe("pending");
     expect(summary.learnedModelStatus).toBe("pending");
     expect(summary.heldOutBatchStatus).toBe("unavailable");
     expect(summary.syntheticDisclaimer).toBe("Illustrative interface demo — not real model output");

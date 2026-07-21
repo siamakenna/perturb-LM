@@ -1,35 +1,26 @@
 # Perturb-LM: Leakage-Aware Language Retrieval of Cell Painting Morphology
 
-Perturb-LM is a leakage-aware benchmark for aligning natural-language descriptions of biological perturbations with Cell Painting morphology profiles. Unlike conventional retrieval setups, it evaluates predictions at the perturbation level and explicitly controls for treatment identifiers, target sequences, replicate structure, plate effects, and well effects.
+Perturb-LM is a research benchmark for asking whether natural-language descriptions of biological perturbations can retrieve Cell Painting morphology profiles. The project is intentionally conservative: it treats treatment identifiers, target sequences, replicate structure, plate effects, well effects, and batch effects as core evaluation risks rather than after-the-fact cleanup.
 
-Using 4,524 CPJUMP1 profiles represented by 904 morphology features, the current foundation establishes reproducible quality control, train-only preprocessing, deterministic evaluation, query-level uncertainty, and strong lexical controls. The next experiment tests whether frozen biomedical text embeddings, aligned through a lightweight projection, can outperform an identifier-stripped TF-IDF baseline under held-out plate and treatment evaluation.
+The current repository validates a text-to-morphology-profile benchmark on a local JUMP CPJUMP1 profile subset. It does not yet claim validated biological natural-language retrieval, text-to-image retrieval, clinical utility, or learned-model success.
 
 ## Research Question
 
-Can frozen biomedical language representations retrieve perturbation-induced cellular morphology better than strong identifier-stripped lexical controls?
+Can frozen biomedical language representations retrieve perturbation-induced cellular morphology better than strong identifier-stripped lexical controls under held-out and leakage-aware evaluation?
 
-## Why Leakage Matters
+## Scientific Problem
 
-High-content microscopy screens contain rich perturbation-induced phenotypes, but naive retrieval evaluation can be inflated by non-biological shortcuts:
+Cell Painting screens measure rich morphology across thousands of perturbations, but search systems can look impressive for the wrong reasons. A model may retrieve the right perturbation because the text contains a compound name, a sequence, a plate label, or another acquisition shortcut rather than because the language representation captures morphology-relevant biology.
 
-- direct treatment names or compound identifiers;
-- target sequences that uniquely identify an intervention;
-- replicate structure;
-- plate and well-position effects;
-- batch effects;
-- inconsistent feature schemas;
-- evaluating on the same perturbations used for training.
-
-Perturb-LM treats these as first-order evaluation problems rather than cleanup details.
+Perturb-LM focuses on making those shortcuts visible before stronger claims are made. The scoring unit is perturbation-level retrieval after profile-level ranking, and every future learned method must be compared against lexical and stochastic controls under explicit split and leakage settings.
 
 ## Current Benchmark
 
-The active benchmark is text-to-morphology-profile retrieval on JUMP CPJUMP1 Cell Painting profiles. It is not yet validated text-to-image retrieval.
-
-Public-safe aggregate state:
+The active benchmark uses public-safe aggregate reporting only. Row-level data, local paths, image names, embeddings, generated indexes, and model outputs are not committed.
 
 | Item | Current value |
 | --- | ---: |
+| Dataset track | JUMP CPJUMP1 profiles |
 | Profiles | 4,524 |
 | Primary morphology features | 904 |
 | Full benchmark queries | 641 |
@@ -38,119 +29,79 @@ Public-safe aggregate state:
 | Held-out batch | unavailable |
 | Learned model result | pending |
 
-The identifier-stripped TF-IDF result is a lexical control, not a learned model result.
+The identifier-stripped TF-IDF score is a lexical control, not a learned model result. The learned alignment experiment remains pending until it beats the identifier-stripped control under the specified held-out and leakage-aware evaluations.
 
-## Current Evidence
+## Status And Limitations
 
-Established now:
+Validated now:
 
-- the original local CPJUMP1 profile subset has a consistent 904-feature schema;
-- the full-query lexical benchmark runs with random and shuffled-label controls;
-- target sequences and direct treatment identifiers are prohibited from identifier-stripped query text;
-- train-only preprocessing, deterministic query selection, and query-bootstrap uncertainty are implemented;
-- split and leakage integrity checks report evaluability instead of silently dropping non-evaluable cases.
+- synthetic CI fixtures for parsing, retrieval, splits, diagnostics, reports, and smoke workflows;
+- a real local CPJUMP1 profile benchmark foundation with a consistent 904-feature primary space;
+- random, shuffled-label, full-metadata TF-IDF, and identifier-stripped TF-IDF controls;
+- public-copy checks that prevent pending learned methods from displaying numeric scores;
+- a Next.js research prototype with a synthetic demo and public-safe benchmark dashboard.
 
-The current evidence supports software and benchmark readiness. It does not establish broad biological natural-language retrieval.
+Pending:
 
-## Planned Alignment Experiment
-
-Working hypothesis:
-
-> Frozen biomedical language representations contain enough mechanistic information to support retrieval of perturbation-induced morphology after lightweight alignment, but success must be demonstrated against identifier-stripped lexical controls under held-out and leakage-aware evaluation.
-
-The next model experiment freezes a biomedical text encoder and trains a small regularized linear projection into the existing 904-feature morphology-profile space. The learned projection must outperform identifier-stripped TF-IDF under held-out plate and held-out treatment evaluation. Beating random or shuffled-label controls alone is not enough.
-
-## Quick Start
-
-Install the Python package for local development:
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-python -m pip install -e ".[dev]"
-```
-
-Run the full test suite:
-
-```bash
-python -m pytest
-```
-
-Run the synthetic smoke workflows:
-
-```bash
-python scripts/run_phase1_smoke.py --out outputs/phase1_smoke
-python scripts/run_phase2_jump_smoke.py --out outputs/phase2_jump_smoke
-python scripts/run_phase3b_projection_smoke.py --out outputs/phase3b_projection_smoke --seed 0
-```
-
-Check public-facing copy consistency:
-
-```bash
-python scripts/check_public_copy_consistency.py
-```
-
-Run the Phase 3C synthetic alignment smoke:
-
-```bash
-python scripts/run_phase3c_alignment_smoke.py --out outputs/phase3c_alignment_smoke --seed 0
-```
-
-For the optional frozen BiomedBERT encoder path:
-
-```bash
-python -m pip install -e ".[phase3c,dev]"
-```
-
-When local CPJUMP1 profile files are available, generated reports and indexes should be written under ignored output directories.
+- frozen biomedical text encoder evaluation;
+- learned linear projection into the 904-feature morphology space;
+- split-specific learned-model results;
+- held-out-batch evaluation, which is unavailable because the current local benchmark has one inferred batch;
+- validated image-level or text-to-image retrieval.
 
 ## Repository Structure
 
 | Path | Purpose |
 | --- | --- |
-| `src/perturb_lm/` | Python package for data loading, retrieval, diagnostics, modeling contracts, and reporting |
-| `scripts/` | Reproducible command-line workflows and checks |
+| `src/perturb_lm/` | Data loading, retrieval, diagnostics, modeling contracts, and reporting |
+| `scripts/` | Reproducible command-line workflows and consistency checks |
 | `tests/` | Synthetic fixtures and regression tests |
-| `docs/` | Methods, claims, reproducibility, and readiness documentation |
-| `apps/web/` | Public research prototype website |
-| `site/` | Earlier static project dashboard |
+| `docs/` | Methods, claims, readiness reports, and setup references |
+| `apps/web/` | Next.js public research prototype |
 | `configs/` | Experiment and validation configuration |
 
-## Reproducibility And Data Policy
+## Minimal Quick Start
 
-The web prototype includes `/dashboard`, `/demo`, `/methods`, and `POST /api/search`.
-Dashboard values are public-safe aggregates and learned model results remain pending.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e ".[dev]"
+python -m pytest
+```
 
-Full raw image archives are never downloaded by default. Metadata and profiles are used first, and raw image downloads must remain opt-in. The repository must not commit real profiles, embeddings, generated outputs, model weights, indexes, row-level result tables, `.env`, or virtual environments.
+Run the website locally:
 
-Generated outputs belong under ignored directories such as `outputs/`, `results/`, or `models/`.
+```bash
+cd apps/web
+pnpm install --frozen-lockfile
+pnpm dev
+```
 
-Engineering reproducibility references:
+Detailed smoke, real-data, reporting, and modeling commands live in the documentation rather than in this README.
 
-- `docs/PHASE3_ENGINEERING_PLAN.md`
-- `docs/KNOWN_GOOD_LOCAL_RUN.md`
-- `docs/PHASE3_ENGINEERING_TASKS.md`
+## Prototype
 
-## Current Limitations
+The web app includes `/`, `/dashboard`, `/demo`, `/methods`, and `POST /api/search`. The demo is explicitly synthetic:
 
-- The real biomedical text-alignment experiment has not started.
-- Split-specific learned-model results remain pending.
-- Held-out-batch evaluation is unavailable because the current local benchmark has one inferred primary batch.
-- An additional profile plate is available only as a compatibility investigation because it changes the feature schema.
-- The active benchmark is profile-based; image-level retrieval remains a longer-term direction.
-- Perturbation-level aggregation is necessary for evaluation, but it does not automatically make results biologically meaningful.
+> Illustrative interface demo — not real model output
 
-## Development Roadmap
+A permanent public deployment URL is pending. Local or temporary preview deployments should not be treated as published scientific evidence.
 
-1. Evaluate frozen biomedical text encoders.
-2. Fit and test a regularized linear projection.
-3. Run split-specific held-out plate and treatment evaluation.
-4. Compare individual and replicate-consensus morphology profiles.
-5. Add biologically meaningful hard negatives.
-6. Harmonize a second batch for external validation.
-7. Link profile-level retrieval to representative microscopy images.
-8. Add interpretable morphology attribution.
+## Documentation
 
-## Citation Status
+Start with:
 
-Perturb-LM is an active research prototype. A manuscript citation is not available yet. Until then, cite the repository and clearly state the commit or release used.
+- [Documentation index](docs/README.md)
+- [Methods draft](docs/METHODS_DRAFT.md)
+- [Claims ladder](docs/CLAIMS_LADDER.md)
+- [Phase 3C alignment plan](docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md)
+- [Known-good local run checklist](docs/KNOWN_GOOD_LOCAL_RUN.md)
+- [Real RxRx setup](docs/REAL_RXRX_SETUP.md)
+
+## Data And Artifact Policy
+
+Full raw image archives are not downloaded by default. Metadata and profiles are used first, and raw image downloads must remain opt-in. Do not commit real data, embeddings, generated outputs, model weights, indexes, row-level result tables, `.env`, or virtual environments. Generated files belong under ignored locations such as `data/`, `outputs/`, `results/`, or `models/`.
+
+## Citation And Contact
+
+Perturb-LM is an active research prototype. A manuscript citation is not available yet. Until then, cite the GitHub repository and the exact commit or release used.
