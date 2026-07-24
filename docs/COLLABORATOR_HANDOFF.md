@@ -17,7 +17,7 @@ Learned biomedical model results remain pending.
 ## Collaboration
 
 - Maintainer: `@siamakenna`
-- Collaborator: `@siamakenna`
+- Collaborator: `@adamdiaz313-collab`
 - Repository: https://github.com/siamakenna/perturb-LM
 - Public prototype: https://web-pi-wheat-64.vercel.app
 
