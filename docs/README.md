@@ -8,6 +8,7 @@ This index points readers to the current public-safe project documents without r
 - [Claims ladder](CLAIMS_LADDER.md) - what the project may and may not claim today.
 - [Phase 3C text-profile alignment plan](PHASE3C_TEXT_PROFILE_ALIGNMENT.md) - current planned frozen-encoder and linear-projection experiment.
 - [Known-good local run checklist](KNOWN_GOOD_LOCAL_RUN.md) - concise local validation checklist.
+- [Collaborator handoff](COLLABORATOR_HANDOFF.md) - two-person onboarding, first-run deliverables, and artifact rules.
 - [Data provenance](DATA_PROVENANCE.md) - how public-safe provenance is recorded.
 - [Dataset notes](DATASETS.md) - dataset scope and local-data expectations.
 

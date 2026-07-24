@@ -1,0 +1,41 @@
+name: Documentation or claims change
+description: Propose a documentation, methods, or public-claims update.
+title: "[Docs/Claims]: "
+labels: ["documentation"]
+body:
+  - type: textarea
+    id: current
+    attributes:
+      label: Current wording or gap
+    validations:
+      required: true
+  - type: textarea
+    id: proposed
+    attributes:
+      label: Proposed wording
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting evidence
+      description: Link validated artifacts, analyses, or literature.
+    validations:
+      required: true
+  - type: textarea
+    id: affected
+    attributes:
+      label: Affected files and public surfaces
+    validations:
+      required: true
+  - type: dropdown
+    id: evidence_status
+    attributes:
+      label: Evidence status
+      options:
+        - Planning only
+        - Synthetic validation only
+        - Real run pending review
+        - Validated and reviewed
+    validations:
+      required: true

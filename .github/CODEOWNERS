@@ -1,0 +1,10 @@
+# Either collaborator may review routine changes.
+* @siamakenna @siamakenna
+
+# Makenna remains required for claims, methods, governance, deployment, and automation.
+/docs/CLAIMS_LADDER.md @siamakenna
+/docs/METHODS_DRAFT.md @siamakenna
+/GOVERNANCE.md @siamakenna
+/SECURITY.md @siamakenna
+/.github/ @siamakenna
+/apps/web/ @siamakenna
