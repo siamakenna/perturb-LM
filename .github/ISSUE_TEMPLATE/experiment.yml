@@ -1,0 +1,60 @@
+name: Experiment request
+description: Propose a modeling, baseline, or evaluation experiment.
+title: "[Experiment]: "
+labels: ["experiment"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Scientific question
+    validations:
+      required: true
+  - type: textarea
+    id: baseline
+    attributes:
+      label: Baseline and success criterion
+    validations:
+      required: true
+  - type: textarea
+    id: inputs
+    attributes:
+      label: Approved inputs
+      description: Identify public-safe inputs without private paths.
+    validations:
+      required: true
+  - type: textarea
+    id: leakage
+    attributes:
+      label: Split and leakage policy
+    validations:
+      required: true
+  - type: textarea
+    id: methods
+    attributes:
+      label: Method, seeds, and configuration
+    validations:
+      required: true
+  - type: textarea
+    id: outputs
+    attributes:
+      label: Expected outputs
+      description: Separate local-only artifacts from public-safe summaries.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+    validations:
+      required: true
+  - type: checkboxes
+    id: safeguards
+    attributes:
+      label: Safeguards
+      options:
+        - label: This does not silently change benchmark definitions.
+          required: true
+        - label: Generated artifacts remain in ignored storage.
+          required: true
+        - label: Synthetic checks will not be reported as scientific results.
+          required: true
