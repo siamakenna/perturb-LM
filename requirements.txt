@@ -7,6 +7,6 @@ tqdm>=4.66
 typer>=0.12
 scikit-learn>=1.4
 PyYAML>=6
-certifi>=2025.10.5
+certifi>=2026.7.22
 pytest>=8
 ruff>=0.6

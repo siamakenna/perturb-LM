@@ -1,4 +1,4 @@
-certifi==2026.6.17
+certifi==2026.7.22
 numpy==2.5.0
 pandas==3.0.3
 pillow==12.3.0
@@ -6,7 +6,7 @@ pyarrow==24.0.0
 pytest==9.1.1
 PyYAML==6.0.3
 requests==2.34.2
-ruff==0.15.20
+ruff==0.16.0
 scikit-learn==1.9.0
-tqdm==4.68.4
-typer==0.26.8
+tqdm==4.69.1
+typer==0.27.0
