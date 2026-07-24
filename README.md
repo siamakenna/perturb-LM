@@ -79,13 +79,15 @@ pnpm dev
 
 Detailed smoke, real-data, reporting, and modeling commands live in the documentation rather than in this README.
 
-## Prototype
+## Public Prototype
+
+[Open the public Perturb-LM research prototype](https://web-pi-wheat-64.vercel.app)
 
 The web app includes `/`, `/dashboard`, `/demo`, `/methods`, and `POST /api/search`. The demo is explicitly synthetic:
 
 > Illustrative interface demo — not real model output
 
-A permanent public deployment URL is pending. Local or temporary preview deployments should not be treated as published scientific evidence.
+The public deployment provides an interface and aggregate benchmark dashboard only. It does not run a live biomedical retrieval model or expose real row-level data, embeddings, model weights, or learned-model scores.
 
 ## Documentation
 

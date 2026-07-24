@@ -3,7 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://perturb-lm.vercel.app"),
+  metadataBase: new URL("https://web-pi-wheat-64.vercel.app"),
   title: {
     default: "Perturb-LM: Leakage-Aware Language Retrieval",
     template: "%s | Perturb-LM",
