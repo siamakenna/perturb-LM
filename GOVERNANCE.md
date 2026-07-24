@@ -11,7 +11,7 @@ Perturb-LM currently uses a two-person collaboration model.
 - makes final decisions on benchmark definitions, licensing, and submissions;
 - may use administrator bypass only for urgent repository recovery.
 
-**Collaborator — `@siamakenna`**
+**Collaborator — `@adamdiaz313-collab`**
 
 - contributes through issues, branches, and pull requests;
 - may lead agreed modeling, analysis, documentation, or engineering tasks;
