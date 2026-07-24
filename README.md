@@ -107,3 +107,15 @@ Full raw image archives are not downloaded by default. Metadata and profiles are
 ## Citation And Contact
 
 Perturb-LM is an active research prototype. A manuscript citation is not available yet. Until then, cite the GitHub repository and the exact commit or release used.
+
+## Repository Support Files
+
+The root intentionally retains:
+
+- `CITATION.cff` for GitHub's citation interface;
+- `CHANGELOG.md` for release history;
+- `AGENTS.md` for repository-wide coding-agent safeguards;
+- `pyproject.toml` and `requirements.txt` for package and compatibility setup.
+
+Contribution, security, governance, and historical planning documents are
+organized under `.github/` and `docs/`.

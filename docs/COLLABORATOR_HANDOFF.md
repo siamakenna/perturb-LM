@@ -44,7 +44,7 @@ Keep embeddings, caches, projections, indexes, row-level results, weights, and p
 3. `docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md`
 4. `docs/KNOWN_GOOD_LOCAL_RUN.md`
 5. `docs/DATA_PROVENANCE.md`
-6. `CONTRIBUTING.md`
+6. `.github/CONTRIBUTING.md`
 7. `AGENTS.md`
 
 ## Handoff Acceptance

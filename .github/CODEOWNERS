@@ -4,7 +4,7 @@
 # Makenna remains required for claims, methods, governance, deployment, and automation.
 /docs/CLAIMS_LADDER.md @siamakenna
 /docs/METHODS_DRAFT.md @siamakenna
-/GOVERNANCE.md @siamakenna
-/SECURITY.md @siamakenna
+/docs/GOVERNANCE.md @siamakenna
+/.github/SECURITY.md @siamakenna
 /.github/ @siamakenna
 /apps/web/ @siamakenna

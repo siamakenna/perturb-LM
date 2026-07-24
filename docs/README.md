@@ -9,6 +9,7 @@ This index points readers to the current public-safe project documents without r
 - [Phase 3C text-profile alignment plan](PHASE3C_TEXT_PROFILE_ALIGNMENT.md) - current planned frozen-encoder and linear-projection experiment.
 - [Known-good local run checklist](KNOWN_GOOD_LOCAL_RUN.md) - concise local validation checklist.
 - [Collaborator handoff](COLLABORATOR_HANDOFF.md) - two-person onboarding, first-run deliverables, and artifact rules.
+- [Governance](GOVERNANCE.md) - roles, decisions, authorship, and the two-person collaboration model.
 - [Data provenance](DATA_PROVENANCE.md) - how public-safe provenance is recorded.
 - [Dataset notes](DATASETS.md) - dataset scope and local-data expectations.
 
@@ -24,6 +25,8 @@ This index points readers to the current public-safe project documents without r
 
 These documents preserve earlier readiness or planning snapshots. Do not rewrite their recorded results unless regenerating the underlying artifact.
 
+- [Initial project direction](archive/INITIAL_PROJECT_DIRECTION.md) - original BioMorph-Search scoping document.
+- [Week 1 JUMP baselines](archive/WEEK1_JUMP_BASELINES.md) - early benchmark plan and smoke-test snapshot.
 - [Phase 2 real baseline status](PHASE2_REAL_BASELINE_STATUS.md)
 - [Phase 2 real data and model design](PHASE2_REAL_DATA_AND_MODELS.md)
 - [Phase 2 reproducibility checklist](PHASE2_REPRODUCIBILITY_CHECKLIST.md)
