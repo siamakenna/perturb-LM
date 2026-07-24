@@ -32,7 +32,7 @@ text = [
   "sentence-transformers>=3",
 ]
 phase3c = [
-  "torch>=2.3,<2.8",
+  "torch>=2.3,<2.14",
   "transformers>=4.44,<5",
 ]
 
