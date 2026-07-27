@@ -37,6 +37,15 @@ Rationale: BiomedBERT was pretrained from scratch on PubMed abstracts and PubMed
 
 Limitation: BiomedBERT is a masked-language model rather than a retrieval-trained sentence encoder. Mean-pooled embeddings are a controlled feature-extraction baseline and must not be described as biological retrieval success without beating identifier-stripped TF-IDF under the predefined evaluation.
 
+## Compute Environment
+
+Use `docs/PHASE3C_COMPUTE_ENVIRONMENT.md` for the selected Phase 3C runtime target,
+required environment fields, storage/cache placeholders, and credential-safety
+rules. The preferred final run target is Google Colab or another Linux GPU
+environment. Local Windows remains acceptable for documentation, synthetic tests,
+and command dry runs, but final embedding and evaluation runs must record the
+actual runtime environment used.
+
 ## Query Text Policy
 
 Allowed fields:
