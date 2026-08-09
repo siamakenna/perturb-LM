@@ -16,9 +16,9 @@ PHASE3C_PATH = ROOT / "docs" / "PHASE3C_TEXT_PROFILE_ALIGNMENT.md"
 
 
 def main() -> None:
-    summary = json.loads(SUMMARY_PATH.read_text())
-    readiness = READINESS_PATH.read_text()
-    phase3c = PHASE3C_PATH.read_text()
+    summary = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
+    readiness = READINESS_PATH.read_text(encoding="utf-8")
+    phase3c = PHASE3C_PATH.read_text(encoding="utf-8")
     errors: list[str] = []
 
     expected = {
@@ -66,9 +66,16 @@ def main() -> None:
     if str(summary.get("phase3cImplementationStatus", "")).strip().lower() != "ready":
         errors.append("phase3cImplementationStatus must be ready after infrastructure merge.")
     if str(summary.get("projectedModelStatus", "")).strip().lower() != "pending":
-        errors.append("projectedModelStatus must remain pending until real projection results exist.")
+        errors.append(
+            "projectedModelStatus must remain pending until real projection results exist."
+        )
     selected_encoder = summary.get("selectedEncoder", {})
-    _compare(errors, "selectedEncoder.model", selected_encoder.get("model"), expected["selectedEncoder"])
+    _compare(
+        errors,
+        "selectedEncoder.model",
+        selected_encoder.get("model"),
+        expected["selectedEncoder"],
+    )
     _compare(
         errors,
         "selectedEncoder.pinnedRevision",
@@ -76,7 +83,9 @@ def main() -> None:
         expected["selectedEncoderRevision"],
     )
     if str(selected_encoder.get("runStatus", "")).strip().lower() != "pending":
-        errors.append("selectedEncoder.runStatus must remain pending until real encoder results exist.")
+        errors.append(
+            "selectedEncoder.runStatus must remain pending until real encoder results exist."
+        )
     if str(summary.get("heldOutBatchStatus", "")).strip().lower() != "unavailable":
         errors.append("heldOutBatchStatus must remain unavailable until a second batch exists.")
     if str(summary.get("syntheticDisclaimer", "")).strip() != (
@@ -85,9 +94,16 @@ def main() -> None:
         errors.append("syntheticDisclaimer changed from the required public-safe wording.")
     completed_terms = ["completed model", "model result achieved", "learned model outperforms"]
     if model_status == "pending" and any(term in claim_status for term in completed_terms):
-        errors.append("currentClaimStatus implies a completed model result while status is pending.")
+        errors.append(
+            "currentClaimStatus implies a completed model result while status is pending."
+        )
     methods = {str(item.get("key")): item for item in summary.get("methodComparison", [])}
-    _compare_float(errors, "methodComparison.random.map", methods.get("random", {}).get("map"), expected["randomMap"])
+    _compare_float(
+        errors,
+        "methodComparison.random.map",
+        methods.get("random", {}).get("map"),
+        expected["randomMap"],
+    )
     _compare_float(
         errors,
         "methodComparison.shuffled_label.map",
@@ -110,7 +126,11 @@ def main() -> None:
         if is_pending_model:
             if item.get("hasResult") is not False:
                 errors.append(f"Pending method {key} must have hasResult=false.")
-            if item.get("map") is not None or item.get("ciLow") is not None or item.get("ciHigh") is not None:
+            if (
+                item.get("map") is not None
+                or item.get("ciLow") is not None
+                or item.get("ciHigh") is not None
+            ):
                 errors.append(f"Pending method {key} must not expose numeric scores.")
 
     serialized = json.dumps(summary, sort_keys=True).lower()

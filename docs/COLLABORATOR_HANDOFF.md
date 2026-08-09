@@ -27,7 +27,10 @@ All work uses issues, branches, pull requests, and one review from the other col
 
 Establish a reproducible environment and complete a bounded frozen-BiomedBERT embedding run followed by the one-seed Phase 3C evaluation.
 
-Google Colab is a convenient starting option, but it is not required. AWS, RunPod, another Linux environment, or a reproducible local setup are acceptable when exact commands and versions are recorded.
+Google Colab or another Linux GPU environment is the recommended default. AWS,
+RunPod, another Linux environment, or a reproducible local setup are acceptable
+when exact commands, versions, storage/cache locations, and device details are
+recorded. See `docs/PHASE3C_COMPUTE_ENVIRONMENT.md`.
 
 ## Required First-Run Record
 
@@ -42,10 +45,11 @@ Keep embeddings, caches, projections, indexes, row-level results, weights, and p
 1. `docs/CLAIMS_LADDER.md`
 2. `docs/EVALUATION_PROTOCOL.md`
 3. `docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md`
-4. `docs/KNOWN_GOOD_LOCAL_RUN.md`
-5. `docs/DATA_PROVENANCE.md`
-6. `.github/CONTRIBUTING.md`
-7. `AGENTS.md`
+4. `docs/PHASE3C_COMPUTE_ENVIRONMENT.md`
+5. `docs/KNOWN_GOOD_LOCAL_RUN.md`
+6. `docs/DATA_PROVENANCE.md`
+7. `.github/CONTRIBUTING.md`
+8. `AGENTS.md`
 
 ## Handoff Acceptance
 

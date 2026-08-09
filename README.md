@@ -97,6 +97,7 @@ Start with:
 - [Methods draft](docs/METHODS_DRAFT.md)
 - [Claims ladder](docs/CLAIMS_LADDER.md)
 - [Phase 3C alignment plan](docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md)
+- [Phase 3C compute environment](docs/PHASE3C_COMPUTE_ENVIRONMENT.md)
 - [Known-good local run checklist](docs/KNOWN_GOOD_LOCAL_RUN.md)
 - [Real RxRx setup](docs/REAL_RXRX_SETUP.md)
 
