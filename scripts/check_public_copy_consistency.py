@@ -12,22 +12,44 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 SUMMARY_PATH = ROOT / "apps" / "web" / "src" / "data" / "project-summary.json"
 READINESS_PATH = ROOT / "docs" / "PHASE3B_FOUNDATION_READINESS.md"
+METHODS_PATH = ROOT / "docs" / "METHODS_DRAFT.md"
 PHASE3C_PATH = ROOT / "docs" / "PHASE3C_TEXT_PROFILE_ALIGNMENT.md"
+CURRENT_PUBLIC_PATHS = [
+    ROOT / "README.md",
+    METHODS_PATH,
+    ROOT / "docs" / "ABSTRACT_SEED.md",
+    PHASE3C_PATH,
+    ROOT / "site" / "index.html",
+    SUMMARY_PATH,
+]
+SUBMISSION_POPULATION = {
+    "qcProfileCount": 4524,
+    "labeledProfileCount": 4190,
+    "excludedMissingTreatmentCount": 334,
+    "featureCount": 904,
+    "queryCount": 641,
+}
 
 
 def main() -> None:
     summary = json.loads(SUMMARY_PATH.read_text(encoding="utf-8"))
     readiness = READINESS_PATH.read_text(encoding="utf-8")
+    methods = METHODS_PATH.read_text(encoding="utf-8")
     phase3c = PHASE3C_PATH.read_text(encoding="utf-8")
     errors: list[str] = []
 
     expected = {
-        "profileCount": _extract_int(readiness, r"\| profile rows \| ([0-9,]+) \|"),
-        "featureCount": _extract_int(
-            readiness,
-            r"\| usable numeric morphology features \| ([0-9,]+) \|",
+        "qcProfileCount": _extract_int(methods, r"\| QC profiles \| ([0-9,]+) \|"),
+        "labeledProfileCount": _extract_int(
+            methods,
+            r"\| Profiles with non-missing treatment labels \| ([0-9,]+) \|",
         ),
-        "queryCount": _extract_int(readiness, r"total queries: ([0-9,]+)"),
+        "excludedMissingTreatmentCount": _extract_int(
+            methods,
+            r"\| Profiles excluded for missing treatment labels \| ([0-9,]+) \|",
+        ),
+        "featureCount": _extract_int(methods, r"\| Morphology features \| ([0-9,]+) \|"),
+        "queryCount": _extract_int(methods, r"\| Evaluable lexical queries \| ([0-9,]+) /"),
         "lexicalBaselineMap": _extract_float(
             readiness,
             r"\| identifier-stripped TF-IDF \| ([0-9.]+) \|",
@@ -46,9 +68,38 @@ def main() -> None:
         "selectedEncoderRevision": _extract_text(phase3c, r"- Pinned revision: `([^`]+)`"),
     }
 
-    _compare(errors, "profileCount", summary.get("profileCount"), expected["profileCount"])
+    _compare(
+        errors,
+        "qcProfileCount",
+        summary.get("qcProfileCount"),
+        expected["qcProfileCount"],
+    )
+    _compare(
+        errors,
+        "labeledProfileCount",
+        summary.get("labeledProfileCount"),
+        expected["labeledProfileCount"],
+    )
+    _compare(
+        errors,
+        "excludedMissingTreatmentCount",
+        summary.get("excludedMissingTreatmentCount"),
+        expected["excludedMissingTreatmentCount"],
+    )
     _compare(errors, "featureCount", summary.get("featureCount"), expected["featureCount"])
     _compare(errors, "queryCount", summary.get("queryCount"), expected["queryCount"])
+    _compare(
+        errors,
+        "profileInclusionRule",
+        summary.get("profileInclusionRule"),
+        "profiles with non-missing treatment labels",
+    )
+    for field, value in SUBMISSION_POPULATION.items():
+        _compare(errors, f"submission contract {field}", expected[field], value)
+    if expected["qcProfileCount"] != (
+        expected["labeledProfileCount"] + expected["excludedMissingTreatmentCount"]
+    ):
+        errors.append("QC population does not equal labeled plus excluded profiles.")
     _compare_float(
         errors,
         "lexicalBaselineMap",
@@ -138,6 +189,9 @@ def main() -> None:
     for token in forbidden:
         if token in serialized:
             errors.append(f"Public summary contains forbidden token: {token}")
+    for path in CURRENT_PUBLIC_PATHS:
+        if "0.3991" in path.read_text(encoding="utf-8"):
+            errors.append(f"Current public copy contains superseded mAP in {path.name}.")
 
     if errors:
         print("Public copy consistency check failed:", file=sys.stderr)

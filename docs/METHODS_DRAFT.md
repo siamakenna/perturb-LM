@@ -8,7 +8,18 @@ Perturb-LM asks whether biological language can retrieve perturbation-induced Ce
 
 ## 2. Dataset And Profile Inventory
 
-The active dataset track is JUMP CPJUMP1 Cell Painting morphology profiles. The primary local benchmark contains 4,524 profiles from 12 consistent profile files. Raw microscopy image archives are not required for the current benchmark and were not downloaded for this foundation pass.
+The active dataset track is JUMP CPJUMP1 Cell Painting morphology profiles. The primary local benchmark contains 4,524 QC profiles from 12 consistent profile files in `2020_11_04_CPJUMP1`. The separate 192-profile `2020_11_18_CPJUMP1_TimepointDay1` dataset is excluded from the submission benchmark. Raw microscopy image archives are not required for the current benchmark and were not downloaded for this foundation pass.
+
+| Population field | Count |
+| --- | ---: |
+| Profile files | 12 |
+| QC profiles | 4,524 |
+| Profiles with non-missing treatment labels | 4,190 |
+| Profiles excluded for missing treatment labels | 334 |
+| Morphology features | 904 |
+| Evaluable lexical queries | 641 / 641 |
+
+The Phase 3C inclusion rule is **profiles with non-missing treatment labels**. It is applied before splitting, preprocessing, query construction, or scoring. Profile eligibility is reported separately from split-specific query evaluability.
 
 The benchmark is profile-based. Image-level retrieval is a longer-term direction that requires additional validation.
 
@@ -34,7 +45,7 @@ The current default harmonization policy is `strict_intersection`. Silent union-
 
 ## 5. Query Construction
 
-Text queries are built from aggregate perturbation labels and public-safe metadata fields. The full-query lexical baseline contains 641 evaluable queries. Query construction records the selected query count, query-selection mode, and a public-safe checksum.
+Text queries are built from aggregate perturbation labels and public-safe metadata fields. The full-query lexical baseline contains 641 total queries and 641 evaluable queries over the 4,190 label-eligible profiles. Query construction records the selected query count, query-selection mode, and a public-safe checksum.
 
 The current benchmark evaluates retrieval at the perturbation level after profile-level scoring.
 

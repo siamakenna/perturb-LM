@@ -6,6 +6,7 @@ Perturb-LM should only make claims that the current evidence supports. This ladd
 
 - The software and benchmark pipeline are reproducible on synthetic tests and local aggregate workflows.
 - The original local CPJUMP1 profile subset has a consistent 904-feature schema.
+- Its QC inventory contains 4,524 profiles; 4,190 have valid treatment labels for scored retrieval, and 334 are excluded explicitly.
 - Direct identifier leakage is explicitly controlled.
 - Target sequences are prohibited from identifier-stripped query and candidate text.
 - Lexical, random, and shuffled-label baselines run across the full query set.

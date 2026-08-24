@@ -111,7 +111,9 @@ Interpretation:
 - After excluding both same-plate and same-well neighbors, treatment-evaluable queries fall from 4,190 to 762.
 - The remaining same-treatment signal under the strictest filter is measurable but sparse.
 
-## Text-To-Profile Controls
+## Historical Text-To-Profile Controls
+
+> **Superseded metric context:** The `0.3991` identifier-stripped mAP below records the Phase 3A run configuration. It is not the current lexical reference. The corrected full-query reference is mAP `0.2513` with a 95% query-bootstrap interval of `0.2445` to `0.2582`.
 
 All four required control modes ran with 641 evaluable text queries.
 

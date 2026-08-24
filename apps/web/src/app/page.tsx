@@ -7,9 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import { SyntheticDisclaimer } from "@/components/perturb/primitives";
 
 const benchmarkCards = [
-  { label: "profiles", value: summary.profileCount.toLocaleString() },
+  { label: "QC profiles", value: summary.qcProfileCount.toLocaleString() },
+  { label: "retrieval-scored profiles", value: summary.labeledProfileCount.toLocaleString() },
+  { label: "missing-label exclusions", value: summary.excludedMissingTreatmentCount.toLocaleString() },
   { label: "morphology features", value: summary.featureCount.toLocaleString() },
-  { label: "full benchmark queries", value: summary.queryCount.toLocaleString() },
+  { label: "evaluable lexical queries", value: `${summary.queryCount} / ${summary.queryCount}` },
   { label: "identifier-stripped TF-IDF mAP", value: summary.lexicalBaselineMap.toFixed(4) },
 ];
 
