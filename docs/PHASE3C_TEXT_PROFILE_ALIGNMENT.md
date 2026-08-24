@@ -8,6 +8,17 @@ This phase does not fine-tune a biomedical encoder, download raw microscopy imag
 
 Can a frozen biomedical language representation retrieve perturbation-induced cellular morphology better than an identifier-stripped TF-IDF control under held-out and leakage-aware evaluation?
 
+## Submission Population
+
+- Batch: `2020_11_04_CPJUMP1`
+- Profile files: 12
+- QC profiles: 4,524
+- Profiles with non-missing treatment labels: 4,190
+- Profiles excluded for missing treatment labels: 334
+- Morphology features: 904
+
+The inclusion rule is **profiles with non-missing treatment labels** and must be applied before splitting. The separate 192-profile `2020_11_18_CPJUMP1_TimepointDay1` dataset is not part of the submission evaluation. Profile eligibility must remain distinct from split-specific query evaluability.
+
 ## Working Hypothesis
 
 Frozen biomedical language representations contain enough mechanistic information to support retrieval of perturbation-induced morphology after lightweight alignment, but success must be demonstrated against identifier-stripped lexical controls under held-out and leakage-aware evaluation.

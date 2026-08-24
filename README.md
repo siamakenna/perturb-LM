@@ -21,15 +21,17 @@ The active benchmark uses public-safe aggregate reporting only. Row-level data, 
 | Item | Current value |
 | --- | ---: |
 | Dataset track | JUMP CPJUMP1 profiles |
-| Profiles | 4,524 |
+| QC profiles | 4,524 |
+| Profiles entering scored retrieval | 4,190 |
+| Excluded for missing treatment label | 334 |
 | Primary morphology features | 904 |
-| Full benchmark queries | 641 |
+| Evaluable lexical queries | 641 / 641 |
 | Identifier-stripped TF-IDF mAP | 0.2513 |
 | mAP 95% query-bootstrap CI | 0.2445 to 0.2582 |
 | Held-out batch | unavailable |
 | Learned model result | pending |
 
-The identifier-stripped TF-IDF score is a lexical control, not a learned model result. The learned alignment experiment remains pending until it beats the identifier-stripped control under the specified held-out and leakage-aware evaluations.
+The 4,524 count is the QC inventory; only the 4,190 profiles with non-missing treatment labels enter scored retrieval. The identifier-stripped TF-IDF score is a lexical control, not a learned model result. The learned alignment experiment remains pending until it beats the identifier-stripped control under the specified held-out and leakage-aware evaluations.
 
 ## Status And Limitations
 

@@ -77,9 +77,23 @@ export default function DashboardPage() {
 
       <Section id="overview" eyebrow="Benchmark overview" title="Public-safe aggregates only">
         <dl className="grid gap-4 md:grid-cols-3">
-          <MetricCard label="Profiles" value={summary.profileCount.toLocaleString()} mono />
+          <MetricCard label="QC profiles" value={summary.qcProfileCount.toLocaleString()} mono />
+          <MetricCard
+            label="Retrieval-scored profiles"
+            value={summary.labeledProfileCount.toLocaleString()}
+            mono
+          />
+          <MetricCard
+            label="Missing-label exclusions"
+            value={summary.excludedMissingTreatmentCount.toLocaleString()}
+            mono
+          />
           <MetricCard label="Features" value={summary.featureCount.toLocaleString()} mono />
-          <MetricCard label="Queries" value={summary.queryCount.toLocaleString()} mono />
+          <MetricCard
+            label="Evaluable lexical queries"
+            value={`${summary.queryCount} / ${summary.queryCount}`}
+            mono
+          />
           <MetricCard
             label="TF-IDF mAP"
             value={summary.lexicalBaselineMap.toFixed(4)}

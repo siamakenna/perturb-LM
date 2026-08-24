@@ -15,7 +15,7 @@ const sections = [
   ],
   [
     "Dataset inventory",
-    "The primary benchmark uses 4,524 CPJUMP1 morphology profiles in a consistent 904-feature feature space. A larger compatibility investigation is not the primary modeling dataset.",
+    "The primary benchmark contains 4,524 QC profiles in a consistent 904-feature space. Scored retrieval uses 4,190 profiles with non-missing treatment labels; 334 unlabeled profiles are excluded before splitting. The separate 192-profile Day 1 dataset is not included.",
   ],
   [
     "Identifier policy",
@@ -56,8 +56,18 @@ export default function MethodsPage() {
         <h2 className="text-2xl font-semibold">Current benchmark snapshot</h2>
         <dl className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-sm text-ink/55">Profiles</dt>
-            <dd className="text-2xl font-semibold">{summary.profileCount.toLocaleString()}</dd>
+            <dt className="text-sm text-ink/55">QC profiles</dt>
+            <dd className="text-2xl font-semibold">{summary.qcProfileCount.toLocaleString()}</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-ink/55">Retrieval-scored profiles</dt>
+            <dd className="text-2xl font-semibold">{summary.labeledProfileCount.toLocaleString()}</dd>
+          </div>
+          <div>
+            <dt className="text-sm text-ink/55">Missing-label exclusions</dt>
+            <dd className="text-2xl font-semibold">
+              {summary.excludedMissingTreatmentCount.toLocaleString()}
+            </dd>
           </div>
           <div>
             <dt className="text-sm text-ink/55">Morphology features</dt>
