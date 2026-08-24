@@ -10,15 +10,14 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import Ridge
 from sklearn.metrics import average_precision_score
 from sklearn.metrics.pairwise import cosine_similarity
 
-from perturb_lm.data.jump import CELL_PAINTING_FEATURE_PREFIXES
+from perturb_lm.data.jump import CELL_PAINTING_FEATURE_PREFIXES, EXPECTED_BATCH
+from perturb_lm.engineering.artifacts import git_metadata
 from perturb_lm.modeling.preprocessing import (
-    IGNORED_OUTPUT_ROOTS,
     MorphologyPreprocessor,
     _validate_ignored_output_path,
 )
@@ -59,6 +58,10 @@ PHASE3C_METHODS = [
     "frozen_text_embeddings_unaligned",
     "frozen_text_embeddings_linear_projection",
 ]
+PHASE3C_LABEL_INCLUSION_RULE = "profiles with non-missing treatment labels"
+PHASE3C_EXPECTED_QC_PROFILE_COUNT = 4524
+PHASE3C_EXPECTED_PROFILE_FILE_COUNT = 12
+PHASE3C_EXPECTED_PLATES = tuple(f"BR{plate:08d}" for plate in range(116991, 117003))
 
 
 @dataclass(frozen=True)
@@ -81,8 +84,9 @@ def build_identifier_stripped_query_table(
     if label_column not in profiles.columns:
         raise ValueError(f"Missing label column: {label_column}")
     rows: list[dict[str, object]] = []
-    work = profiles.copy()
-    work[label_column] = work[label_column].astype(str)
+    work, _ = filter_phase3c_labeled_profiles(profiles, label_column=label_column)
+    if work.empty:
+        raise ValueError("No profiles have non-missing treatment labels.")
     for label, group in work.groupby(label_column, sort=True):
         row = group.iloc[0]
         text_parts = [
@@ -103,8 +107,80 @@ def build_identifier_stripped_query_table(
             }
         )
     queries = pd.DataFrame(rows).sort_values("query_id", kind="mergesort").reset_index(drop=True)
-    validate_identifier_stripped_text(queries, profiles)
+    validate_identifier_stripped_text(
+        queries,
+        profiles,
+        extra_prohibited_values=work[label_column].astype(str).tolist(),
+    )
     return queries
+
+
+def filter_phase3c_labeled_profiles(
+    profiles: pd.DataFrame,
+    *,
+    label_column: str = "treatment",
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Apply the Phase 3C treatment-label inclusion rule before splitting."""
+
+    if label_column not in profiles.columns:
+        raise ValueError(f"Missing label column: {label_column}")
+    valid_mask = profiles[label_column].map(_is_nonempty).to_numpy(dtype=bool)
+    filtered = profiles.loc[valid_mask].copy().reset_index(drop=True)
+    filtered[label_column] = filtered[label_column].map(lambda value: str(value).strip())
+    qc_profile_count = int(len(profiles))
+    labeled_profile_count = int(len(filtered))
+    excluded_count = qc_profile_count - labeled_profile_count
+    warnings = []
+    if excluded_count:
+        warnings.append(
+            f"Excluded {excluded_count} of {qc_profile_count} QC profiles because "
+            "treatment labels were missing."
+        )
+    return filtered, {
+        "population_inclusion_rule": PHASE3C_LABEL_INCLUSION_RULE,
+        "qc_profile_count": qc_profile_count,
+        "labeled_profile_count": labeled_profile_count,
+        "excluded_unlabeled_profile_count": excluded_count,
+        "warnings": warnings,
+    }
+
+
+def validate_phase3c_qc_population(
+    profiles: pd.DataFrame,
+    profile_paths: list[Path],
+) -> dict[str, int]:
+    """Require the intended 12-file CPJUMP1 QC population for real Phase 3C runs."""
+
+    observed_plates = {path.parent.name for path in profile_paths}
+    expected_plates = set(PHASE3C_EXPECTED_PLATES)
+    observed_batches = {path.parent.parent.name for path in profile_paths}
+    observed_names = {path.name for path in profile_paths}
+    expected_names = {
+        f"{plate}_normalized_feature_select_negcon_batch.csv.gz"
+        for plate in PHASE3C_EXPECTED_PLATES
+    }
+    errors: list[str] = []
+    if len(profile_paths) != PHASE3C_EXPECTED_PROFILE_FILE_COUNT:
+        errors.append(
+            f"expected {PHASE3C_EXPECTED_PROFILE_FILE_COUNT} profile files, "
+            f"found {len(profile_paths)}"
+        )
+    if observed_plates != expected_plates:
+        errors.append("profile files do not match the expected CPJUMP1 plate set")
+    if observed_batches != {EXPECTED_BATCH}:
+        errors.append(f"profile files must come from batch {EXPECTED_BATCH}")
+    if observed_names != expected_names:
+        errors.append("profile filenames do not match the expected CPJUMP1 file set")
+    if len(profiles) != PHASE3C_EXPECTED_QC_PROFILE_COUNT:
+        errors.append(
+            f"expected {PHASE3C_EXPECTED_QC_PROFILE_COUNT} QC profiles, found {len(profiles)}"
+        )
+    if errors:
+        raise ValueError("Invalid Phase 3C QC population: " + "; ".join(errors))
+    return {
+        "input_profile_file_count": int(len(profile_paths)),
+        "qc_profile_count": int(len(profiles)),
+    }
 
 
 def validate_identifier_stripped_text(
@@ -183,9 +259,9 @@ def make_phase3c_split(
     test_values = set(ordered[:n_test])
     frame["split"] = np.where(frame[column].astype(str).isin(test_values), "test", "train")
     if split_type == "held_out_treatment":
-        overlap = set(frame.loc[frame["split"] == "train", treatment_column].astype(str)).intersection(
-            set(frame.loc[frame["split"] == "test", treatment_column].astype(str))
-        )
+        overlap = set(
+            frame.loc[frame["split"] == "train", treatment_column].astype(str)
+        ).intersection(set(frame.loc[frame["split"] == "test", treatment_column].astype(str)))
         if overlap:
             raise ValueError("Held-out treatment split has train/test treatment overlap.")
     return Phase3CSplit(name=split_type, frame=frame, warnings=tuple(warnings))
@@ -234,13 +310,27 @@ def run_phase3c_alignment(
     """Run a controlled text-to-morphology comparison on an in-memory profile table."""
 
     top_k = sorted(set(top_k or DEFAULT_TOP_K))
-    split = make_phase3c_split(profiles, split_type=split_type, seed=seed, treatment_column=label_column)
+    git = git_metadata(repo_root=Path(__file__).resolve().parents[3])
+    labeled_profiles, population = filter_phase3c_labeled_profiles(
+        profiles,
+        label_column=label_column,
+    )
+    if labeled_profiles.empty:
+        raise ValueError("No profiles have non-missing treatment labels.")
+    split = make_phase3c_split(
+        labeled_profiles,
+        split_type=split_type,
+        seed=seed,
+        treatment_column=label_column,
+    )
     if "test" not in set(split.frame["split"].astype(str)):
         return {
             "split": split_type,
             "retrieval_filter": retrieval_filter,
             "status": "unavailable",
-            "warnings": list(split.warnings),
+            **git,
+            **{key: value for key, value in population.items() if key != "warnings"},
+            "warnings": [*population["warnings"], *split.warnings],
         }
     feature_columns = feature_columns or _detect_feature_columns(split.frame)
     if not feature_columns:
@@ -258,8 +348,12 @@ def run_phase3c_alignment(
     query_lookup = all_queries.set_index("target_label")["query_text"].astype(str).to_dict()
     train_texts = [query_lookup[str(label)] for label in train[label_column].astype(str)]
     test_queries = test[["profile_id", label_column, "plate", "well", "batch"]].copy()
-    test_queries["query_id"] = test_queries["profile_id"].map(lambda value: f"profile::{_public_hash(value)}")
-    test_queries["query_text"] = [query_lookup[str(label)] for label in test[label_column].astype(str)]
+    test_queries["query_id"] = test_queries["profile_id"].map(
+        lambda value: f"profile::{_public_hash(value)}"
+    )
+    test_queries["query_text"] = [
+        query_lookup[str(label)] for label in test[label_column].astype(str)
+    ]
     test_queries["target_label"] = test[label_column].astype(str).to_numpy()
     validate_identifier_stripped_text(test_queries, split.frame)
 
@@ -319,6 +413,8 @@ def run_phase3c_alignment(
         "split": split_type,
         "retrieval_filter": retrieval_filter,
         "status": "completed",
+        **git,
+        **{key: value for key, value in population.items() if key != "warnings"},
         "seed": seed,
         "train_profiles": int(len(train)),
         "test_profiles": int(len(test)),
@@ -332,7 +428,7 @@ def run_phase3c_alignment(
         "per_query": per_query,
         "summary": summary,
         "split_checksum": _aggregate_checksum(split.frame, split_column="split"),
-        "warnings": list(split.warnings),
+        "warnings": [*population["warnings"], *split.warnings],
     }
 
 
@@ -379,7 +475,9 @@ def score_profile_queries(
             y_true = np.array([], dtype=int)
             y_score = np.array([], dtype=float)
         top_profile_index = int(np.argmax(candidate_scores)) if len(candidate_scores) else None
-        top_profile = candidate_frame.iloc[top_profile_index] if top_profile_index is not None else {}
+        top_profile = (
+            candidate_frame.iloc[top_profile_index] if top_profile_index is not None else {}
+        )
         row: dict[str, object] = {
             "mode": mode,
             "query_id": query["query_id"],
@@ -458,9 +556,8 @@ def summarize_phase3c_per_query(
             ref_metric = f"{metric}_reference"
             if metric not in evaluable or ref_metric not in evaluable:
                 continue
-            values = (
-                evaluable[metric].to_numpy(dtype=float)
-                - evaluable[ref_metric].to_numpy(dtype=float)
+            values = evaluable[metric].to_numpy(dtype=float) - evaluable[ref_metric].to_numpy(
+                dtype=float
             )
             finite = values[np.isfinite(values)]
             estimate, ci_low, ci_high = _bootstrap_mean(finite, rng, bootstrap_samples)
@@ -493,6 +590,13 @@ def write_phase3c_public_safe_summary(result: dict[str, Any], out: Path | str) -
         "retrieval_filter": result["retrieval_filter"],
         "status": result["status"],
         "seed": result["seed"],
+        "git_commit": result["git_commit"],
+        "git_branch": result["git_branch"],
+        "git_dirty": result["git_dirty"],
+        "population_inclusion_rule": result["population_inclusion_rule"],
+        "qc_profile_count": result["qc_profile_count"],
+        "labeled_profile_count": result["labeled_profile_count"],
+        "excluded_unlabeled_profile_count": result["excluded_unlabeled_profile_count"],
         "train_profiles": result["train_profiles"],
         "test_profiles": result["test_profiles"],
         "train_treatments": result["train_treatments"],
@@ -551,7 +655,9 @@ def make_synthetic_phase3c_profiles(
         gene = f"gene_group_{treatment_index % 8}"
         pert_type = "crispr" if treatment_index % 2 else "compound"
         text = f"{gene} {pert_type}"
-        text_vec = LinearSyntheticTextEncoder(seed=seed, embedding_dimension_value=text_dim).encode([text])[0]
+        text_vec = LinearSyntheticTextEncoder(seed=seed, embedding_dimension_value=text_dim).encode(
+            [text]
+        )[0]
         projection = _synthetic_projection(text_dim, profile_dim, seed)
         center = text_vec @ projection
         for replicate in range(replicates_per_treatment):
@@ -597,9 +703,13 @@ def _tfidf_scores(query_texts: list[str], candidate_texts: list[str]) -> np.ndar
     return cosine_similarity(matrix[: len(query_texts)], matrix[len(query_texts) :])
 
 
-def _fixed_random_projection(text_embeddings: np.ndarray, output_dim: int, *, seed: int) -> np.ndarray:
+def _fixed_random_projection(
+    text_embeddings: np.ndarray, output_dim: int, *, seed: int
+) -> np.ndarray:
     rng = np.random.default_rng(seed)
-    weights = rng.normal(scale=1.0 / np.sqrt(text_embeddings.shape[1]), size=(text_embeddings.shape[1], output_dim))
+    weights = rng.normal(
+        scale=1.0 / np.sqrt(text_embeddings.shape[1]), size=(text_embeddings.shape[1], output_dim)
+    )
     return l2_normalize(text_embeddings @ weights)
 
 
