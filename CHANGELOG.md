@@ -1,5 +1,14 @@
 # Changelog
 
+
+## 2026-09-11
+
+- Reproduced the strict held-out-plate benchmark with same-plate and same-well retrieval candidates excluded: 1,079 total queries and 180 evaluable queries.
+- Recorded identifier-stripped TF-IDF mAP 0.1574, unaligned BiomedBERT mAP 0.0092, and projected BiomedBERT mAP 0.0332.
+- Added public-safe aggregate benchmark summaries and figures.
+- Recorded immutable MedCPT and BioLORD-2023 revisions and successful offline model validation; comparator performance remains pending.
+- Added the metadata and preprocessing audit framework.
+
 All notable public changes to Perturb-LM will be recorded here.
 
 ## Unreleased

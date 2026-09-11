@@ -1,5 +1,34 @@
 # Perturb-LM: Leakage-Aware Language Retrieval of Cell Painting Morphology
 
+
+<!-- BIWULF_STRICT_20260911 -->
+## Latest strict benchmark update — 2026-09-11
+
+A strict leakage-aware benchmark has now been reproduced using a
+`held_out_plate` split with same-plate and same-well retrieval candidates
+excluded.
+
+| Method | mAP | 95% query-bootstrap CI | Total queries | Evaluable |
+| --- | ---: | ---: | ---: | ---: |
+| Identifier-stripped TF-IDF | 0.157407 | 0.137431–0.179733 | 1,079 | 180 |
+| BiomedBERT, unaligned | 0.009196 | 0.005982–0.013334 | 1,079 | 180 |
+| BiomedBERT, train-only ridge projection | 0.033156 | 0.019586–0.048473 | 1,079 | 180 |
+
+Projection improves the dense BiomedBERT baseline but does not close the
+gap to identifier-stripped TF-IDF under this strict evaluation. This does
+not imply that TF-IDF understands biology better; it describes the
+performance of this specific frozen encoder plus linear-alignment setup.
+
+MedCPT and BioLORD-2023 have also been pinned to immutable model revisions
+and successfully validated offline. Their Perturb-LM comparator scores are
+still pending.
+
+See:
+
+- [Strict benchmark reproduction](docs/BIWULF_STRICT_BENCHMARK_2026-09-11.md)
+- [Comparator model validation](docs/COMPARATOR_MODEL_VALIDATION_2026-09-11.md)
+- [Metadata and preprocessing audit](docs/METADATA_AND_PREPROCESSING_AUDIT.md)
+
 Perturb-LM is a research benchmark for asking whether natural-language descriptions of biological perturbations can retrieve Cell Painting morphology profiles for the right reasons.
 
 The project is intentionally conservative. Treatment identifiers, target sequences, replicate structure, plate effects, well effects, and batch effects are treated as core evaluation risks rather than after-the-fact cleanup.
