@@ -1,0 +1,3 @@
+model_id	resolved_revision	hidden_size	smoke_last_hidden_state_shape	status
+ncbi/MedCPT-Query-Encoder	d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc	768	2x5x768	PASS
+FremyCompany/BioLORD-2023	167aab527b238a50ca65224e6319215d2ff4fc9f	768	2x5x768	PASS
