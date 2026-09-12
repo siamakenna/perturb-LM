@@ -28,6 +28,12 @@ from perturb_lm.modeling.text_encoder import (  # noqa: E402
     DeterministicFakeTextEncoder,
     FrozenBiomedicalTextEncoder,
 )
+from perturb_lm.modeling.comparator_text_encoder import (  # noqa: E402
+    BIOLORD_SPEC,
+    MEDCPT_SPEC,
+    BioLORDTextEncoder,
+    MedCPTTextEncoder,
+)
 
 
 def main() -> None:
@@ -53,12 +59,22 @@ def main() -> None:
         choices=["none", "exclude_same_plate", "exclude_same_well", "exclude_same_plate_and_well"],
         default="none",
     )
-    parser.add_argument("--encoder", choices=["fake", "biomedbert"], default="fake")
+    parser.add_argument(
+        "--encoder",
+        choices=["fake", "biomedbert", "medcpt", "biolord"],
+        default="fake",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--bootstrap-samples", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--cache-dir", type=Path, default=None)
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        default=None,
+        help="Pinned local snapshot path required for MedCPT and BioLORD.",
+    )
     parser.add_argument("--max-rows", type=int, default=None)
     args = parser.parse_args()
 
@@ -90,15 +106,47 @@ def main() -> None:
     if "batch" not in normalized.columns:
         normalized["batch"] = "unavailable"
     if args.encoder == "fake":
-        encoder = DeterministicFakeTextEncoder(seed=args.seed, embedding_dimension_value=16)
-        encoder_payload = {"model_name": "deterministic_fake_text_encoder"}
-    else:
+        encoder = DeterministicFakeTextEncoder(
+            seed=args.seed,
+            embedding_dimension_value=16,
+        )
+        encoder_payload = {
+            "model_name": "deterministic_fake_text_encoder",
+        }
+
+    elif args.encoder == "biomedbert":
         encoder = FrozenBiomedicalTextEncoder(
             batch_size=args.batch_size,
             device=args.device,
             cache_dir=args.cache_dir,
         )
         encoder_payload = BIOMEDBERT_SPEC.__dict__
+
+    elif args.encoder == "medcpt":
+        if args.model_path is None:
+            raise ValueError(
+                "--model-path is required for the frozen MedCPT comparator."
+            )
+
+        encoder = MedCPTTextEncoder(
+            args.model_path,
+            batch_size=args.batch_size,
+            device=args.device,
+        )
+        encoder_payload = MEDCPT_SPEC.__dict__
+
+    else:
+        if args.model_path is None:
+            raise ValueError(
+                "--model-path is required for the frozen BioLORD comparator."
+            )
+
+        encoder = BioLORDTextEncoder(
+            args.model_path,
+            batch_size=args.batch_size,
+            device=args.device,
+        )
+        encoder_payload = BIOLORD_SPEC.__dict__
     result = run_phase3c_alignment(
         normalized,
         encoder=encoder,
