@@ -1,6 +1,52 @@
 # Perturb-LM: Leakage-Aware Language Retrieval of Cell Painting Morphology
 
 
+
+<!-- EXPERIMENTAL_METADATA_20260912 -->
+## Comparator metadata and experimental information boundaries
+
+The strict comparator benchmark is now complete for the primary
+identifier-stripped `M0` condition. Because **metadata means different things
+across the source methods**, Perturb-LM records both the source authors'
+terminology and a harmonized causal role for every information source.
+
+The audit distinguishes:
+
+`MODEL_VISIBLE`, `INPUT_SHAPING`, `GROUPING_JOIN`, `SUPERVISION_LABEL`,
+`EVALUATION_ONLY`, `AUDIT_ONLY`, `MODEL_STATE_PRIOR`, and
+`DERIVED_REPRESENTATION`.
+
+This is particularly important for CellCLIP: its published-style captions can
+textualize experimental/perturbation metadata such as cell type, perturbation
+identity, SMILES, gene identity, and target sequence, whereas the primary
+Perturb-LM `M0` condition deliberately withholds those identity-rich fields.
+
+Primary strict M0 results:
+
+| Method | mAP |
+| --- | ---: |
+| Identifier-stripped TF-IDF | **0.157407** |
+| MedCPT, train-only projection | **0.047166** |
+| BioLORD-2023, train-only projection | **0.039978** |
+| Projected BiomedBERT | **0.033156** |
+| CellCLIP M0, WELL_MEAN | **0.007622** |
+| CellCLIP M0, WELL_ATTENTION | **0.007000** |
+
+<!-- STRICT_COMPARATOR_FIGURE_20260912 -->
+
+![Strict comparator mean average precision](docs/assets/strict_comparator_map_2026-09-12.svg)
+
+
+See:
+
+- [Experimental background and metadata semantics](docs/EXPERIMENTAL_BACKGROUND_AND_METADATA.md)
+- [Metadata and preprocessing audit](docs/METADATA_AND_PREPROCESSING_AUDIT.md)
+- [Machine-readable comparator metadata roles](docs/data/comparator_metadata_roles_2026-09-12.tsv)
+- [Primary strict comparator data](docs/data/strict_comparator_primary_2026-09-12.csv)
+
+The metadata-rich CellCLIP `PUBLISHED` prompt condition remains a separately
+labeled secondary ablation and is not substituted for the primary M0 result.
+
 <!-- BIWULF_STRICT_20260911 -->
 ## Latest strict benchmark update — 2026-09-11
 
@@ -19,9 +65,10 @@ gap to identifier-stripped TF-IDF under this strict evaluation. This does
 not imply that TF-IDF understands biology better; it describes the
 performance of this specific frozen encoder plus linear-alignment setup.
 
-MedCPT and BioLORD-2023 have also been pinned to immutable model revisions
-and successfully validated offline. Their Perturb-LM comparator scores are
-still pending.
+MedCPT and BioLORD-2023 were subsequently run under the same strict
+condition. CellCLIP M0 was also evaluated in its native 512-dimensional
+image-text space using the same frozen split, filtering, candidate, relevance,
+and evaluability rules. See the 2026-09-12 comparator update above.
 
 See:
 
@@ -302,4 +349,3 @@ Do not commit real data, embeddings, generated outputs, model weights, indexes, 
 ## Citation
 
 Perturb-LM is an active research prototype. A manuscript citation is not available yet. Until then, cite this repository and the exact commit or release used.
-

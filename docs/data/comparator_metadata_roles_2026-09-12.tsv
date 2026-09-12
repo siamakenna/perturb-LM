@@ -1,0 +1,32 @@
+comparator	condition	author_native_framing	information_item	perturb_lm_class	model_visible	role_in_current_experiment	reasoning
+TF-IDF	M0	text input	identifier-stripped biological description	MODEL_VISIBLE	YES	query representation	Literal retained characters determine the lexical vector.
+TF-IDF	M0	not model input	treatment identity / target label	SUPERVISION_LABEL	NO	defines relevance	The answer key determines positives but is not inserted into M0 text.
+TF-IDF	M0	experimental identifiers	plate / well / batch	EVALUATION_ONLY	NO	split and leakage filtering	Identifiers control eligibility and filtering but do not enter the vectorizer.
+BiomedBERT	M0	biomedical text input	identifier-stripped biological description	MODEL_VISIBLE	YES	text encoder input	This is the literal per-query information available at inference.
+BiomedBERT	M0	pretraining corpus	PubMed / PMC biomedical knowledge	MODEL_STATE_PRIOR	NO	knowledge encoded in checkpoint weights	Pretraining knowledge is not CPJUMP row metadata supplied at inference.
+BiomedBERT	M0	experimental identifiers	plate / well / batch	EVALUATION_ONLY	NO	split and retrieval filtering	These affect evaluation but are not passed to the text encoder.
+Projected BiomedBERT	M0	train-only alignment	ridge projection learned from training split	DERIVED_REPRESENTATION	NO	representation alignment	Projection changes alignment, not the model-visible metadata exposure.
+MedCPT	M0	query text	identifier-stripped biological description	MODEL_VISIBLE	YES	MedCPT query-encoder input	Only the M0 query is supplied from CPJUMP at inference.
+MedCPT	M0	query/article retrieval training	PubMed query-article and click-derived retrieval knowledge	MODEL_STATE_PRIOR	NO	knowledge encoded by pretraining	Search-log and article relationships shaped the released checkpoint but are not CPJUMP metadata.
+MedCPT	M0	experimental identifiers	plate / well / batch	EVALUATION_ONLY	NO	split and retrieval filtering	They affect the benchmark but not MedCPT tokens.
+MedCPT	M0	train-only alignment	ridge projection into morphology space	DERIVED_REPRESENTATION	NO	representation alignment	Projection changes geometry without adding query metadata.
+BioLORD-2023	M0	concept/text input	identifier-stripped biological description	MODEL_VISIBLE	YES	sentence-encoder input	The M0 text is the only CPJUMP information supplied to the encoder.
+BioLORD-2023	M0	definitions / ontology relationships	biomedical ontology, definition, and concept knowledge	MODEL_STATE_PRIOR	NO	knowledge encoded in released checkpoint	Ontology knowledge is in model state; no UMLS/SNOMED lookup is performed per CPJUMP query.
+BioLORD-2023	M0	experimental identifiers	plate / well / batch	EVALUATION_ONLY	NO	split and retrieval filtering	They do not enter the sentence encoder.
+BioLORD-2023	M0	train-only alignment	ridge projection into morphology space	DERIVED_REPRESENTATION	NO	representation alignment	Projection changes geometry without adding query metadata.
+CellCLIP	M0	text input	identifier-stripped biological description	MODEL_VISIBLE	YES	CellCLIP text-encoder input	M0 intentionally removes identity-rich fields from the prompt.
+CellCLIP	M0	Cell Painting image	five fluorescence channels	MODEL_VISIBLE	YES	image input	Pixel content is directly transformed into the image representation.
+CellCLIP	M0	image preprocessing	high-intensity clipping at 0.0028 percent	INPUT_SHAPING	NO	changes image values before encoding	The parameter affects pixels but is not itself supplied as a feature or token.
+CellCLIP	M0	image preprocessing	16-bit to 8-bit scaling	INPUT_SHAPING	NO	changes image values before encoding	Bit-depth conversion causally alters model input.
+CellCLIP	M0	channel handling	source channel order 3,5,2,1,4	INPUT_SHAPING	NO	determines channel semantics	Channel order changes what each image channel represents.
+CellCLIP	M0	acquisition identifiers	plate / well / site	GROUPING_JOIN	NO	associates TIFFs with a candidate well	These identifiers construct the candidate representation but are not text tokens.
+CellCLIP	M0	image representation	DINOv2 per-site/per-channel embedding	DERIVED_REPRESENTATION	NO	upstream image representation	The embedding is derived from pixels rather than independent metadata.
+CellCLIP	M0	pooling	WELL_MEAN / WELL_ATTENTION	DERIVED_REPRESENTATION	NO	site-to-well representation	Pooling is restricted to images within the candidate well to preserve the frozen candidate unit.
+CellCLIP	PUBLISHED	associated metadata / cell caption	cell type	MODEL_VISIBLE	YES	prompt token content	Experimental metadata becomes semantic model input when textualized.
+CellCLIP	PUBLISHED	perturbation metadata	perturbation class	MODEL_VISIBLE	YES	prompt token content	The model can directly condition on compound/CRISPR/ORF class when present.
+CellCLIP	PUBLISHED	perturbation metadata	drug / perturbation identity	MODEL_VISIBLE	YES	prompt token content	Identity is explicitly represented in the published-style caption.
+CellCLIP	PUBLISHED	molecular metadata	SMILES	MODEL_VISIBLE	YES	prompt token content	Molecular structure is exposed as literal text.
+CellCLIP	PUBLISHED	genetic perturbation metadata	gene identity	MODEL_VISIBLE	YES	prompt token content	Target gene is directly exposed to the text encoder.
+CellCLIP	PUBLISHED	genetic perturbation metadata	target sequence	MODEL_VISIBLE	YES	prompt token content when available	Sequence information becomes direct model input.
+CellCLIP	PUBLISHED	control annotation	control information	MODEL_VISIBLE	CONDITION_DEPENDENT	prompt construction	Control state is included by published prompt logic for relevant perturbations.
+CellCLIP	PUBLISHED	acquisition identifiers	plate / well / site	GROUPING_JOIN	NO	image association and pooling	Used to construct image instances, not intended as semantic prompt content.
