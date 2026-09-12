@@ -1,6 +1,16 @@
 # Changelog
 
 
+
+## 2026-09-12
+
+- Completed strict M0 MedCPT, BioLORD-2023, and CellCLIP comparator runs.
+- Added a comparator-specific metadata and information-boundary framework.
+- Distinguished source-author metadata terminology from Perturb-LM causal-role classifications.
+- Recorded CellCLIP M0 WELL_MEAN and WELL_ATTENTION results under the frozen 1,079/180 strict contract.
+- Added public-safe aggregate comparator data and figure.
+- Kept the metadata-rich CellCLIP `PUBLISHED` prompt as a separate pending secondary ablation.
+
 ## 2026-09-11
 
 - Reproduced the strict held-out-plate benchmark with same-plate and same-well retrieval candidates excluded: 1,079 total queries and 180 evaluable queries.
