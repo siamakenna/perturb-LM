@@ -42,7 +42,7 @@ Only the frozen text encoder and its documented tokenizer/pooling policy may cha
 - Offline model loading: complete.
 - 768-dimensional hidden-state validation: complete.
 - Perturb-LM encoder adapters: pending.
-- Strict MedCPT and BioLORD evaluations: pending.
+- Strict MedCPT and BioLORD evaluations were completed on 2026-09-12 under the frozen held-out-plate, exclude-same-plate-and-well, 1,079/180 evaluation contract. See [Experimental background and metadata semantics](EXPERIMENTAL_BACKGROUND_AND_METADATA.md).
 
 ## Licensing note
 

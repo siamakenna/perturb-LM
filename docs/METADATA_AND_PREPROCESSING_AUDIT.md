@@ -87,3 +87,14 @@ Recommended audit strata are:
 ## Comparator rule
 
 The metadata audit does not authorize changing the benchmark between models. MedCPT, BioLORD, and CellCLIP must be evaluated against a frozen common candidate/filter/relevance contract, with any modality-specific preprocessing recorded as part of the representation adapter.
+<!-- EXPERIMENTAL_METADATA_CROSSREF_20260912 -->
+## Comparator-specific metadata semantics
+
+This file records procedural metadata and preprocessing provenance. The
+authoritative conceptual treatment of what each comparator's source team means
+by metadata, and how Perturb-LM classifies each information source by causal
+role, is maintained in
+[`EXPERIMENTAL_BACKGROUND_AND_METADATA.md`](EXPERIMENTAL_BACKGROUND_AND_METADATA.md).
+
+The machine-readable field-by-field comparator table is
+[`data/comparator_metadata_roles_2026-09-12.tsv`](data/comparator_metadata_roles_2026-09-12.tsv).
