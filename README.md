@@ -19,7 +19,7 @@ The audit distinguishes:
 This is particularly important for CellCLIP: its published-style captions can
 textualize experimental/perturbation metadata such as cell type, perturbation
 identity, SMILES, gene identity, and target sequence, whereas the primary
-Perturb-LM `M0` condition deliberately withholds those identity-rich fields.
+The Perturb-LM `M0` specification excludes those identity-rich fields from model-visible text. Verification of the exact saved M0 query artifact used for the reported strict runs remains pending.
 
 Primary strict M0 results:
 
