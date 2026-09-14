@@ -17,6 +17,12 @@ from perturb_lm.data.jump import (  # noqa: E402
     detect_jump_profile_schema,
     load_jump_profile_tables,
 )
+from perturb_lm.modeling.comparator_text_encoder import (  # noqa: E402
+    BIOLORD_SPEC,
+    MEDCPT_SPEC,
+    BioLORDTextEncoder,
+    MedCPTTextEncoder,
+)
 from perturb_lm.modeling.phase3c import (  # noqa: E402
     run_phase3c_alignment,
     validate_phase3c_qc_population,
@@ -27,12 +33,6 @@ from perturb_lm.modeling.text_encoder import (  # noqa: E402
     BIOMEDBERT_SPEC,
     DeterministicFakeTextEncoder,
     FrozenBiomedicalTextEncoder,
-)
-from perturb_lm.modeling.comparator_text_encoder import (  # noqa: E402
-    BIOLORD_SPEC,
-    MEDCPT_SPEC,
-    BioLORDTextEncoder,
-    MedCPTTextEncoder,
 )
 
 

@@ -388,3 +388,18 @@ The machine-readable companion table is:
 The procedural provenance/preprocessing checklist remains in:
 
 `docs/METADATA_AND_PREPROCESSING_AUDIT.md`
+
+## Prompt determinism and artifact verification
+
+The current repository path constructs fixed M0/comparator text and passes it
+to encoder models; it does not use sampled language-model generation.
+Accordingly, generation temperature is not applicable to the current CellCLIP,
+MedCPT, or BioLORD evaluation path. If a future LLM-based prompt generator is
+introduced, its model revision and decoding configuration must be pinned,
+including `temperature=0.0` or deterministic decoding such as
+`do_sample=False`, where supported.
+
+The M0 specification excludes identity-rich fields such as `Metadata_gene`
+from model-visible text. The exact saved M0 query artifact used for the
+reported strict runs was not available in this local checkout, so
+artifact-level verification remains pending.
