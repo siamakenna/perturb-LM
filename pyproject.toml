@@ -33,7 +33,7 @@ text = [
 ]
 phase3c = [
   "torch>=2.3,<2.8",
-  "transformers>=4.44,<5",
+  "transformers>=4.44,<6",
 ]
 
 [project.scripts]
