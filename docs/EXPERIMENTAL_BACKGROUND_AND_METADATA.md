@@ -185,26 +185,30 @@ into the caption they become literal text tokens available to the model.
 
 ### M0 condition
 
-The Perturb-LM primary CellCLIP comparator intentionally supplies the same
-identifier-stripped biological-description policy used for the other M0
-comparators.
+The historical strict CellCLIP M0 implementation is versioned as
+`M0_GENE_AWARE_V1`. It uses the same identifier-stripped, gene-aware query
+contract reconstructed for the other historical M0 comparators.
 
 Consequently:
 
-- M0 text: `MODEL_VISIBLE`
+- `M0_GENE_AWARE_V1` text: `MODEL_VISIBLE`
 - raw/preprocessed fluorescence pixels: `MODEL_VISIBLE`
-- cell type / perturbation identity / SMILES / gene / sequence:
-  **not exposed in M0**
+- gene identity: `MODEL_VISIBLE`
+- perturbation type / control information retained by the query policy:
+  `MODEL_VISIBLE`
+- direct treatment/sample identity, SMILES, target sequence, and other
+  prohibited identifiers: **not exposed in `M0_GENE_AWARE_V1`**
 - plate/well/site: `GROUPING_JOIN` and/or `EVALUATION_ONLY`
 - preprocessing thresholds/order/crop rules: `INPUT_SHAPING`
 - DINO embeddings and CellCLIP image representation:
   `DERIVED_REPRESENTATION`
 
-The M0 score must therefore be described as:
+The historical M0 score must therefore be described as:
 
-> **CellCLIP under identifier-stripped metadata exposure**
+> **CellCLIP under identifier-stripped, gene-aware `M0_GENE_AWARE_V1` exposure**
 
-rather than as an unrestricted statement about published CellCLIP performance.
+rather than as either fully identity-free or an unrestricted statement about
+published CellCLIP performance.
 
 ### PUBLISHED condition
 
@@ -230,10 +234,10 @@ Perturb-LM uses an explicit exposure ladder:
 
 | Condition | Information exposed |
 | --- | --- |
-| `M0` | canonical identifier-stripped biological description only |
-| `M1` | M0 + cell type |
-| `M2` | M1 + perturbation class |
-| `M3` | M2 + drug/gene identity |
+| `M0_GENE_AWARE_V1` | identifier-stripped biological description with gene identity and allowed perturbation/control metadata |
+| `M1` | `M0_GENE_AWARE_V1` + cell type |
+| `M2` | M1 + additional perturbation-class metadata not already exposed by M0 |
+| `M3` | M2 + direct drug/treatment identity |
 | `M4` | M3 + SMILES or target sequence |
 | `M5` | M4 + batch/plate/well/site; leakage-positive-control condition only |
 | `PUBLISHED` | exact source-model prompt policy; reported separately from M0 |
@@ -383,7 +387,7 @@ For every comparator and condition, report:
 
 The machine-readable companion table is:
 
-`docs/data/comparator_metadata_roles_2026-09-12.tsv`
+`docs/data/comparator_metadata_roles_2026-09-16.tsv`
 
 The procedural provenance/preprocessing checklist remains in:
 
@@ -399,7 +403,10 @@ introduced, its model revision and decoding configuration must be pinned,
 including `temperature=0.0` or deterministic decoding such as
 `do_sample=False`, where supported.
 
-The M0 specification excludes identity-rich fields such as `Metadata_gene`
-from model-visible text. The exact saved M0 query artifact used for the
-reported strict runs was not available in this local checkout, so
-artifact-level verification remains pending.
+The historical implementation audit shows that `Metadata_gene` was
+model-visible under `M0_GENE_AWARE_V1`, while direct treatment/sample
+identifiers and the other prohibited fields remained outside the query-text
+contract. A fully identity-free condition must be separately versioned, for
+example as `M0_IDENTITY_FREE_V2`, rather than silently replacing historical M0
+behavior. Final scientific-intent sign-off remains pending review of the
+private identity-audit sample.
