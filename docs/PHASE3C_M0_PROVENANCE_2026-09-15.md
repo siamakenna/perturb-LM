@@ -1,7 +1,8 @@
 # Phase 3C M0 provenance and evaluability audit
 
-**Status:** provenance and evaluability checks complete; gene-identity contract
-under review.
+**Status:** provenance and evaluability checks complete; historical query
+implementation reconstructed as gene-aware, with final scientific-intent
+sign-off still pending.
 
 ## Verified provenance
 
@@ -49,7 +50,7 @@ same-treatment morphology similarity on average. These findings show that the
 They do not, by themselves, establish a causal difference in biological
 difficulty.
 
-## Open gene-identity review
+## Gene-identity contract reconstruction
 
 The historical text contains no literal metadata field names such as
 `Metadata_gene`. However, a row-level audit matched the source
@@ -58,15 +59,30 @@ The historical text contains no literal metadata field names such as
 - 845 long-value matches;
 - 114 short or numeric matches.
 
-This result is under review. It may indicate either:
+Engineering reconstruction of historical commit
+`92e031466fe70e46883dddbe521d9b87a723eb5a` shows that
+`build_identifier_stripped_query_table` explicitly allowed:
 
-1. an intended gene-aware biological-text condition whose documentation is too
-   strong; or
-2. a violation of an intended identity-free M0 condition.
+- `Metadata_gene`;
+- `Metadata_pert_type`;
+- `Metadata_control_type`;
+- `Metadata_negcon_control_type`.
 
-The current audit does not classify the matches as harmless or as confirmed
-leakage. Public M0 claims should remain qualified until the query-construction
-contract is resolved.
+The historical validator prohibited direct treatment/sample identifiers,
+target sequence, perturbation identifiers, SMILES/InChIKey, plate/well/batch,
+profile identifiers, and source/provenance fields, but did not independently
+prohibit `Metadata_gene`.
+
+For the strict 12-file, 4,524-profile CPJUMP1 population, automatic treatment
+label selection resolved to `Metadata_broad_sample`, while `Metadata_gene`
+remained model-visible query text. The observed implementation is therefore
+versioned as `M0_GENE_AWARE_V1`.
+
+This engineering reconstruction does not by itself establish the original
+scientific intent. Final sign-off remains pending review of the private
+identity-audit sample. If a fully identity-free condition is adopted, it must
+be introduced as a separately versioned condition such as
+`M0_IDENTITY_FREE_V2`, rather than silently replacing historical M0 behavior.
 
 ## Prompt determinism
 

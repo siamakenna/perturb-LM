@@ -35,6 +35,8 @@ ALLOWED_IDENTIFIER_STRIPPED_QUERY_FIELDS = [
     "Metadata_control_type",
     "Metadata_negcon_control_type",
 ]
+PHASE3C_QUERY_CONDITION_VERSION = "M0_GENE_AWARE_V1"
+
 PROHIBITED_QUERY_FIELDS = [
     "Metadata_target_sequence",
     "Metadata_broad_sample",
@@ -409,6 +411,25 @@ def run_phase3c_alignment(
         top_k=top_k,
         bootstrap_samples=bootstrap_samples,
     )
+
+    reference_queries = per_query[
+        per_query["mode"] == "identifier_stripped_tfidf"
+    ].copy()
+    positive_counts = reference_queries["n_positives"].astype(int)
+
+    query_count = int(len(reference_queries))
+    evaluable_query_count = int((positive_counts > 0).sum())
+    nonevaluable_query_count = query_count - evaluable_query_count
+    query_coverage = (
+        float(evaluable_query_count / query_count)
+        if query_count
+        else 0.0
+    )
+    positive_count_histogram = {
+        str(int(count)): int(frequency)
+        for count, frequency in positive_counts.value_counts().sort_index().items()
+    }
+
     return {
         "split": split_type,
         "retrieval_filter": retrieval_filter,
@@ -425,6 +446,19 @@ def run_phase3c_alignment(
         "projection_type": "ridge_regression",
         "regularization_alpha": float(alpha),
         "preprocessing_fit_scope": preprocessor.fit_metadata_["fit_split"],
+        "query_condition_version": PHASE3C_QUERY_CONDITION_VERSION,
+        "query_model_visible_fields": list(ALLOWED_IDENTIFIER_STRIPPED_QUERY_FIELDS),
+        "query_inventory_sha256": _query_inventory_checksum(test_queries),
+        "query_count": query_count,
+        "evaluable_query_count": evaluable_query_count,
+        "nonevaluable_query_count": nonevaluable_query_count,
+        "query_coverage": query_coverage,
+        "positive_count_histogram": positive_count_histogram,
+        "max_positive_count": (
+            int(positive_counts.max())
+            if len(positive_counts)
+            else 0
+        ),
         "per_query": per_query,
         "summary": summary,
         "split_checksum": _aggregate_checksum(split.frame, split_column="split"),
@@ -606,6 +640,15 @@ def write_phase3c_public_safe_summary(result: dict[str, Any], out: Path | str) -
         "projection_type": result["projection_type"],
         "regularization_alpha": result["regularization_alpha"],
         "split_checksum": result["split_checksum"],
+        "query_condition_version": result["query_condition_version"],
+        "query_model_visible_fields": result["query_model_visible_fields"],
+        "query_inventory_sha256": result["query_inventory_sha256"],
+        "query_count": result["query_count"],
+        "evaluable_query_count": result["evaluable_query_count"],
+        "nonevaluable_query_count": result["nonevaluable_query_count"],
+        "query_coverage": result["query_coverage"],
+        "positive_count_histogram": result["positive_count_histogram"],
+        "max_positive_count": result["max_positive_count"],
         "warnings": result["warnings"],
         "scientific_caution": (
             "Synthetic or first-pass Phase 3C outputs are controlled retrieval benchmark "
@@ -751,6 +794,32 @@ def _detect_feature_columns(frame: pd.DataFrame) -> list[str]:
         if str(column).startswith(CELL_PAINTING_FEATURE_PREFIXES)
         and pd.api.types.is_numeric_dtype(frame[column])
     )
+
+
+def _query_inventory_checksum(queries: pd.DataFrame) -> str:
+    """Return a deterministic SHA-256 for the exact query inventory."""
+
+    required_columns = [
+        "query_id",
+        "target_label",
+        "query_text",
+    ]
+    missing = [
+        column
+        for column in required_columns
+        if column not in queries.columns
+    ]
+    if missing:
+        raise ValueError(f"Missing query inventory columns: {missing}")
+
+    inventory = (
+        queries[required_columns]
+        .astype(str)
+        .sort_values(required_columns, kind="mergesort")
+        .reset_index(drop=True)
+    )
+    payload = inventory.to_csv(index=False, lineterminator="\n")
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _aggregate_checksum(frame: pd.DataFrame, *, split_column: str) -> str:

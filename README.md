@@ -6,7 +6,7 @@
 ## Comparator metadata and experimental information boundaries
 
 The strict comparator benchmark is now complete for the primary
-identifier-stripped `M0` condition. Because **metadata means different things
+identifier-stripped, gene-aware `M0_GENE_AWARE_V1` condition. Because **metadata means different things
 across the source methods**, Perturb-LM records both the source authors'
 terminology and a harmonized causal role for every information source.
 
@@ -18,8 +18,13 @@ The audit distinguishes:
 
 This is particularly important for CellCLIP: its published-style captions can
 textualize experimental/perturbation metadata such as cell type, perturbation
-identity, SMILES, gene identity, and target sequence, whereas the primary
-The Perturb-LM `M0` specification excludes those identity-rich fields from model-visible text. Verification of the exact saved M0 query artifact used for the reported strict runs remains pending.
+identity, SMILES, gene identity, and target sequence. The historical strict
+M0 implementation is versioned as `M0_GENE_AWARE_V1`: it permits
+`Metadata_gene` while excluding direct treatment/sample identifiers, target
+sequences, compound identifiers, SMILES/InChIKeys, plate/well/batch identifiers,
+and provenance fields. The private 36-row identity-review sample remains
+pending; `M0_IDENTITY_FREE_V2` is reserved for a separately versioned future
+identity-free condition.
 
 Primary strict M0 results:
 
@@ -41,7 +46,7 @@ See:
 
 - [Experimental background and metadata semantics](docs/EXPERIMENTAL_BACKGROUND_AND_METADATA.md)
 - [Metadata and preprocessing audit](docs/METADATA_AND_PREPROCESSING_AUDIT.md)
-- [Machine-readable comparator metadata roles](docs/data/comparator_metadata_roles_2026-09-12.tsv)
+- [Machine-readable comparator metadata roles](docs/data/comparator_metadata_roles_2026-09-16.tsv)
 - [Primary strict comparator data](docs/data/strict_comparator_primary_2026-09-12.csv)
 
 The metadata-rich CellCLIP `PUBLISHED` prompt condition remains a separately
@@ -174,7 +179,7 @@ Every headline result should include:
 
 ### Query text policy
 
-Identifier-stripped model input may use:
+For historical `M0_GENE_AWARE_V1`, identifier-stripped model input may use:
 
 - `Metadata_gene`
 - `Metadata_pert_type`

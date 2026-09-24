@@ -51,18 +51,24 @@ The current benchmark evaluates retrieval at the perturbation level after profil
 
 ## 6. Identifier-Removal Policy
 
-Direct treatment identifiers are allowed only in the intentionally identifier-dominated full-metadata lexical reference. They are prohibited from identifier-stripped query and candidate text.
+The historical strict identifier-stripped query condition is versioned as `M0_GENE_AWARE_V1`.
+
+Direct treatment identifiers are allowed only in the intentionally identifier-dominated full-metadata lexical reference. They are prohibited from `M0_GENE_AWARE_V1` query and candidate text.
 
 `Metadata_target_sequence` is treated as a direct or near-direct treatment identifier and is prohibited.
 
-Identifier-stripped fields are limited to:
+Model-visible fields for `M0_GENE_AWARE_V1` are limited to:
 
 - gene;
 - perturbation type;
 - control type;
 - negative-control type.
 
+Direct treatment/sample identifiers, compound identifiers, SMILES/InChIKeys, target sequences, plate/well/batch identifiers, profile/source identifiers, and provenance fields remain prohibited.
+
 The validation code fails if prohibited identifier values appear in supposedly identifier-stripped query or candidate text.
+
+This names the observed historical implementation contract; it does not by itself resolve the original scientific-intent question. A future condition that removes gene identity must be separately versioned, for example as `M0_IDENTITY_FREE_V2`, rather than silently replacing historical M0 behavior.
 
 ## 7. Train-Only Preprocessing
 
@@ -123,7 +129,7 @@ Uncertainty is estimated with query-level paired bootstrap summaries. Bootstrap 
 
 The repository commits code, synthetic tests, configuration, and public-safe aggregate documentation. It does not commit real profiles, embeddings, model weights, indexes, raw image archives, row-level tables, local paths, or generated outputs.
 
-Runtime and environment summaries are written as local artifacts and dashboard-safe aggregate summaries.
+Runtime and environment summaries are written as local artifacts and dashboard-safe aggregate summaries. Future Phase 3C manifests also record the query-condition version, deterministic query-inventory SHA-256, total/evaluable/nonevaluable query counts, coverage, and positive-count summaries.
 
 ## 15. Current Limitations
 

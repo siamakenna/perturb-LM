@@ -36,6 +36,43 @@ from perturb_lm.modeling.text_encoder import (  # noqa: E402
 )
 
 
+def _build_run_manifest_payload(
+    result: dict[str, object],
+    encoder_payload: dict[str, object],
+    input_population: dict[str, object],
+) -> dict[str, object]:
+    """Build the public-safe CLI run manifest."""
+
+    return {
+        "split": result["split"],
+        "retrieval_filter": result["retrieval_filter"],
+        "status": result["status"],
+        "seed": result["seed"],
+        "encoder": encoder_payload,
+        "git_commit": result["git_commit"],
+        "git_branch": result["git_branch"],
+        "git_dirty": result["git_dirty"],
+        "query_condition_version": result["query_condition_version"],
+        "query_model_visible_fields": result["query_model_visible_fields"],
+        "query_inventory_sha256": result["query_inventory_sha256"],
+        "query_count": result["query_count"],
+        "evaluable_query_count": result["evaluable_query_count"],
+        "nonevaluable_query_count": result["nonevaluable_query_count"],
+        "query_coverage": result["query_coverage"],
+        "positive_count_histogram": result["positive_count_histogram"],
+        "max_positive_count": result["max_positive_count"],
+        **input_population,
+        "population_inclusion_rule": result["population_inclusion_rule"],
+        "labeled_profile_count": result["labeled_profile_count"],
+        "excluded_unlabeled_profile_count": result[
+            "excluded_unlabeled_profile_count"
+        ],
+        "aggregate_summary_path": "phase3c_alignment_summary.csv",
+        "public_manifest_path": "phase3c_public_safe_manifest.json",
+        "artifact_policy": "Full generated outputs stay local and ignored.",
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__,
@@ -157,23 +194,11 @@ def main() -> None:
     )
     result["warnings"] = [*warnings, *result.get("warnings", [])]
     write_phase3c_public_safe_summary(result, args.out)
-    payload = {
-        "split": result["split"],
-        "retrieval_filter": result["retrieval_filter"],
-        "status": result["status"],
-        "seed": result["seed"],
-        "encoder": encoder_payload,
-        "git_commit": result["git_commit"],
-        "git_branch": result["git_branch"],
-        "git_dirty": result["git_dirty"],
-        **input_population,
-        "population_inclusion_rule": result["population_inclusion_rule"],
-        "labeled_profile_count": result["labeled_profile_count"],
-        "excluded_unlabeled_profile_count": result["excluded_unlabeled_profile_count"],
-        "aggregate_summary_path": "phase3c_alignment_summary.csv",
-        "public_manifest_path": "phase3c_public_safe_manifest.json",
-        "artifact_policy": "Full generated outputs stay local and ignored.",
-    }
+    payload = _build_run_manifest_payload(
+        result,
+        encoder_payload,
+        input_population,
+    )
     (args.out / "phase3c_run_manifest_public_safe.json").write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n"
     )

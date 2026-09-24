@@ -97,4 +97,4 @@ role, is maintained in
 [`EXPERIMENTAL_BACKGROUND_AND_METADATA.md`](EXPERIMENTAL_BACKGROUND_AND_METADATA.md).
 
 The machine-readable field-by-field comparator table is
-[`data/comparator_metadata_roles_2026-09-12.tsv`](data/comparator_metadata_roles_2026-09-12.tsv).
+[`data/comparator_metadata_roles_2026-09-16.tsv`](data/comparator_metadata_roles_2026-09-16.tsv).
