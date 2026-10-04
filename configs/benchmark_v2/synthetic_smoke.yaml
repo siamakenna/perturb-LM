@@ -1,0 +1,71 @@
+schema_version: 1
+jobs:
+- scientific_stage: synthetic_contract
+  dataset: &id001
+    dataset: synthetic
+    version: synthetic-v1
+    metadata_path: tests/fixtures/benchmark_v2/metadata.csv
+    metadata_sha256: 791e5665cc1958d3d34187d175a38efc885d85adb2932dd27e328f04a061e5af
+    synthetic: true
+  text: &id002
+    name: word_tfidf
+    revision: sklearn-api-v1
+  morphology: &id003
+    name: cellprofiler
+    revision: synthetic-v1
+  alignment: &id004
+    name: ridge
+    revision: sklearn-api-v1
+  query_policy: M0_IDENTITY_FREE_V2
+  split: &id005
+    kind: held_out_plate
+    exclude:
+    - same_plate
+    - same_well_coordinate
+  execution: synthetic
+  bootstrap: &id006
+    n_resamples: 100
+    confidence: 0.95
+    seed: 7
+  name: smoke_embedding
+  stage: embedding
+  depends_on: []
+- scientific_stage: synthetic_contract
+  dataset: *id001
+  text: *id002
+  morphology: *id003
+  alignment: *id004
+  query_policy: M0_IDENTITY_FREE_V2
+  split: *id005
+  execution: synthetic
+  bootstrap: *id006
+  name: smoke_alignment
+  stage: alignment
+  depends_on:
+  - smoke_embedding
+- scientific_stage: synthetic_contract
+  dataset: *id001
+  text: *id002
+  morphology: *id003
+  alignment: *id004
+  query_policy: M0_IDENTITY_FREE_V2
+  split: *id005
+  execution: synthetic
+  bootstrap: *id006
+  name: smoke_retrieval
+  stage: retrieval
+  depends_on:
+  - smoke_alignment
+- scientific_stage: synthetic_contract
+  dataset: *id001
+  text: *id002
+  morphology: *id003
+  alignment: *id004
+  query_policy: M0_IDENTITY_FREE_V2
+  split: *id005
+  execution: synthetic
+  bootstrap: *id006
+  name: smoke_bootstrap
+  stage: bootstrap
+  depends_on:
+  - smoke_retrieval

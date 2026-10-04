@@ -1,0 +1,18 @@
+{
+  "requested_reference_commit": "ccec3b94ea6b5061a2d221c553b15e1fb1a93cc1",
+  "requested_commit_available_locally": false,
+  "observed_commit": "56ec4d08d2b638d0d1d8b8f559ab32e8f0cc15d0",
+  "scientific_reference": "docs/PHASE3B_FOUNDATION_READINESS.md#corrected-baselines",
+  "tracked_contract": {
+    "src/perturb_lm/retrieval/text_profile.py": "e069bc839bbe5b0bc6296f25730ebbfcd9a64ea6b56d07c0a790855bf9cf9dce",
+    "src/perturb_lm/modeling/phase3c.py": "4242c208fb5484e195ae504d7e450d9844d3cb86589d84b9d7a835395b20c256",
+    "scripts/run_jump_text_profile_retrieval.py": "1f1094633b3dc98b1ce076b2cc12626f0cf1179662ab12f98721c9f90d68368c",
+    "scripts/run_phase3c_alignment.py": "4519fe9f14b3464fe79bfccbd7a9ddc5735701e5290ad4f395742e04c86e8f41",
+    "docs/PHASE3B_FOUNDATION_READINESS.md": "ec3d22c0ecd080c1b4bb2b9db14566f3f82e49318de5e6663c73e16784f6218a",
+    "docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md": "3ceef2e9e3bbeba230abad36c5403b3039359df24bf69f42480d86b3940f403a"
+  },
+  "local_result_artifacts": {
+    "outputs/phase3b_corrected_baseline_full_original/jump_text_profile_multiseed_summary.csv": "f0315adf0a13d59b3aa84d1c35e7d7447ae59b5d68c36d801b1fb24dde6e9f15",
+    "outputs/phase3b_corrected_baseline_full_original/jump_text_profile_query_bootstrap_summary.csv": "cf5aba5731bafb10798d07c477644025beb17b1e0ea2c1277f908b56a6a68e84"
+  }
+}

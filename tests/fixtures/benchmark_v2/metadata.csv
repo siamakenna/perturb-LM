@@ -1,0 +1,13 @@
+record_id,dataset,batch,source,plate,well,treatment,perturbation,gene,compound,replicate,image_id,profile_id,split,Metadata_gene,Metadata_pert_type,biological_context,annotation_provenance,Cells_Area,Cells_Texture
+train_rep0_t0,synthetic,synthetic_batch,synthetic_source,train_plate_one,A01,treatment_0,perturbation_0,GENE_0,,rep_0,,train_rep0_t0,train,GENE_0,knockout,nuclear organization,synthetic-fixture-v1,1.0,1.0
+train_rep0_t1,synthetic,synthetic_batch,synthetic_source,train_plate_one,A02,treatment_1,perturbation_1,GENE_1,,rep_0,,train_rep0_t1,train,GENE_1,overexpression,vesicle transport,synthetic-fixture-v1,2.0,0.0
+train_rep0_t2,synthetic,synthetic_batch,synthetic_source,train_plate_one,A03,treatment_2,perturbation_2,GENE_2,,rep_0,,train_rep0_t2,train,GENE_2,inhibition,cell cycle,synthetic-fixture-v1,3.0,1.0
+train_rep1_t0,synthetic,synthetic_batch,synthetic_source,train_plate_two,B01,treatment_0,perturbation_0,GENE_0,,rep_1,,train_rep1_t0,train,GENE_0,knockout,nuclear organization,synthetic-fixture-v1,1.0,1.1
+train_rep1_t1,synthetic,synthetic_batch,synthetic_source,train_plate_two,B02,treatment_1,perturbation_1,GENE_1,,rep_1,,train_rep1_t1,train,GENE_1,overexpression,vesicle transport,synthetic-fixture-v1,2.0,0.1
+train_rep1_t2,synthetic,synthetic_batch,synthetic_source,train_plate_two,B03,treatment_2,perturbation_2,GENE_2,,rep_1,,train_rep1_t2,train,GENE_2,inhibition,cell cycle,synthetic-fixture-v1,3.0,1.1
+test_rep0_t0,synthetic,synthetic_batch,synthetic_source,test_plate_one,A01,treatment_0,perturbation_0,GENE_0,,rep_0,,test_rep0_t0,test,GENE_0,knockout,nuclear organization,synthetic-fixture-v1,1.0,1.0
+test_rep0_t1,synthetic,synthetic_batch,synthetic_source,test_plate_one,A02,treatment_1,perturbation_1,GENE_1,,rep_0,,test_rep0_t1,test,GENE_1,overexpression,vesicle transport,synthetic-fixture-v1,2.0,0.0
+test_rep0_t2,synthetic,synthetic_batch,synthetic_source,test_plate_one,A03,treatment_2,perturbation_2,GENE_2,,rep_0,,test_rep0_t2,test,GENE_2,inhibition,cell cycle,synthetic-fixture-v1,3.0,1.0
+test_rep1_t0,synthetic,synthetic_batch,synthetic_source,test_plate_two,B01,treatment_0,perturbation_0,GENE_0,,rep_1,,test_rep1_t0,test,GENE_0,knockout,nuclear organization,synthetic-fixture-v1,1.0,1.1
+test_rep1_t1,synthetic,synthetic_batch,synthetic_source,test_plate_two,B02,treatment_1,perturbation_1,GENE_1,,rep_1,,test_rep1_t1,test,GENE_1,overexpression,vesicle transport,synthetic-fixture-v1,2.0,0.1
+test_rep1_t2,synthetic,synthetic_batch,synthetic_source,test_plate_two,B03,treatment_2,perturbation_2,GENE_2,,rep_1,,test_rep1_t2,test,GENE_2,inhibition,cell cycle,synthetic-fixture-v1,3.0,1.1

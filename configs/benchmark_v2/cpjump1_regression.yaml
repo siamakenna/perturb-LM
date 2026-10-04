@@ -1,0 +1,28 @@
+schema_version: 1
+jobs:
+- scientific_stage: frozen_regression
+  dataset:
+    dataset: CPJUMP1
+    version: frozen-local-inventory-v1
+    metadata_path: outputs/jump_pilot_real_baseline/index/profile_metadata.csv
+    metadata_sha256: 9282663a6d3cda663938bbe84ddf5f73cbaa6112857f77c7bff14db684435ef5
+  text:
+    name: word_tfidf
+    revision: sklearn-api-v1
+  morphology:
+    name: cellprofiler
+    revision: cpjump1-frozen-904-features
+  alignment:
+    name: unaligned_cosine
+    revision: not-executed-artifact-check
+  query_policy: M0_GENE_AWARE_V1
+  split:
+    kind: unfiltered
+    exclude: []
+  execution: frozen_check
+  bootstrap:
+    n_resamples: 1000
+    confidence: 0.95
+    seed: 0
+  name: cpjump1_frozen_check
+  stage: retrieval

@@ -42,3 +42,9 @@ These documents preserve earlier readiness or planning snapshots. Do not rewrite
 - [Phase 3 entry criteria](PHASE3_ENTRY_CRITERIA.md) - criteria for stronger model work.
 - [Phase 3 proposal template](PHASE3_PROPOSAL_TEMPLATE.md) - planning scaffold.
 - [Roadmap](ROADMAP.md) - short forward-looking project notes.
+
+- [Benchmark V2 Phase 1 foundation](BENCHMARK_V2_PHASE1.md): public API, frozen regression provenance, synthetic workflow, planning, and Turn 2 boundaries.
+- [Benchmark V2 scientific contracts](BENCHMARK_V2_SCIENTIFIC_CONTRACTS.md): relevance and policy decisions.
+- [Benchmark V2 provenance reconciliation](BENCHMARK_V2_PROVENANCE_RECONCILIATION.md): frozen reference comparison.
+- [Benchmark V2 model registry](BENCHMARK_V2_MODEL_REGISTRY.md): pinned assets and blockers.
+- [Biowulf Benchmark V2 handoff](BIOWULF_BENCHMARK_V2.md): cluster commands and preflight.
