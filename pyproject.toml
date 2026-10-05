@@ -21,6 +21,8 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+pixel = ["scikit-image>=0.22", "scipy>=1.10", "tifffile>=2023.8.30"]
+
 dev = [
   "pytest>=8",
   "ruff>=0.6",
