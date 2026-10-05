@@ -1,10 +1,12 @@
 # Benchmark V2 final review
 
-Scope: the complete feature branch from merge base
+Scope: the original complete feature branch from merge base
 `56ec4d08d2b638d0d1d8b8f559ab32e8f0cc15d0`, including Turn 1 and Turn 2.
-The reference `ccec3b94ea6b5061a2d221c553b15e1fb1a93cc1` was inspected without
-merging its later Phase 3C changes. The frozen source, documents, and result
-checksums remain authoritative. No scientific metric or paper was changed.
+At the time of that review, reference
+`ccec3b94ea6b5061a2d221c553b15e1fb1a93cc1` was inspected without merging
+its later Phase 3C changes. Those changes are now present in the post-merge
+history. The post-merge CI repair reconciles the two affected frozen source
+checksums without changing scientific metrics or result artifacts.
 
 ## Findings corrected
 
