@@ -52,7 +52,7 @@ models:
     backend: hf_text
     dimension: 768
     input_kind: text
-    pooling: mean
+    pooling: cls
     normalize: true
     max_length: 512
   dinov2:

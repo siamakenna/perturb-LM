@@ -18,7 +18,7 @@ class BM25Retriever(BaseEstimator):
         self.b = b
 
     def fit(self, X, y=None):
-        if self.k1 <= 0 or not 0 <= self.b <= 1:
+        if not np.isfinite(self.k1) or self.k1 <= 0 or not 0 <= self.b <= 1:
             raise ValueError("BM25 requires k1 > 0 and 0 <= b <= 1")
         documents = [Counter(re.findall(r"\w+", text.casefold())) for text in X]
         if not documents:
@@ -41,7 +41,10 @@ class BM25Retriever(BaseEstimator):
         for i, text in enumerate(queries):
             for token in set(re.findall(r"\w+", text.casefold())):
                 frequency = np.array([doc.get(token, 0) for doc in self.documents_])
-                scores[i] += (
-                    self.idf_.get(token, 0) * frequency * (self.k1 + 1) / (frequency + denominator)
+                scores[i] += np.divide(
+                    self.idf_.get(token, 0) * frequency * (self.k1 + 1),
+                    frequency + denominator,
+                    out=np.zeros(len(frequency)),
+                    where=frequency + denominator > 0,
                 )
         return scores

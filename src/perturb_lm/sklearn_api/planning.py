@@ -103,8 +103,6 @@ class JobConfig:
         contracts = load_relevance_contracts()
         if self.relevance_contract not in contracts:
             raise ValueError(f"Unknown relevance contract: {self.relevance_contract}")
-        if self.relevance_contract != self.query_policy:
-            raise ValueError("Relevance contract and query policy must be explicitly paired")
         if self.scientific_stage not in {
             "synthetic_contract",
             "frozen_regression",
@@ -148,6 +146,14 @@ class JobConfig:
         if len(set(self.depends_on)) != len(self.depends_on):
             raise ValueError("Duplicate job dependencies")
         if self.execution == "synthetic":
+            contract = contracts[self.relevance_contract]
+            contract.require_execution(self.dataset.synthetic)
+            if contract.retrieval_unit != self.dataset.retrieval_unit:
+                raise ValueError("Dataset retrieval unit differs from relevance contract")
+            if tuple(self.split.exclude) != contract.exclusions:
+                raise ValueError("Split exclusions differ from relevance contract")
+            if contract.query_unit != "record":
+                raise ValueError("Synthetic worker supports record queries only")
             if not self.dataset.synthetic or self.scientific_stage != "synthetic_contract":
                 raise ValueError(
                     "Synthetic execution requires an explicitly synthetic dataset/stage"
@@ -222,6 +228,8 @@ def parse_job(raw: dict) -> JobConfig:
     split = dict(raw["split"])
     if "exclude" in split:
         split["exclude"] = tuple(split["exclude"])
+    if "group_fields" in split:
+        split["group_fields"] = tuple(split["group_fields"])
     raw["split"] = SplitSpec(**split)
     raw["resources"] = Resources(**raw.get("resources", {}))
     raw["bootstrap"] = BootstrapConfig(**raw.get("bootstrap", {}))
@@ -275,7 +283,6 @@ def code_identity(root: Path) -> dict:
         return subprocess.check_output(["git", "-C", str(root), *args], text=True).strip()
 
     commit = git("rev-parse", "HEAD")
-    dirty = bool(git("status", "--porcelain"))
     # Include new uncommitted implementation files; exclude generated/user artifacts.
     relevant = [
         root / "src/perturb_lm/sklearn_api",
@@ -294,7 +301,6 @@ def code_identity(root: Path) -> dict:
     paths += [root / "pyproject.toml"]
     return {
         "git_commit": commit,
-        "dirty_worktree": dirty,
         "source_sha256": canonical_hash(
             {str(p.relative_to(root)): file_checksum(p) for p in paths}
         ),
@@ -329,8 +335,9 @@ def build_plan(jobs: list[JobConfig], code: dict, environment: dict | None = Non
         policy = POLICIES[job.query_policy]
         identity = {
             "configuration": config,
-            "code": code,
+            "code": {k: v for k, v in code.items() if k != "dirty_worktree"},
             "environment": environment,
+            "relevance": load_relevance_contracts()[job.relevance_contract].to_dict(),
             "query_policy_version": policy.version,
             "dependencies": [ids[name] for name in job.depends_on],
         }
@@ -394,6 +401,8 @@ def run_manifest(job: dict, outputs: list[Path]) -> dict:
         "run_id": job["run_id"],
         "code": job["code"],
         "configuration_hash": job["configuration_hash"],
+        "configuration": job["configuration"],
+        "dependencies": job["dependencies"],
         "dataset_manifest": job["configuration"]["dataset"],
         "models": {
             k: {**job["configuration"][k], "identifier": job["model_identifiers"][k]}
@@ -403,7 +412,7 @@ def run_manifest(job: dict, outputs: list[Path]) -> dict:
             "name": job["configuration"]["query_policy"],
             "version": job["query_policy_version"],
         },
-        "relevance_contract": job["configuration"]["relevance_contract"],
+        "relevance_contract": job["relevance"],
         "split": job["configuration"]["split"],
         "seed": job["configuration"]["seed"],
         "bootstrap": job["configuration"]["bootstrap"],

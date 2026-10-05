@@ -11,6 +11,8 @@ from perturb_lm.sklearn_api.datasets import present
 SPLIT_FIELDS = {
     "held_out_plate": ("dataset", "source", "batch", "plate"),
     "held_out_treatment": ("treatment",),
+    "held_out_gene": ("gene", "species"),
+    "held_out_compound": ("compound",),
     "held_out_batch": ("dataset", "batch"),
     "leave_one_source_out": ("source",),
     "cross_dataset_transfer": ("dataset",),
@@ -28,6 +30,7 @@ FILTER_FIELDS = {
 class SplitSpec:
     kind: str = "held_out_plate"
     exclude: tuple[str, ...] = ("same_plate", "same_well_coordinate")
+    group_fields: tuple[str, ...] = ()
 
     def __post_init__(self):
         if self.kind not in {*SPLIT_FIELDS, "unfiltered"}:
@@ -36,6 +39,8 @@ class SplitSpec:
             raise ValueError("Unsupported leakage filter")
         if len(set(self.exclude)) != len(self.exclude):
             raise ValueError("Duplicate leakage filters")
+        if len(set(self.group_fields)) != len(self.group_fields):
+            raise ValueError("Duplicate split group fields")
 
     def validate(self, train: pd.DataFrame, test: pd.DataFrame) -> None:
         if self.kind == "unfiltered":
@@ -50,6 +55,31 @@ class SplitSpec:
         test_keys = set(test.loc[:, list(fields)].itertuples(index=False, name=None))
         if train_keys & test_keys:
             raise ValueError(f"Train/test leakage in {self.kind}")
+        if self.group_fields:
+            for frame in (train, test):
+                if any(
+                    f not in frame or not frame[f].map(present).all() for f in self.group_fields
+                ):
+                    raise ValueError("Split group fields must be nonmissing")
+            groups = [
+                set(frame.loc[:, list(self.group_fields)].itertuples(index=False, name=None))
+                for frame in (train, test)
+            ]
+            if groups[0] & groups[1]:
+                raise ValueError("Train/test replicate group leakage")
+        # Sites/images from one physical well cannot straddle train and test.
+        from perturb_lm.sklearn_api.contracts import canonical_well
+
+        well_fields = ["dataset", "source", "batch", "plate", "well"]
+        if all(f in train and f in test for f in well_fields):
+            wells = []
+            for frame in (train, test):
+                complete = frame[well_fields].apply(lambda col: col.map(present)).all(axis=1)
+                normalized = frame.loc[complete, well_fields].copy()
+                normalized["well"] = normalized.well.map(canonical_well)
+                wells.append(set(normalized.itertuples(index=False, name=None)))
+            if wells[0] & wells[1]:
+                raise ValueError("Train/test physical well leakage")
         if (
             "record_id" in train
             and "record_id" in test

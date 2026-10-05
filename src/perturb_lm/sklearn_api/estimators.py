@@ -75,6 +75,7 @@ class AlignmentEstimator(TransformerMixin, BaseEstimator):
         self.temperature = temperature
 
     def fit(self, X, y, *, group_ids=None, checkpoint=None):
+        self.__dict__.pop("model_", None)
         X = check_array(X, accept_sparse=True)
         y = check_array(y)
         if len(y) != X.shape[0]:

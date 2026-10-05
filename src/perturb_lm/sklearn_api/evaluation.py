@@ -51,6 +51,11 @@ class MetricEvaluator(BaseEstimator):
                 self.relevance.prepare(candidates),
             )
             label = "relevance_identity"
+            if (
+                self.relevance.query_unit == "identity"
+                and queries[label].dropna().duplicated().any()
+            ):
+                raise ValueError("Identity queries require one query per relevance identity")
         if (
             queries.empty
             or queries.query_id.duplicated().any()
@@ -67,10 +72,14 @@ class MetricEvaluator(BaseEstimator):
             if candidates.duplicated(["dataset", key]).any():
                 raise ValueError(f"Duplicate {key} candidates")
         if self.retrieval_unit == "well":
+            from perturb_lm.sklearn_api.contracts import canonical_well
+
+            candidates = candidates.copy()
             fields = ["dataset", "source", "batch", "plate", "well"]
             if any(f not in candidates for f in fields):
                 raise ValueError("Well retrieval requires well identity columns")
             complete_wells = candidates[fields].apply(lambda col: col.map(present)).all(axis=1)
+            candidates["well"] = candidates.well.map(canonical_well)
             if candidates.loc[complete_wells].duplicated(fields).any():
                 raise ValueError(
                     "Aggregate images/profiles to one row per well before well retrieval"
@@ -175,10 +184,19 @@ class QueryBootstrap(BaseEstimator):
         for frame in (values,) if reference is None else (values, reference):
             if not frame.query_id.map(present).all() or frame.query_id.duplicated().any():
                 raise ValueError("Bootstrap requires one row per unique query ID, not seed rows")
-        first = values.set_index("query_id")[metric].sort_index()
+
+        def eligible(frame):
+            series = frame.set_index("query_id")[metric].sort_index().astype(float)
+            if "evaluable" in frame:
+                if not frame.evaluable.map(lambda x: isinstance(x, (bool, np.bool_))).all():
+                    raise ValueError("evaluable must contain booleans")
+                series = series.where(frame.set_index("query_id").evaluable)
+            return series.where(np.isfinite(series))
+
+        first = eligible(values)
         n_total = len(first)
         if reference is not None:
-            second = reference.set_index("query_id")[metric].sort_index()
+            second = eligible(reference)
             if set(first.index) != set(second.index):
                 raise ValueError("Paired bootstrap requires identical query-ID populations")
             first = first - second

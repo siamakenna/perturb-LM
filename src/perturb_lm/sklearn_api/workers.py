@@ -9,6 +9,7 @@ import numpy as np
 
 from perturb_lm.sklearn_api.aggregation import aggregate_results
 from perturb_lm.sklearn_api.contracts import RelevanceContract
+from perturb_lm.sklearn_api.datasets import file_checksum, present
 from perturb_lm.sklearn_api.evaluation import MetricEvaluator, QueryBootstrap
 from perturb_lm.sklearn_api.neural import NeuralProjection
 
@@ -21,6 +22,8 @@ def save_embedding_stage(
     record_ids = np.asarray(record_ids, dtype=str)
     if (
         embeddings.ndim != 2
+        or record_ids.ndim != 1
+        or not all(present(value) for value in record_ids)
         or len(record_ids) != len(embeddings)
         or len(set(record_ids)) != len(record_ids)
     ):
@@ -41,6 +44,8 @@ def save_embedding_stage(
             "n_rows": len(embeddings),
             "dimension": embeddings.shape[1],
             "complete": True,
+            "run_id": provenance.get("run_id"),
+            "output_checksums": {"embeddings.npz": file_checksum(working / "embeddings.npz")},
         }
         (working / "complete.json").write_text(json.dumps(manifest, indent=2) + "\n")
         if output.exists():
@@ -55,7 +60,14 @@ def save_embedding_stage(
 
 
 def fit_alignment_stage(
-    text, morphology, *, method="ridge", group_ids=None, output: Path | None = None, **params
+    text,
+    morphology,
+    *,
+    method="ridge",
+    group_ids=None,
+    checkpoint=None,
+    output: Path | None = None,
+    **params,
 ):
     model = (
         NeuralProjection(**params)
@@ -68,7 +80,7 @@ def fit_alignment_stage(
         from perturb_lm.sklearn_api.estimators import AlignmentEstimator
 
         model = AlignmentEstimator(method=method, **params)
-    model.fit(text, morphology, group_ids=group_ids) if method in {
+    model.fit(text, morphology, group_ids=group_ids, checkpoint=checkpoint) if method in {
         "mlp_projection",
         "contrastive_projection",
     } else model.fit(text, morphology)
@@ -94,11 +106,16 @@ def evaluate_retrieval_stage(
     top_k=(1, 5, 10),
     output=None,
     provenance=None,
+    train_metadata=None,
+    synthetic=False,
 ):
-    if contract is not None:
-        if not isinstance(contract, RelevanceContract):
-            raise TypeError("contract must be a RelevanceContract")
-        contract.validate_split(queries, candidates, split)
+    if not isinstance(contract, RelevanceContract):
+        raise TypeError("contract must be a RelevanceContract")
+    contract.require_execution(synthetic)
+    if train_metadata is None:
+        raise ValueError("Provide training metadata to validate held-out queries and gallery")
+    contract.validate_split(train_metadata, queries, split)
+    contract.validate_split(train_metadata, candidates, split)
     evaluator = MetricEvaluator(
         tuple(top_k), contract.retrieval_unit if contract else "well", contract
     )

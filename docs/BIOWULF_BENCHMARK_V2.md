@@ -11,9 +11,10 @@ cd perturb-LM
 git fetch --all --tags --prune
 git switch feature/benchmark-v2-scikit
 export PLM_CODE="$PWD"
-export PLM_RESULTS="/lscratch/$USER/perturb-lm-v2/results"
-export PLM_ENV="/lscratch/$USER/perturb-lm-v2/venv"
-export PLM_CACHE="/lscratch/$USER/perturb-lm-v2/cache"
+# REQUIRES BIOWULF REVIEW: confirm persistent storage and quotas for this account.
+export PLM_RESULTS="/data/$USER/perturb-lm-v2/results"
+export PLM_ENV="/data/$USER/perturb-lm-v2/venv"
+export PLM_CACHE="/data/$USER/perturb-lm-v2/cache"
 export PLM_DATA="/data/$USER/perturb-lm-v2/data"
 mkdir -p "$PLM_RESULTS" "$PLM_CACHE" "$PLM_DATA"
 ```
@@ -27,7 +28,7 @@ python -m pip install --upgrade pip
 python -m pip install -e "$PLM_CODE[dev]"
 python -m perturb_lm.sklearn_api.execution --help
 python -m perturb_lm.sklearn_api.manifest_cli --help
-python -m pytest tests/test_benchmark_v2.py -q
+python -m pytest tests/test_benchmark_v2.py tests/test_benchmark_v2_turn2.py tests/test_benchmark_v2_review.py -q
 python -m pytest -q
 ```
 
@@ -80,7 +81,8 @@ bash -n "$PLM_RESULTS/staged-plan/submit.sh"
 ```
 
 The checked-in expanded example is intentionally `plan_only` and emits no real-data
-submissions. A reviewed production configuration must explicitly enable its workers.
-Once runnable rows exist, inspect and run the generated script, then use `squeue`,
+submissions. Real-data CLI dispatch is not implemented; a configuration edit cannot
+enable it. Approved production workers and backend integration are required first.
+For runnable synthetic rows, inspect and run the generated script, then use `squeue`,
 `jobhist JOB_ID`, and `sacct -j JOB_ID --format=JobID,State,ExitCode,Elapsed,MaxRSS`.
 Resubmit only indices without valid completion markers or with failed checksums.

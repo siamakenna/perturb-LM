@@ -181,10 +181,15 @@ class LocalDatasetAdapter:
         for key in self.config.required_fields:
             if key not in frame or not frame[key].map(present).all():
                 raise ValueError(f"Required metadata missing: {key}")
-        if frame.representation_id.duplicated().any():
-            raise ValueError("Duplicate representation identifiers")
+        if (
+            frame.representation_id.duplicated().any()
+            or not frame.representation_id.map(present).all()
+        ):
+            raise ValueError("Representation identifiers must be unique and nonmissing")
         if self.config.record_unit == "well":
             keys = ["dataset", "source", "batch", "plate", "well"]
+            if not frame[keys].apply(lambda col: col.map(present)).all().all():
+                raise ValueError("Well records require complete physical well keys")
             if frame.duplicated(keys).any():
                 raise ValueError("Duplicate physical well keys; aggregate explicitly")
         if self.config.record_unit == "treatment" and frame.treatment.duplicated().any():

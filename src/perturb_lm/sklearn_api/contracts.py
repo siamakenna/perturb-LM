@@ -100,6 +100,8 @@ class RelevanceContract:
         return asdict(self)
 
     def require_execution(self, synthetic: bool):
+        if type(synthetic) is not bool:
+            raise ValueError("synthetic must be a boolean")
         if not synthetic and self.approval != "approved":
             raise ValueError("needs_scientific_approval: approve the explicit relevance contract")
 
@@ -110,6 +112,7 @@ class RelevanceContract:
         return json.dumps(
             [
                 self.identity_namespace,
+                *([] if self.cross_dataset else [str(row.get("dataset", ""))]),
                 *[unicodedata.normalize("NFKC", str(value)).strip() for value in values],
             ],
             ensure_ascii=False,
@@ -127,11 +130,20 @@ class RelevanceContract:
     def validate_split(self, train, test, split: SplitSpec):
         if tuple(split.exclude) != tuple(self.exclusions):
             raise ValueError("Split filters differ from the relevance contract")
-        split.validate(train, test)
+        left, right = self.prepare(train), self.prepare(test)
+        if not left.relevance_identity.map(present).all():
+            raise ValueError("Training rows require complete relevance identities")
+        if split.kind == "held_out_treatment":
+            # Hold out the declared identity, even when no treatment column exists.
+            split.validate(
+                left.assign(treatment=left.relevance_identity),
+                right.assign(treatment=right.relevance_identity),
+            )
+        else:
+            split.validate(train, test)
         if split.kind == "cross_dataset_transfer" and not self.cross_dataset:
             raise ValueError("Cross-dataset retrieval requires a compatible relevance contract")
         if split.kind == "held_out_treatment":
-            left, right = self.prepare(train), self.prepare(test)
             overlap = set(left.relevance_identity.dropna()) & set(right.relevance_identity.dropna())
             if overlap:
                 raise ValueError("Held-out identity leakage under the selected relevance rule")

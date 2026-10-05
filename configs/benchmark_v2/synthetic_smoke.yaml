@@ -7,6 +7,7 @@ jobs:
     metadata_path: tests/fixtures/benchmark_v2/metadata.csv
     metadata_sha256: 791e5665cc1958d3d34187d175a38efc885d85adb2932dd27e328f04a061e5af
     synthetic: true
+    retrieval_unit: treatment
   text: &id002
     name: word_tfidf
     revision: sklearn-api-v1

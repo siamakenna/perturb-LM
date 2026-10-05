@@ -13,6 +13,7 @@ from perturb_lm.sklearn_api.estimators import (
     TfidfTextEmbedder,
 )
 from perturb_lm.sklearn_api.evaluation import MetricEvaluator
+from perturb_lm.sklearn_api.planning import load_relevance_contracts
 from perturb_lm.sklearn_api.queries import POLICIES, QueryPolicyTransformer
 from perturb_lm.sklearn_api.splits import SplitSpec
 
@@ -46,8 +47,9 @@ class BenchmarkPipeline(BaseEstimator):
         self.synthetic = synthetic
 
     def fit(self, X: pd.DataFrame, y, *, gallery: pd.DataFrame, gallery_y):
+        # A failed refit must not leave a usable gallery from an earlier fit.
+        self.__dict__.pop("gallery_", None)
         self.split_ = self.split if self.split is not None else SplitSpec()
-        self.split_.validate(X, gallery)
         if not X.split.eq("train").all() or not gallery.split.eq("test").all():
             raise ValueError("Pipeline requires explicit train and test membership")
         if len(X) != len(y) or len(gallery) != len(gallery_y):
@@ -60,6 +62,18 @@ class BenchmarkPipeline(BaseEstimator):
             raise ValueError(
                 "Provisional query policies are synthetic-only pending scientific review"
             )
+        contract = (
+            self.evaluator.relevance
+            if self.evaluator is not None and self.evaluator.relevance is not None
+            else load_relevance_contracts()[self.query_policy_.policy]
+        )
+        contract.require_execution(self.synthetic)
+        contract.validate_split(X, gallery, self.split_)
+        if contract.query_unit != "record":
+            raise ValueError(
+                "Pipeline requires record queries; aggregate identity queries explicitly"
+            )
+        self.relevance_ = contract
         self.query_policy_.fit(pd.concat([X, gallery], ignore_index=True))
         queries = self.query_policy_.transform(X)
         self.text_embedder_ = clone(
@@ -75,7 +89,12 @@ class BenchmarkPipeline(BaseEstimator):
         self.alignment_ = clone(
             self.alignment if self.alignment is not None else AlignmentEstimator()
         )
-        self.alignment_.fit(text, morphology)
+        if self.alignment_.method == "contrastive_projection":
+            self.alignment_.fit(
+                text, morphology, group_ids=contract.prepare(X).relevance_identity.to_numpy()
+            )
+        else:
+            self.alignment_.fit(text, morphology)
         self.retrieval_ = clone(
             self.retrieval if self.retrieval is not None else RetrievalEstimator()
         )
@@ -84,14 +103,21 @@ class BenchmarkPipeline(BaseEstimator):
                 "Exact-gene lookup is an identity control; use it outside the morphology pipeline"
             )
         self.retrieval_.fit(self.morphology_embedder_.transform(gallery_y))
-        self.evaluator_ = clone(self.evaluator if self.evaluator is not None else MetricEvaluator())
+        self.evaluator_ = clone(
+            self.evaluator
+            if self.evaluator is not None
+            else MetricEvaluator(retrieval_unit=contract.retrieval_unit, relevance=contract)
+        )
+        self.evaluator_.relevance = contract
+        if self.evaluator_.retrieval_unit != contract.retrieval_unit:
+            raise ValueError("Evaluator unit differs from relevance contract")
         self.train_metadata_ = X.copy()
         self.gallery_ = gallery.copy()
         return self
 
     def _queries(self, X):
         check_is_fitted(self, "gallery_")
-        self.split_.validate(self.train_metadata_, X)
+        self.relevance_.validate_split(self.train_metadata_, X, self.split_)
         if not X.split.eq("test").all():
             raise ValueError("Prediction queries must belong to the test partition")
         return self.query_policy_.transform(X)

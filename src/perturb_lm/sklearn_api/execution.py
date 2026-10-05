@@ -7,6 +7,7 @@ import json
 import os
 import shlex
 import shutil
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -27,8 +28,10 @@ from perturb_lm.sklearn_api.planning import (
     code_identity,
     environment_info,
     load_config,
+    load_relevance_contracts,
     parse_job,
     run_manifest,
+    validate_jobs,
     write_plan,
 )
 from perturb_lm.sklearn_api.queries import QueryPolicyTransformer
@@ -59,17 +62,29 @@ def completion_valid(directory: Path, run_id: str) -> bool:
     try:
         manifest = json.loads(path.read_text())
         checksums = manifest["output_checksums"]
+        if "configuration" in manifest:
+            identity = {
+                "configuration": manifest["configuration"],
+                "code": manifest["code"],
+                "environment": manifest["environment"],
+                "relevance": manifest["relevance_contract"],
+                "query_policy_version": manifest["query_policy"]["version"],
+                "dependencies": manifest["dependencies"],
+            }
+            if canonical_hash(identity) != run_id:
+                return False
         return (
             manifest["run_id"] == run_id
             and bool(checksums)
             and all(
                 Path(name).name == name
                 and (directory / name).is_file()
+                and (directory / name).resolve().is_relative_to(directory.resolve())
                 and file_checksum(directory / name) == digest
                 for name, digest in checksums.items()
             )
         )
-    except (ValueError, KeyError, OSError):
+    except (ValueError, KeyError, OSError, TypeError, AttributeError):
         return False
 
 
@@ -90,7 +105,14 @@ def run_job(job: dict, output_root: Path, data_root: Path = ROOT) -> Path:
         raise ValueError("Plan model identifiers differ from the registry")
     identity = {
         key: job[key]
-        for key in ("configuration", "code", "environment", "query_policy_version", "dependencies")
+        for key in (
+            "configuration",
+            "code",
+            "environment",
+            "relevance",
+            "query_policy_version",
+            "dependencies",
+        )
     }
     if (
         canonical_hash(identity) != job["run_id"]
@@ -107,13 +129,43 @@ def run_job(job: dict, output_root: Path, data_root: Path = ROOT) -> Path:
         or environment_info() != job["environment"]
     ):
         raise ValueError("Code/environment changed since planning; regenerate the plan")
+    if canonical_hash(job["relevance"]) != canonical_hash(
+        load_relevance_contracts()[validated.relevance_contract].to_dict()
+    ):
+        raise ValueError("Relevance contract changed since planning")
     directory = output_root / job["run_id"]
-    if completion_valid(directory, job["run_id"]):
-        return directory
     dependencies = [output_root / run_id for run_id in job["dependencies"]]
+    parents = []
     for path, run_id in zip(dependencies, job["dependencies"], strict=True):
         if not completion_valid(path, run_id):
             raise ValueError(f"Dependency is incomplete or corrupt: {run_id}")
+        manifest = json.loads((path / "complete.json").read_text())
+        if manifest["code"] != job["code"] or manifest["environment"] != job["environment"]:
+            raise ValueError("Dependency code/environment differs from the planned run")
+        parents.append(parse_job(manifest["configuration"]))
+    if tuple(parent.name for parent in parents) != validated.depends_on:
+        raise ValueError("Dependency names differ from planned configuration")
+    # Parent ancestry is validated when each parent runs; validate this edge here.
+    validate_jobs(
+        [
+            *[replace(parent, execution="plan_only", depends_on=()) for parent in parents],
+            replace(validated, execution="plan_only"),
+        ]
+    )
+    if validated.execution == "synthetic":
+        expected = {
+            "embedding": None,
+            "alignment": "embedding",
+            "retrieval": "alignment",
+            "bootstrap": "retrieval",
+        }[validated.stage]
+        counts = {"embedding": {0}, "alignment": {1}, "retrieval": {1}, "bootstrap": {1, 2}}
+        if len(parents) not in counts[validated.stage] or any(p.stage != expected for p in parents):
+            raise ValueError("Synthetic jobs require an embedding/alignment/retrieval chain")
+    if cfg["execution"] == "frozen_check":
+        frozen_check()  # Recheck the reference even when an old completion marker exists.
+    if completion_valid(directory, job["run_id"]):
+        return directory
     directory.mkdir(parents=True, exist_ok=True)
     # Exclusive lock prevents concurrent array retries from writing the same run.
     lock = directory / ".running"
@@ -125,10 +177,12 @@ def run_job(job: dict, output_root: Path, data_root: Path = ROOT) -> Path:
         ) from error
     os.close(descriptor)
     working = output_root / f".{job['run_id']}.working-{os.getpid()}"
+    created_working = False
     try:
         if working.exists():
             raise RuntimeError("A working directory with this process identity already exists")
         working.mkdir(parents=True)
+        created_working = True
         (directory / "complete.json").unlink(missing_ok=True)
         if cfg["execution"] == "frozen_check":
             _json(working / "verification.json", frozen_check())
@@ -141,13 +195,13 @@ def run_job(job: dict, output_root: Path, data_root: Path = ROOT) -> Path:
             temporary.replace(final)
             outputs.append(final)
         manifest = run_manifest(job, outputs)
-        # The executing dirty flag may differ due to unrelated user files; record both.
         manifest["execution_code"] = current
         _json(directory / "complete.tmp", manifest)
         (directory / "complete.tmp").replace(directory / "complete.json")
     finally:
         lock.unlink(missing_ok=True)
-        shutil.rmtree(working, ignore_errors=True)
+        if created_working:
+            shutil.rmtree(working, ignore_errors=True)
     return directory
 
 
@@ -157,7 +211,9 @@ def _synthetic_stage(cfg, dependencies, directory, data_root):
         frame = ManifestDatasetAdapter(DatasetManifest(**cfg["dataset"]), data_root).load()
         train, test = frame[frame.split == "train"], frame[frame.split == "test"]
         split = SplitSpec(**cfg["split"])
-        split.validate(train, test)
+        contract = load_relevance_contracts()[cfg["relevance_contract"]]
+        contract.require_execution(synthetic=True)
+        contract.validate_split(train, test, split)
         policy = QueryPolicyTransformer(cfg["query_policy"]).fit(frame)
         train_queries, test_queries = policy.transform(train), policy.transform(test)
         embedder = TfidfTextEmbedder().fit(train_queries.rendered_text.tolist())
@@ -190,7 +246,9 @@ def _synthetic_stage(cfg, dependencies, directory, data_root):
                 RetrievalEstimator().fit(arrays["test_morphology"]).predict(arrays["projected"])
             )
             result = MetricEvaluator(
-                tuple(cfg["top_k"]), cfg["dataset"]["retrieval_unit"]
+                tuple(cfg["top_k"]),
+                cfg["dataset"]["retrieval_unit"],
+                load_relevance_contracts()[cfg["relevance_contract"]],
             ).evaluate(
                 scores,
                 pd.DataFrame(context["queries"]),

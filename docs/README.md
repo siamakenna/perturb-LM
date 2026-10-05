@@ -4,6 +4,7 @@ This index points readers to the current public-safe project documents without r
 
 ## Current
 
+- [Benchmark V2 final review](BENCHMARK_V2_FINAL_REVIEW.md) - review corrections, validation commands, and remaining production gates.
 - [Methods draft](METHODS_DRAFT.md) - manuscript-facing benchmark and planned model methods.
 - [Claims ladder](CLAIMS_LADDER.md) - what the project may and may not claim today.
 - [Phase 3C text-profile alignment plan](PHASE3C_TEXT_PROFILE_ALIGNMENT.md) - current planned frozen-encoder and linear-projection experiment.

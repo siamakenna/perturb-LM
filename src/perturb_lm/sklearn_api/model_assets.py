@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib
+import importlib.metadata
 import json
 import os
 import re
@@ -40,6 +41,8 @@ class AssetSpec:
             raise ValueError(f"needs_model_prefetch: unresolved immutable revision for {self.name}")
         if self.dimension < 1 or self.input_kind not in {"text", "image", "channel_features"}:
             raise ValueError("Invalid model input/dimension specification")
+        if self.backend == "hf_text" and self.pooling not in {"cls", "mean"}:
+            raise ValueError("Unsupported text pooling")
         if self.blockers:
             raise ValueError("; ".join(self.blockers))
 
@@ -80,6 +83,13 @@ def validate_asset(path: Path, spec: AssetSpec, approve_model_code: bool = False
     checksums = payload.get("checksums", {})
     if not checksums or not payload.get("complete"):
         raise ValueError("Incomplete model asset manifest")
+    files = {
+        str(p.relative_to(path)) for p in path.rglob("*") if p.is_file() and p != manifest_path
+    }
+    if set(checksums) != files:
+        raise ValueError("Model asset checksums must cover every staged file")
+    if spec.code_revision and payload.get("code_revision") != spec.code_revision:
+        raise ValueError("Model code revision mismatch")
     for name, checksum in checksums.items():
         file = (path / name).resolve()
         if (
@@ -96,22 +106,26 @@ def optional_import(name):
         return importlib.import_module(name)
     except ImportError as error:
         raise ImportError(
-            f"Optional backend requires {name}; install the benchmark-models extra "
-            "and model-specific dependencies in PLM_ENV"
+            f"Optional backend requires {name}; install the documented model-specific "
+            "dependencies in PLM_ENV"
         ) from error
 
 
 def load_backend(spec: AssetSpec, local_path: Path, device: str, approve_model_code: bool):
     """Only this boundary is mocked in local model tests; no online model-name loading."""
+    if spec.backend not in {"hf_text", "hf_image"}:
+        raise NotImplementedError(
+            f"needs_backend_review: {spec.backend} requires a reviewed, pinned offline adapter"
+        )
     torch = optional_import("torch")
     for package in spec.required_packages:
         optional_import(package)
-    if spec.backend in {"hf_text", "hf_image", "openphenom"}:
+    if spec.backend in {"hf_text", "hf_image"}:
         transformers = optional_import("transformers")
         model = transformers.AutoModel.from_pretrained(
             str(local_path),
             local_files_only=True,
-            trust_remote_code=approve_model_code if spec.backend == "openphenom" else False,
+            trust_remote_code=False,
         )
         tokenizer = (
             transformers.AutoTokenizer.from_pretrained(str(local_path), local_files_only=True)
@@ -123,40 +137,6 @@ def load_backend(spec: AssetSpec, local_path: Path, device: str, approve_model_c
             if spec.backend == "hf_image"
             else None
         )
-    elif spec.backend == "open_clip_text":
-        open_clip = optional_import("open_clip")
-        transformers = optional_import("transformers")
-        config = json.loads((local_path / "open_clip_config.json").read_text())["model_cfg"]
-        config["text_cfg"]["hf_model_name"] = str(local_path / "text_config")
-        config["text_cfg"]["hf_tokenizer_name"] = str(local_path)
-        config["text_cfg"]["hf_model_pretrained"] = False
-        config_dir = local_path / "runtime_config"
-        config_dir.mkdir(exist_ok=True)
-        (config_dir / "plm_biomedclip.json").write_text(json.dumps(config))
-        open_clip.add_model_config(config_dir)
-        model, _, _ = open_clip.create_model_and_transforms(
-            "plm_biomedclip", pretrained=str(local_path / "open_clip_pytorch_model.bin")
-        )
-        tokenizer = transformers.AutoTokenizer.from_pretrained(
-            str(local_path), local_files_only=True
-        )
-        processor = None
-    elif spec.backend == "cellclip":
-        # The separately pinned CellCLIP source supplies the architecture, not weights.
-        module = optional_import("model")
-        if not hasattr(module, "MILCLIP"):
-            raise ImportError(
-                "Install the pinned CellCLIP source on PYTHONPATH; expected model.MILCLIP"
-            )
-        config = json.loads((local_path / "config.json").read_text())
-        model = module.MILCLIP(**config)
-        safetensors = optional_import("safetensors.torch")
-        model.load_state_dict(
-            safetensors.load_file(str(local_path / "model.safetensors")), strict=True
-        )
-        tokenizer = processor = None
-    else:
-        raise ValueError(f"Unsupported model backend: {spec.backend}")
     model = model.to(device).eval()
 
     def encode(batch):
@@ -170,27 +150,12 @@ def load_backend(spec: AssetSpec, local_path: Path, device: str, approve_model_c
                     return_tensors="pt",
                 )
                 encoded = {key: value.to(device) for key, value in encoded.items()}
-                if spec.backend == "open_clip_text":
-                    ids = encoded["input_ids"]
-                    if ids.shape[1] < spec.max_length:
-                        ids = torch.nn.functional.pad(
-                            ids, (0, spec.max_length - ids.shape[1]), value=tokenizer.pad_token_id
-                        )
-                    vector = model.encode_text(ids)
+                hidden = model(**encoded).last_hidden_state
+                if spec.pooling == "cls":
+                    vector = hidden[:, 0]
                 else:
-                    hidden = model(**encoded).last_hidden_state
-                    if spec.pooling == "cls":
-                        vector = hidden[:, 0]
-                    else:
-                        mask = encoded["attention_mask"].unsqueeze(-1)
-                        vector = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)
-            elif spec.backend == "openphenom":
-                model.return_channelwise_embeddings = False
-                vector = model.predict(torch.as_tensor(np.asarray(batch), device=device))
-            elif spec.backend == "cellclip":
-                vector = model.encode_image(
-                    torch.as_tensor(np.asarray(batch), dtype=torch.float32, device=device)
-                )
+                    mask = encoded["attention_mask"].unsqueeze(-1)
+                    vector = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)
             else:
                 inputs = processor(images=list(batch), return_tensors="pt")
                 vector = model(
@@ -219,22 +184,40 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
         self.approve_model_code = approve_model_code
 
     def fit(self, X, y=None):
+        self.__dict__.pop("asset_manifest_", None)
+        self.__dict__.pop("backend_", None)
+        self.__dict__.pop("fitted_params_", None)
         if type(self.batch_size) is not int or self.batch_size < 1:
             raise ValueError("batch_size must be a positive integer")
-        self.asset_manifest_ = validate_asset(
-            Path(self.asset_root), self.spec, self.approve_model_code
-        )
+        asset_manifest = validate_asset(Path(self.asset_root), self.spec, self.approve_model_code)
         self._validate_inputs(X)
+        self.asset_manifest_ = asset_manifest
+        self.fitted_params_ = digest(
+            {
+                **asdict(self.spec),
+                "asset_root": str(self.asset_root),
+                "device": self.device,
+                "approval": self.approve_model_code,
+            }
+        )
         return self
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state.pop(
+            "backend_", None
+        )  # Lazy closures/device handles are recreated after deserialization.
+        return state
 
     def _validate_inputs(self, X):
         if self.spec.input_kind == "text":
-            if not all(isinstance(value, str) for value in X):
+            if isinstance(X, str) or not all(isinstance(value, str) for value in X):
                 raise ValueError("Text models require strings")
         else:
             matrix = np.asarray(X)
             if (
-                matrix.ndim != len(self.spec.input_shape) + 1
+                matrix.dtype.kind not in "fiu"
+                or matrix.ndim != len(self.spec.input_shape) + 1
                 or any(
                     expected > 0 and actual != expected
                     for actual, expected in zip(
@@ -247,20 +230,51 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
 
     def transform(self, X):
         check_is_fitted(self, "asset_manifest_")
+        if type(self.batch_size) is not int or self.batch_size < 1:
+            raise ValueError("batch_size must be a positive integer")
+        if self.fitted_params_ != digest(
+            {
+                **asdict(self.spec),
+                "asset_root": str(self.asset_root),
+                "device": self.device,
+                "approval": self.approve_model_code,
+            }
+        ):
+            raise ValueError("Model parameters changed; refit before transforming")
+        if (
+            validate_asset(Path(self.asset_root), self.spec, self.approve_model_code)
+            != self.asset_manifest_
+        ):
+            raise ValueError("Model assets changed; refit before transforming")
         self._validate_inputs(X)
         import hashlib
 
         inputs_hash = (
             digest(list(X))
             if self.spec.input_kind == "text"
-            else hashlib.sha256(np.asarray(X).tobytes()).hexdigest()
+            else digest(
+                {
+                    "sha256": hashlib.sha256(np.asarray(X).tobytes()).hexdigest(),
+                    "shape": np.asarray(X).shape,
+                    "dtype": np.asarray(X).dtype.str,
+                }
+            )
         )
+        versions = {}
+        for package in self.spec.required_packages:
+            try:
+                versions[package] = importlib.metadata.version(package)
+            except importlib.metadata.PackageNotFoundError:
+                versions[package] = "unavailable"
         key = digest(
             {
                 "model": asdict(self.spec),
                 "inputs": inputs_hash,
                 "assets": self.asset_manifest_,
                 "device": self.device,
+                "batch_size": self.batch_size,
+                "packages": versions,
+                "implementation": file_checksum(Path(__file__)),
             }
         )
         cache = Path(self.cache_root) / key if self.cache_root is not None else None

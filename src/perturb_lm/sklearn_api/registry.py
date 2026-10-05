@@ -19,7 +19,7 @@ class ModelSpec:
 _SPECS = [
     ModelSpec("word_tfidf", "control", "sklearn:TfidfVectorizer:word", "available"),
     ModelSpec("character_tfidf", "control", "sklearn:TfidfVectorizer:char", "available"),
-    ModelSpec("bm25", "control", "BM25", "planned", "rank_bm25"),
+    ModelSpec("bm25", "control", "BM25", "available"),
     ModelSpec("random_ranking", "control", "numpy:random-ranking", "available"),
     ModelSpec("shuffled_query", "control", "numpy:query-permutation", "available"),
     ModelSpec("exact_gene_lookup", "control", "exact-gene-identity-control", "available"),
@@ -60,10 +60,8 @@ _SPECS = [
         ModelSpec(name, "alignment", name, "available")
         for name in ("unaligned_cosine", "ridge", "pls", "cca")
     ],
-    ModelSpec("mlp_projection", "alignment", "MLP-projection", "planned", "torch"),
-    ModelSpec(
-        "contrastive_projection", "alignment", "contrastive-projection-head", "planned", "torch"
-    ),
+    ModelSpec("mlp_projection", "alignment", "MLP-projection", "available"),
+    ModelSpec("contrastive_projection", "alignment", "contrastive-projection-head", "available"),
 ]
 REGISTRY = {spec.name: spec for spec in _SPECS}
 

@@ -295,7 +295,7 @@ def test_pipeline_train_only_and_prediction(records):
     train, test = records[records.split == "train"], records[records.split == "test"]
     features = ["Cells_Area", "Cells_Texture"]
     y, gallery = train[features].astype(float), test[features].astype(float)
-    pipeline = BenchmarkPipeline(text_embedder=TfidfTextEmbedder())
+    pipeline = BenchmarkPipeline(text_embedder=TfidfTextEmbedder(), synthetic=True)
     pipeline.fit(train, y, gallery=test, gallery_y=gallery)
     assert pipeline.predict(test).shape == (len(test), len(test))
     assert pipeline.evaluate(test).summary["n_evaluable_queries"] == len(test)

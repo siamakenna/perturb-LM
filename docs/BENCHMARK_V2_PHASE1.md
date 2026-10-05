@@ -28,10 +28,10 @@ tables. Regression checks verify these files when present, and explicitly mark
 local result files unavailable on clean installations. Existing synthetic
 regression tests continue to exercise the original evaluator.
 
-The requested reference commit `ccec3b94ea6b5061a2d221c553b15e1fb1a93cc1` was not
-available in this checkout. Provenance records the actual inspected commit
-`56ec4d08d2b638d0d1d8b8f559ab32e8f0cc15d0`. Reconciliation with the requested
-commit remains open; these checks do not assert their equivalence.
+The reference commit `ccec3b94ea6b5061a2d221c553b15e1fb1a93cc1` was subsequently
+fetched and inspected in Turn 2. The implementation base remains
+`56ec4d08d2b638d0d1d8b8f559ab32e8f0cc15d0`; they are not equivalent.
+See [the reconciliation](BENCHMARK_V2_PROVENANCE_RECONCILIATION.md).
 
 The CPJUMP1 regression configuration performs **read-only artifact verification**,
 never a benchmark rerun. Its model entries describe provenance placeholders, not
@@ -66,7 +66,7 @@ Example with already loaded, aligned numeric matrices:
 ```python
 from perturb_lm.sklearn_api import BenchmarkPipeline, SplitSpec
 
-benchmark = BenchmarkPipeline(split=SplitSpec("held_out_plate"))
+benchmark = BenchmarkPipeline(split=SplitSpec("held_out_plate"), synthetic=True)
 benchmark.fit(train_metadata, train_morphology,
               gallery=test_metadata, gallery_y=test_morphology)
 result = benchmark.evaluate(test_metadata)
@@ -80,6 +80,7 @@ row corresponds to its metadata row in positional order.
 
 Ridge, PLS and CCA are implemented; PLS/CCA use regression predictions in the
 morphology feature space, not their modality-specific latent coordinates.
+Turn 2 also adds synthetic-tested NumPy MLP and contrastive projection heads.
 Unaligned cosine requires matching dimensions and never inserts a random
 projection. Random ranking, query shuffling and exact-gene lookup are explicit
 controls; exact-gene lookup runs outside the morphology pipeline. Query shuffling
@@ -126,8 +127,9 @@ replicate identities blank rather than inventing them. Such rows need reviewed
 metadata enrichment before source-sensitive evaluation.
 
 The schema recognizes CPJUMP1, JUMP cpg0016/cpg0000/cpg0002, RxRx1, RxRx19a and
-PERISCOPE. Only generic normalized metadata and the lightweight CPJUMP1 adapter
-are implemented. Each additional raw format requires its own reviewed mapping.
+PERISCOPE. Turn 2 adds configurable local JUMP/RxRx mappings to the normalized
+metadata and lightweight CPJUMP1 adapters. These are synthetic schema checks;
+each real dataset still requires a reviewed mapping and checksummed local assets.
 
 `SplitSpec.validate(train, test)` checks held-out plate, treatment, batch, source,
 or dataset identity. It rejects missing split keys and shared records. Plate
@@ -161,7 +163,8 @@ per job and label scientific stage, execution mode and estimated resource class.
 Dependencies must preserve dataset, policy, split, seeds and upstream representations.
 
 Run IDs hash canonical configuration, model/data versions, policy version,
-dependency IDs, git state, relevant source/fixture hashes and package versions.
+relevance definitions, dependency IDs, git commit, relevant source/fixture hashes
+and package versions. Unrelated dirty-worktree state is excluded.
 Manifests include these inputs, runtime environment, random seeds, bootstrap settings
 and output checksums. Source hashes include uncommitted implementation files.
 Workers reject code/environment drift and corrupted plans; regenerate on the target
@@ -207,7 +210,11 @@ and set the local interpreter/data root. Resource requests are estimates. Site
 module versions, allocation, filesystem paths and scheduler policy need target-side
 review. No remote or Biowulf execution was attempted.
 
-## Exact Turn 2 work
+## Original Turn 2 work list
+
+This list records the original handoff. Current behavior and review corrections
+are described in [the final review](BENCHMARK_V2_FINAL_REVIEW.md). Real execution
+remains blocked; the CLI only executes the synthetic chain and frozen checks.
 
 1. Obtain/inspect the missing reference commit and reconcile it with the recorded
    local provenance; retain all frozen source/results until differences are reviewed.

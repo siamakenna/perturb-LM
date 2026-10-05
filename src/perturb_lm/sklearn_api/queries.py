@@ -120,8 +120,8 @@ class QueryPolicyTransformer(TransformerMixin, BaseEstimator):
         universe = pd.concat([self.identifier_universe_, X], ignore_index=True)
         rows = []
         for _, row in X.iterrows():
-            if not present(row.get("record_id")) or not present(row.get("treatment")):
-                raise ValueError("Queries require record_id and separate treatment identity")
+            if not present(row.get("record_id")):
+                raise ValueError("Queries require record_id; relevance is validated separately")
             parts = [
                 str(row[f]).strip() for f in policy.allowed_fields if f in row and present(row[f])
             ]

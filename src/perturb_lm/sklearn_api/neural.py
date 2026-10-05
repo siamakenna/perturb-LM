@@ -10,10 +10,20 @@ import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_array, check_is_fitted
 
+from perturb_lm.sklearn_api.datasets import present
+
 
 def unit_rows(values):
     norms = np.linalg.norm(values, axis=1, keepdims=True)
     return values / np.maximum(norms, 1e-12), norms
+
+
+def checkpoint_digest(weights, epoch):
+    digest = hashlib.sha256(str(epoch).encode())
+    for value in weights:
+        digest.update(json.dumps([value.shape, value.dtype.str]).encode())
+        digest.update(value.tobytes())
+    return digest.hexdigest()
 
 
 class NeuralProjection(TransformerMixin, BaseEstimator):
@@ -42,6 +52,7 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
         self.random_state = random_state
 
     def fit(self, X, y, *, group_ids=None, checkpoint=None):
+        self.__dict__.pop("state_metadata_", None)
         X, y = check_array(X), check_array(y)
         if (
             len(X) != len(y)
@@ -52,10 +63,16 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
             raise ValueError("Degenerate or unpaired training data for neural alignment")
         if (
             self.objective not in {"mse", "contrastive"}
+            or type(self.hidden_dim) is not int
             or self.hidden_dim < 1
+            or type(self.epochs) is not int
             or self.epochs < 1
+            or not np.isfinite(self.learning_rate)
             or self.learning_rate <= 0
+            or not np.isfinite(self.temperature)
             or self.temperature <= 0
+            or type(self.random_state) is not int
+            or self.random_state < 0
         ):
             raise ValueError("Invalid neural projection parameters")
         if self.objective == "contrastive" and group_ids is None:
@@ -63,7 +80,11 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
                 "Contrastive alignment requires explicit training relevance identities"
             )
         groups = np.asarray(group_ids if group_ids is not None else np.arange(len(X)), dtype=str)
-        if groups.shape != (len(X),) or (self.objective == "contrastive" and len(set(groups)) < 2):
+        if (
+            groups.shape != (len(X),)
+            or not all(present(g) for g in groups)
+            or (self.objective == "contrastive" and len(set(groups)) < 2)
+        ):
             raise ValueError("Contrastive training requires at least two distinct relevance groups")
         self.n_features_in_, self.n_outputs_ = X.shape[1], y.shape[1]
         settings = {k: v for k, v in self.get_params().items() if k != "epochs"}
@@ -72,6 +93,8 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
             + y.tobytes()
             + json.dumps(groups.tolist()).encode()
             + json.dumps(settings, sort_keys=True).encode()
+            + json.dumps([X.shape, X.dtype.str, y.shape, y.dtype.str]).encode()
+            + Path(__file__).read_bytes()
         ).hexdigest()
         rng = np.random.default_rng(self.random_state)
         self.weights_ = [
@@ -87,6 +110,19 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
                     raise ValueError("Checkpoint differs from training data or hyperparameters")
                 self.weights_ = [saved[f"w{i}"].copy() for i in range(4)]
                 start = int(saved["epoch"].item())
+                if str(saved["state_sha256"].item()) != checkpoint_digest(self.weights_, start):
+                    raise ValueError("Neural checkpoint checksum mismatch")
+            shapes = [
+                (X.shape[1], self.hidden_dim),
+                (self.hidden_dim,),
+                (self.hidden_dim, y.shape[1]),
+                (y.shape[1],),
+            ]
+            if start < 0 or any(
+                w.shape != shape or not np.isfinite(w).all()
+                for w, shape in zip(self.weights_, shapes, strict=True)
+            ):
+                raise ValueError("Invalid neural checkpoint state")
             if start > self.epochs:
                 raise ValueError("Checkpoint has more epochs than requested")
         target, _ = unit_rows(y)
@@ -134,6 +170,7 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
                     **{f"w{i}": value for i, value in enumerate(self.weights_)},
                     fingerprint=fingerprint,
                     epoch=epoch + 1,
+                    state_sha256=checkpoint_digest(self.weights_, epoch + 1),
                 )
                 temporary.replace(path)
         self.state_metadata_ = {
@@ -149,7 +186,7 @@ class NeuralProjection(TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, X):
-        check_is_fitted(self, "weights_")
+        check_is_fitted(self, "state_metadata_")
         X = check_array(X)
         if X.shape[1] != self.n_features_in_:
             raise ValueError("Neural projection input dimension mismatch")
