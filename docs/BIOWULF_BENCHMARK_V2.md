@@ -9,7 +9,9 @@ must be confirmed on the cluster.
 git clone https://github.com/siamakenna/perturb-LM.git
 cd perturb-LM
 git fetch --all --tags --prune
-git switch feature/benchmark-v2-scikit
+git switch main
+git pull --ff-only origin main
+git rev-parse HEAD
 export PLM_CODE="$PWD"
 # REQUIRES BIOWULF REVIEW: confirm persistent storage and quotas for this account.
 export PLM_RESULTS="/data/$USER/perturb-lm-v2/results"

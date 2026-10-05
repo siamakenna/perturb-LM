@@ -1,10 +1,10 @@
 # Benchmark V2: Phase 1 foundation
 
 Status: locally tested infrastructure and synthetic checks only. No new scientific
-results, model weights, dataset downloads, paper changes, or Biowulf runs. Work is
-scoped to the user-requested Phase 1 on `feature/benchmark-v2-scikit`; no issue
-number was supplied. Scientific benchmark changes require a reviewed experiment
-issue before real execution.
+results, model weights, dataset downloads, paper changes, or Biowulf runs. This
+document records the original Phase 1 foundation; Benchmark V2 has since merged
+to `main`. Scientific benchmark changes still require a reviewed experiment issue
+before real execution.
 
 ## Frozen CPJUMP1 boundary
 
@@ -29,9 +29,11 @@ local result files unavailable on clean installations. Existing synthetic
 regression tests continue to exercise the original evaluator.
 
 The reference commit `ccec3b94ea6b5061a2d221c553b15e1fb1a93cc1` was subsequently
-fetched and inspected in Turn 2. The implementation base remains
-`56ec4d08d2b638d0d1d8b8f559ab32e8f0cc15d0`; they are not equivalent.
-See [the reconciliation](BENCHMARK_V2_PROVENANCE_RECONCILIATION.md).
+fetched, inspected, and is now part of the ancestry represented by the post-merge
+repair base `398327163de0d59c764f1ac99e9d2dda283f8380`. The Phase 3C source
+files tracked by the frozen contract at that repair base are byte-identical to
+their versions at `ccec3b94`. See
+[the reconciliation](BENCHMARK_V2_PROVENANCE_RECONCILIATION.md).
 
 The CPJUMP1 regression configuration performs **read-only artifact verification**,
 never a benchmark rerun. Its model entries describe provenance placeholders, not
