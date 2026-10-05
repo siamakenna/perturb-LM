@@ -12,10 +12,10 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
-import yaml
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
+from perturb_lm.resources import policy_document
 from perturb_lm.sklearn_api.datasets import file_checksum
 
 
@@ -48,8 +48,7 @@ class AssetSpec:
 
 
 def asset_catalog() -> dict[str, AssetSpec]:
-    path = Path(__file__).resolve().parents[3] / "configs/benchmark_v2/model_assets.yaml"
-    payload = yaml.safe_load(path.read_text())
+    payload = policy_document("model_assets")
     result = {}
     for name, values in payload["models"].items():
         values = dict(values)

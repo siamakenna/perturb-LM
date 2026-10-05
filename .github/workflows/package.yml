@@ -1,0 +1,64 @@
+name: Package candidate
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: package-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  artifacts:
+    name: Artifact installs (Python ${{ matrix.python }}, ${{ matrix.dependencies }})
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - python: "3.10"
+            dependencies: minimum
+            constraint: "--constraint configs/package-minimum.txt"
+          - python: "3.11"
+            dependencies: current
+            constraint: ""
+          - python: "3.12"
+            dependencies: current
+            constraint: ""
+    env:
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install build tools
+        run: python -m pip install build twine
+      - name: Build exact revision and validate metadata
+        run: python scripts/build_release_candidate.py --out dist/candidate
+      - name: Test wheel and sdist independently outside checkout
+        run: >-
+          python scripts/validate_release_artifacts.py
+          --dist dist/candidate --out outputs/package-validation
+          ${{ matrix.constraint }}
+      - name: Upload candidate and public-safe validation summary
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: package-candidate-${{ matrix.python }}-${{ matrix.dependencies }}
+          path: |
+            dist/candidate/*.whl
+            dist/candidate/*.tar.gz
+            dist/candidate/SHA256SUMS
+            dist/candidate/provenance.json
+            outputs/package-validation/summary.json
+          if-no-files-found: error
+          retention-days: 14

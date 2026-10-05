@@ -12,18 +12,30 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils.validation import check_array, check_is_fitted
 
 
+def _remember_parameters(estimator):
+    estimator.fitted_params_ = estimator.get_params(deep=False).copy()
+
+
+def _check_parameters(estimator):
+    if estimator.get_params(deep=False) != estimator.fitted_params_:
+        raise ValueError("Parameters changed after fit; refit on training/reference data")
+
+
 class TfidfTextEmbedder(TransformerMixin, BaseEstimator):
     def __init__(self, analyzer: str = "word", ngram_range: tuple[int, int] = (1, 2)):
         self.analyzer = analyzer
         self.ngram_range = ngram_range
 
     def fit(self, X, y=None):
-        self.vectorizer_ = TfidfVectorizer(analyzer=self.analyzer, ngram_range=self.ngram_range)
-        self.vectorizer_.fit(X)
+        self.__dict__.pop("vectorizer_", None)
+        vectorizer = TfidfVectorizer(analyzer=self.analyzer, ngram_range=self.ngram_range).fit(X)
+        self.vectorizer_ = vectorizer
+        _remember_parameters(self)
         return self
 
     def transform(self, X):
         check_is_fitted(self, "vectorizer_")
+        _check_parameters(self)
         return self.vectorizer_.transform(X)
 
 
@@ -34,13 +46,25 @@ class MorphologyEmbedder(TransformerMixin, BaseEstimator):
         self.standardize = standardize
 
     def fit(self, X, y=None):
+        self.__dict__.pop("scaler_", None)
+        self.__dict__.pop("feature_names_in_", None)
+        if not isinstance(self.standardize, (bool, np.bool_)):
+            raise ValueError("standardize must be boolean")
+        columns = tuple(X.columns) if hasattr(X, "columns") else None
         X = check_array(X)
         self.n_features_in_ = X.shape[1]
         self.scaler_ = StandardScaler(with_mean=self.standardize, with_std=self.standardize).fit(X)
+        if columns is not None:
+            self.feature_names_in_ = np.asarray(columns, dtype=object)
+        _remember_parameters(self)
         return self
 
     def transform(self, X):
         check_is_fitted(self, "scaler_")
+        _check_parameters(self)
+        if hasattr(X, "columns") and hasattr(self, "feature_names_in_"):
+            if tuple(X.columns) != tuple(self.feature_names_in_):
+                raise ValueError("Morphology column order differs from fit")
         X = check_array(X)
         if X.shape[1] != self.n_features_in_:
             raise ValueError("Morphology dimension differs from fitted representation")
@@ -121,10 +145,12 @@ class AlignmentEstimator(TransformerMixin, BaseEstimator):
             "n_training_rows": len(y),
             "neural_state": getattr(self.model_, "state_metadata_", None),
         }
+        _remember_parameters(self)
         return self
 
     def transform(self, X):
         check_is_fitted(self, "model_")
+        _check_parameters(self)
         X = check_array(X, accept_sparse=True)
         if X.shape[1] != self.n_features_in_:
             raise ValueError("Text dimension differs from fitted alignment")
@@ -148,19 +174,23 @@ class RetrievalEstimator(BaseEstimator):
         self.random_state = random_state
 
     def fit(self, X, y=None):
+        self.__dict__.pop("gallery_", None)
         if self.method not in {"cosine", "random", "shuffled_query", "exact_gene"}:
             raise ValueError("Unsupported retrieval method")
         self.gallery_ = (
-            np.asarray(X, dtype=str)
+            np.array(X, dtype=str, copy=True)
             if self.method == "exact_gene"
             else check_array(X, accept_sparse=True).copy()
         )
         if self.method == "exact_gene" and self.gallery_.ndim != 1:
+            del self.gallery_
             raise ValueError("Exact-gene lookup expects one-dimensional gene symbols")
+        _remember_parameters(self)
         return self
 
     def predict(self, X):
         check_is_fitted(self, "gallery_")
+        _check_parameters(self)
         if self.method == "exact_gene":
             query = np.asarray(X, dtype=str)
             if query.ndim != 1:
@@ -168,6 +198,8 @@ class RetrievalEstimator(BaseEstimator):
             valid = ~np.isin(query, ["", "nan", "None"])
             return ((query[:, None] == self.gallery_[None, :]) & valid[:, None]).astype(float)
         X = check_array(X, accept_sparse=True)
+        if X.shape[1] != self.gallery_.shape[1]:
+            raise ValueError("Query feature dimension differs from fitted gallery")
         rng = np.random.default_rng(self.random_state)
         if self.method == "random":
             return rng.random((X.shape[0], self.gallery_.shape[0]))
