@@ -1,4 +1,5 @@
 """Synthetic-only pixel analysis demo. Does not dispatch real-data benchmarks."""
+
 from __future__ import annotations
 
 import argparse
@@ -24,7 +25,7 @@ def make_images(seed=17):
         signal = np.zeros((64, 64), float)
         radius = 3 + i % 5
         for y, x in ((16, 16), (16, 46), (46, 16), (46, 46)):
-            signal += ((yy - y) ** 2 + (xx - x) ** 2 <= radius ** 2)
+            signal += (yy - y) ** 2 + (xx - x) ** 2 <= radius**2
         for c in range(3):
             plane = ndi.gaussian_filter(signal, sigma=0.6 + c * 0.3)
             plane = 300 + (1800 + 100 * i + 50 * c) * plane
@@ -40,6 +41,19 @@ def table(path, names, values):
         writer.writerow(["sample_index", *names])
         for i, row in enumerate(values):
             writer.writerow([i, *row])
+
+
+def object_preview(image, mask, *, channel=0):
+    """Display-only overlay shared by the synthetic demo and TIFF workflow."""
+    plane = image[channel].astype(float)
+    lo, hi = np.quantile(plane, [0.01, 0.99])
+    if hi <= lo:
+        lo, hi = float(plane.min()), float(plane.max())
+    view = (255 * np.clip((plane - lo) / max(hi - lo, 1e-12), 0, 1)).astype(np.uint8)
+    rgb = np.repeat(view[..., None], 3, axis=2)
+    boundary = (ndi.maximum_filter(mask, size=3) != ndi.minimum_filter(mask, size=3)) & (mask > 0)
+    rgb[boundary] = [255, 0, 0]
+    return Image.fromarray(rgb)
 
 
 def main():
@@ -61,23 +75,12 @@ def main():
     distances = pairwise_distances(features[8:], features[:8])
     with (out / "neighbors.csv").open("x", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
-        writer.writerow([
-            "query_sample_index", "rank", "candidate_sample_index", "distance"
-        ])
+        writer.writerow(["query_sample_index", "rank", "candidate_sample_index", "distance"])
         for i, values in enumerate(distances):
             for rank, index in enumerate(np.argsort(values, kind="stable")[:3], 1):
                 writer.writerow([i + 8, rank, int(index), float(values[index])])
     # Display only: 16-bit quantitative measurements above are not replaced.
-    plane = images[8, 0].astype(float)
-    lo, hi = np.quantile(plane, [0.01, 0.99])
-    view = (255 * np.clip((plane - lo) / max(hi - lo, 1), 0, 1)).astype(np.uint8)
-    rgb = np.repeat(view[..., None], 3, axis=2)
-    boundary = (
-        ndi.maximum_filter(masks[8], size=3)
-        != ndi.minimum_filter(masks[8], size=3)
-    ) & (masks[8] > 0)
-    rgb[boundary] = [255, 0, 0]
-    preview = Image.fromarray(rgb).resize(
+    preview = object_preview(images[8], masks[8]).resize(
         (512, 512), resample=Image.Resampling.NEAREST
     )
     preview.save(out / "object_overlay.png")
@@ -85,24 +88,23 @@ def main():
         "scope": "synthetic_pixel_only_demo",
         "biological_metadata_required": False,
         "model_inputs": "numeric image pixels in NCHW order",
-        "shape": list(images.shape), "seed": args.seed,
+        "shape": list(images.shape),
+        "seed": args.seed,
         "n_features": int(features.shape[1]),
         "scaler_fit_sample_indices": list(range(8)),
         "held_out_query_sample_indices": list(range(8, 12)),
         "segmentation_channel": 0,
         "n_cells_claimed": False,
-        "limitation": "Toy watershed objects; not biological validation."
+        "limitation": "Toy watershed objects; not biological validation.",
     }
     (out / "run.json").write_text(json.dumps(record, indent=2) + "\n")
     checksums = [
         f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}"
-        for p in sorted(out.iterdir()) if p.is_file()
+        for p in sorted(out.iterdir())
+        if p.is_file()
     ]
     (out / "SHA256SUMS").write_text("\n".join(checksums) + "\n")
-    print(
-        f"PASS: pixels -> masks -> {features.shape[1]} features"
-        " -> held-out image neighbors"
-    )
+    print(f"PASS: pixels -> masks -> {features.shape[1]} features -> held-out image neighbors")
     print(out)
 
 

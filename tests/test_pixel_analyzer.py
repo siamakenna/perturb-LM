@@ -12,7 +12,7 @@ def image(radius=5):
     yy, xx = np.mgrid[:64, :64]
     signal = np.zeros((64, 64), dtype=np.uint16)
     for y, x in ((16, 16), (16, 46), (46, 16), (46, 46)):
-        signal[((yy - y) ** 2 + (xx - x) ** 2) <= radius ** 2] = 2000
+        signal[((yy - y) ** 2 + (xx - x) ** 2) <= radius**2] = 2000
     return np.stack([signal, signal // 2])
 
 
@@ -39,8 +39,9 @@ def test_clone_unfitted(images):
 
 
 def test_pipeline(images):
-    pipe = Pipeline([("pixels", PixelMorphologyTransformer(scale_features=False)),
-                     ("scale", StandardScaler())])
+    pipe = Pipeline(
+        [("pixels", PixelMorphologyTransformer(scale_features=False)), ("scale", StandardScaler())]
+    )
     assert pipe.fit_transform(images).shape == (4, 21)
 
 
@@ -64,8 +65,9 @@ def test_renaming_files_does_not_change_features(images, tmp_path):
     np.save(a, images, allow_pickle=False)
     np.save(b, images, allow_pickle=False)
     m = PixelMorphologyTransformer().fit(images)
-    np.testing.assert_array_equal(m.transform(np.load(a, allow_pickle=False)),
-                                  m.transform(np.load(b, allow_pickle=False)))
+    np.testing.assert_array_equal(
+        m.transform(np.load(a, allow_pickle=False)), m.transform(np.load(b, allow_pickle=False))
+    )
 
 
 def test_train_only_scaler_and_no_mutation(images):
@@ -84,16 +86,13 @@ def test_row_permutation(images):
 
 def test_pixels_actually_matter(images):
     m = PixelMorphologyTransformer(scale_features=False).fit(images)
-    assert not np.array_equal(
-        m.transform(images[:1]), m.transform(np.zeros_like(images[:1]))
-    )
+    assert not np.array_equal(m.transform(images[:1]), m.transform(images[:1] * 2))
 
 
 def test_blank(images):
     blank = np.zeros_like(images)
-    m = PixelMorphologyTransformer().fit(blank)
-    assert not m.segment(blank[0]).any()
-    assert np.isfinite(m.transform(blank)).all()
+    with pytest.raises(ValueError, match="constant"):
+        PixelMorphologyTransformer().fit(blank)
 
 
 def test_wrong_channel_count(images):
@@ -102,19 +101,30 @@ def test_wrong_channel_count(images):
         m.transform(images[:, :1])
 
 
-@pytest.mark.parametrize("bad", [np.zeros((4, 64, 64)),
-                                 np.full((1, 2, 64, 64), np.nan),
-                                 np.full((1, 2, 64, 64), np.inf),
-                                 np.array([]), np.zeros((1, 2, 4, 4))])
+@pytest.mark.parametrize(
+    "bad",
+    [
+        np.zeros((4, 64, 64)),
+        np.full((1, 2, 64, 64), np.nan),
+        np.full((1, 2, 64, 64), np.inf),
+        np.array([]),
+        np.zeros((1, 2, 4, 4)),
+    ],
+)
 def test_bad_inputs(bad):
     with pytest.raises(ValueError):
         PixelMorphologyTransformer().fit(bad)
 
 
-@pytest.mark.parametrize("params", [{"segmentation_channel": 4},
-                                    {"min_object_area": 0},
-                                    {"smooth_sigma": -1},
-                                    {"min_peak_distance": 0}])
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"segmentation_channel": 4},
+        {"min_object_area": 0},
+        {"smooth_sigma": -1},
+        {"min_peak_distance": 0},
+    ],
+)
 def test_bad_parameters(params, images):
     with pytest.raises(ValueError):
         PixelMorphologyTransformer(**params).fit(images)
@@ -127,8 +137,10 @@ def test_tiff_pixels_and_renamed_files(axes, images, tmp_path):
     from perturb_lm.images.pixel_analyzer import read_tiff_chw
 
     original = images[0]
-    stored = original if axes == "CYX" else (
-        np.moveaxis(original, 0, -1) if axes == "YXC" else original[0]
+    stored = (
+        original
+        if axes == "CYX"
+        else (np.moveaxis(original, 0, -1) if axes == "YXC" else original[0])
     )
     expected = original if axes != "YX" else original[:1]
     a, b = tmp_path / "geneA.tif", tmp_path / "anonymous.tif"
