@@ -1,0 +1,217 @@
+schema_version: 1
+jobs:
+- scientific_stage: expanded_pilot
+  dataset: &id005
+    dataset: JUMP_cpg0016
+    version: pending-inventory-review
+    metadata_path: data/manifests/JUMP_cpg0016.csv
+    metadata_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  text: &id006
+    name: biomedbert
+    revision: pending-review
+  morphology: &id001
+    name: cellprofiler
+    revision: synthetic-v1
+  alignment: &id002
+    name: ridge
+    revision: sklearn-api-v1
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: &id003
+    kind: held_out_plate
+    exclude:
+    - same_plate
+    - same_well_coordinate
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: &id004
+    n_resamples: 100
+    confidence: 0.95
+    seed: 7
+  name: expanded_0_embedding
+  stage: embedding
+  resources:
+    resource_class: gpu_embedding
+    cpus: 4
+    gpus: 1
+    memory_gb: 32
+    time: 02:00:00
+- scientific_stage: expanded_pilot
+  dataset:
+    dataset: JUMP_cpg0000
+    version: pending-inventory-review
+    metadata_path: data/manifests/JUMP_cpg0000.csv
+    metadata_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  text:
+    name: medcpt
+    revision: pending-review
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: expanded_1_embedding
+  stage: embedding
+  resources:
+    resource_class: gpu_embedding
+    cpus: 4
+    gpus: 1
+    memory_gb: 32
+    time: 02:00:00
+- scientific_stage: expanded_pilot
+  dataset:
+    dataset: JUMP_cpg0002
+    version: pending-inventory-review
+    metadata_path: data/manifests/JUMP_cpg0002.csv
+    metadata_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  text:
+    name: biolord_2023
+    revision: pending-review
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: expanded_2_embedding
+  stage: embedding
+  resources:
+    resource_class: gpu_embedding
+    cpus: 4
+    gpus: 1
+    memory_gb: 32
+    time: 02:00:00
+- scientific_stage: expanded_pilot
+  dataset:
+    dataset: RxRx1
+    version: pending-inventory-review
+    metadata_path: data/manifests/RxRx1.csv
+    metadata_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  text:
+    name: sapbert
+    revision: pending-review
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: expanded_3_embedding
+  stage: embedding
+  resources:
+    resource_class: gpu_embedding
+    cpus: 4
+    gpus: 1
+    memory_gb: 32
+    time: 02:00:00
+- scientific_stage: expanded_pilot
+  dataset:
+    dataset: RxRx19a
+    version: pending-inventory-review
+    metadata_path: data/manifests/RxRx19a.csv
+    metadata_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  text:
+    name: biomedclip_text
+    revision: pending-review
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: expanded_4_embedding
+  stage: embedding
+  resources:
+    resource_class: gpu_embedding
+    cpus: 4
+    gpus: 1
+    memory_gb: 32
+    time: 02:00:00
+- scientific_stage: expanded_pilot
+  dataset:
+    dataset: PERISCOPE
+    version: pending-inventory-review
+    metadata_path: data/manifests/PERISCOPE.csv
+    metadata_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  text:
+    name: bge_base_en_v1_5
+    revision: pending-review
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: expanded_5_embedding
+  stage: embedding
+  resources:
+    resource_class: gpu_embedding
+    cpus: 4
+    gpus: 1
+    memory_gb: 32
+    time: 02:00:00
+- scientific_stage: expanded_pilot
+  dataset: *id005
+  text: *id006
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: pilot_alignment
+  stage: alignment
+  resources:
+    resource_class: cpu_standard
+    cpus: 4
+    gpus: 0
+    memory_gb: 16
+    time: 01:00:00
+  depends_on:
+  - expanded_0_embedding
+- scientific_stage: expanded_pilot
+  dataset: *id005
+  text: *id006
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: pilot_retrieval
+  stage: retrieval
+  resources:
+    resource_class: cpu_standard
+    cpus: 4
+    gpus: 0
+    memory_gb: 16
+    time: 01:00:00
+  depends_on:
+  - pilot_alignment
+- scientific_stage: expanded_pilot
+  dataset: *id005
+  text: *id006
+  morphology: *id001
+  alignment: *id002
+  query_policy: M1_BIOLOGICAL_CONTEXT
+  split: *id003
+  execution: plan_only
+  experimental_opt_in: true
+  bootstrap: *id004
+  name: pilot_bootstrap
+  stage: bootstrap
+  resources:
+    resource_class: cpu_standard
+    cpus: 4
+    gpus: 0
+    memory_gb: 16
+    time: 01:00:00
+  depends_on:
+  - pilot_retrieval
