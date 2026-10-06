@@ -17,7 +17,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    runs-on: ubuntu-22.04
+    outputs:
+      rebuild: ${{ steps.changes.outputs.rebuild }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: changes
+        run: python3 scripts/package_ci_changes.py
   artifacts:
+    needs: changes
+    if: needs.changes.outputs.rebuild == 'true'
     name: Artifact installs (Python ${{ matrix.python }}, ${{ matrix.dependencies }})
     runs-on: ubuntu-22.04
     timeout-minutes: 30
