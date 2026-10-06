@@ -54,6 +54,11 @@ class BenchmarkPipeline(BaseEstimator):
             raise ValueError("Pipeline requires explicit train and test membership")
         if len(X) != len(y) or len(gallery) != len(gallery_y):
             raise ValueError("Metadata and morphology must have identical paired row counts")
+        for metadata, targets in ((X, y), (gallery, gallery_y)):
+            if isinstance(targets, (pd.DataFrame, pd.Series)) and not targets.index.equals(
+                metadata.index
+            ):
+                raise ValueError("Metadata and morphology target indices must match in order")
         self.query_policy_ = clone(
             self.query_policy if self.query_policy is not None else QueryPolicyTransformer()
         )
@@ -132,6 +137,11 @@ class BenchmarkPipeline(BaseEstimator):
         return self.evaluator_.evaluate(self.predict(X), queries, self.gallery_, self.split_)
 
     def score(self, X, y=None):
+        if y is not None:
+            raise ValueError(
+                "score returns retrieval mAP using query/gallery metadata; "
+                "morphology regression targets belong only in fit"
+            )
         value = self.evaluate(X).summary["mAP"]
         if value is None:
             raise ValueError("No evaluable queries; inspect evaluate().exclusions")

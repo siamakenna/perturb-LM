@@ -12,11 +12,12 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 import numpy as np
-import yaml
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
+from perturb_lm.resources import policy_document
 from perturb_lm.sklearn_api.datasets import file_checksum
+from perturb_lm.sklearn_api.offline_backends import ImagePreprocessing, load_family_backend
 
 
 @dataclass(frozen=True)
@@ -48,8 +49,7 @@ class AssetSpec:
 
 
 def asset_catalog() -> dict[str, AssetSpec]:
-    path = Path(__file__).resolve().parents[3] / "configs/benchmark_v2/model_assets.yaml"
-    payload = yaml.safe_load(path.read_text())
+    payload = policy_document("model_assets")
     result = {}
     for name, values in payload["models"].items():
         values = dict(values)
@@ -111,8 +111,14 @@ def optional_import(name):
         ) from error
 
 
-def load_backend(spec: AssetSpec, local_path: Path, device: str, approve_model_code: bool):
-    """Only this boundary is mocked in local model tests; no online model-name loading."""
+def load_backend(
+    spec: AssetSpec,
+    local_path: Path,
+    device: str,
+    approve_model_code: bool,
+    image_preprocessing=None,
+):
+    """Lazy offline loading; disabled backends fail before optional imports."""
     if spec.backend not in {"hf_text", "hf_image"}:
         raise NotImplementedError(
             f"needs_backend_review: {spec.backend} requires a reviewed, pinned offline adapter"
@@ -120,6 +126,10 @@ def load_backend(spec: AssetSpec, local_path: Path, device: str, approve_model_c
     torch = optional_import("torch")
     for package in spec.required_packages:
         optional_import(package)
+    if spec.name in {"dinov2", "sapbert"}:
+        return load_family_backend(
+            spec, local_path, device, image_preprocessing, torch, optional_import("transformers")
+        )
     if spec.backend in {"hf_text", "hf_image"}:
         transformers = optional_import("transformers")
         model = transformers.AutoModel.from_pretrained(
@@ -175,6 +185,7 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
         batch_size=16,
         device="cpu",
         approve_model_code=False,
+        image_preprocessing=None,
     ):
         self.spec = spec
         self.asset_root = asset_root
@@ -182,6 +193,7 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
         self.batch_size = batch_size
         self.device = device
         self.approve_model_code = approve_model_code
+        self.image_preprocessing = image_preprocessing
 
     def fit(self, X, y=None):
         self.__dict__.pop("asset_manifest_", None)
@@ -198,6 +210,7 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
                 "asset_root": str(self.asset_root),
                 "device": self.device,
                 "approval": self.approve_model_code,
+                "image_preprocessing": self._preprocessing_identity(),
             }
         )
         return self
@@ -210,8 +223,22 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
         return state
 
     def _validate_inputs(self, X):
+        if self.spec.name == "dinov2":
+            if not isinstance(self.image_preprocessing, ImagePreprocessing):
+                raise ValueError("DINOv2 requires explicit ImagePreprocessing")
+            self.image_preprocessing.validate_input(X)
+            return
+        if self.image_preprocessing is not None:
+            raise ValueError("ImagePreprocessing is supported only by the DINOv2 adapter")
         if self.spec.input_kind == "text":
-            if isinstance(X, str) or not all(isinstance(value, str) for value in X):
+            if (
+                isinstance(X, str)
+                or not isinstance(X, (list, tuple, np.ndarray))
+                or not all(
+                    isinstance(value, str) and (value.strip() or self.spec.name != "sapbert")
+                    for value in X
+                )
+            ):
                 raise ValueError("Text models require strings")
         else:
             matrix = np.asarray(X)
@@ -228,6 +255,13 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
             ):
                 raise ValueError("Model input schema/dimension mismatch")
 
+    def _preprocessing_identity(self):
+        if self.image_preprocessing is None:
+            return None
+        if not isinstance(self.image_preprocessing, ImagePreprocessing):
+            raise ValueError("Expected ImagePreprocessing")
+        return asdict(self.image_preprocessing)
+
     def transform(self, X):
         check_is_fitted(self, "asset_manifest_")
         if type(self.batch_size) is not int or self.batch_size < 1:
@@ -238,6 +272,7 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
                 "asset_root": str(self.asset_root),
                 "device": self.device,
                 "approval": self.approve_model_code,
+                "image_preprocessing": self._preprocessing_identity(),
             }
         ):
             raise ValueError("Model parameters changed; refit before transforming")
@@ -275,6 +310,10 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
                 "batch_size": self.batch_size,
                 "packages": versions,
                 "implementation": file_checksum(Path(__file__)),
+                "family_implementation": file_checksum(
+                    Path(__file__).with_name("offline_backends.py")
+                ),
+                "image_preprocessing": self._preprocessing_identity(),
             }
         )
         cache = Path(self.cache_root) / key if self.cache_root is not None else None
@@ -293,8 +332,11 @@ class LocalModelEmbedder(TransformerMixin, BaseEstimator):
         if cache is not None and cache.exists():
             raise ValueError("Incomplete representation cache; quarantine before retry")
         if not hasattr(self, "backend_"):
-            self.backend_ = load_backend(
-                self.spec, Path(self.asset_root), self.device, self.approve_model_code
+            arguments = (self.spec, Path(self.asset_root), self.device, self.approve_model_code)
+            self.backend_ = (
+                load_backend(*arguments, self.image_preprocessing)
+                if self.spec.name == "dinov2"
+                else load_backend(*arguments)
             )
         chunks = [
             np.asarray(self.backend_(X[start : start + self.batch_size]), dtype=np.float32)

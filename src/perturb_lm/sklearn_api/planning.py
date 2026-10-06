@@ -308,8 +308,9 @@ def code_identity(root: Path) -> dict:
 
 
 def load_relevance_contracts() -> dict[str, RelevanceContract]:
-    path = Path(__file__).resolve().parents[3] / "configs/benchmark_v2/relevance_contracts.yaml"
-    payload = yaml.safe_load(path.read_text())
+    from perturb_lm.resources import policy_document
+
+    payload = policy_document("relevance_contracts")
     return {
         name: RelevanceContract.from_dict(values) for name, values in payload["contracts"].items()
     }

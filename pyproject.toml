@@ -4,26 +4,32 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "perturb-lm"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Reproducible benchmark and prototype for natural-language retrieval over high-content microscopy perturbation datasets."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10,<3.13"
 dependencies = [
   "numpy>=1.26",
   "pandas>=2.2",
   "pyarrow>=15",
   "pillow>=10",
   "requests>=2.31",
-  "scikit-learn>=1.4",
+  "scikit-learn>=1.4,<2",
   "PyYAML>=6",
   "tqdm>=4.66",
   "typer>=0.12",
 ]
 
 [project.optional-dependencies]
+pixel = ["scikit-image>=0.22", "scipy>=1.10", "tifffile>=2023.8.30"]
+
 dev = [
   "pytest>=8",
   "ruff>=0.6",
+  "setuptools>=68",
+  "wheel>=0.43",
+  "build>=1.2",
+  "twine>=5",
 ]
 prototype = [
   "streamlit>=1.35",
@@ -41,6 +47,12 @@ perturb-lm = "perturb_lm.cli.main:app"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.dynamic]
+version = {attr = "perturb_lm._version.__version__"}
+
+[tool.setuptools.package-data]
+"perturb_lm.resources" = ["*.yaml"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

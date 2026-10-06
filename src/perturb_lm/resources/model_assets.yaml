@@ -1,0 +1,106 @@
+schema_version: 1
+models:
+  biomedbert:
+    identifier: microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext
+    revision: e1354b7a3a09615f6aba48dfad4b7a613eef7062
+    backend: hf_text
+    dimension: 768
+    input_kind: text
+    pooling: mean
+    normalize: true
+    max_length: 512
+  medcpt:
+    identifier: ncbi/MedCPT-Query-Encoder
+    revision: d83a36cc6b8e3a5c5e9d9d6ba156808c1643dcbc
+    backend: hf_text
+    dimension: 768
+    input_kind: text
+    pooling: cls
+    normalize: false
+    max_length: 64
+  biolord_2023:
+    identifier: FremyCompany/BioLORD-2023
+    revision: 167aab527b238a50ca65224e6319215d2ff4fc9f
+    backend: hf_text
+    dimension: 768
+    input_kind: text
+    pooling: mean
+    normalize: true
+    max_length: 128
+  sapbert:
+    identifier: cambridgeltl/SapBERT-from-PubMedBERT-fulltext
+    revision: 090663c3ae57bf35ffe4d0d468a2a88d03051a4d
+    backend: hf_text
+    dimension: 768
+    input_kind: text
+    pooling: cls
+    normalize: true
+    max_length: 128
+  biomedclip_text:
+    identifier: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
+    revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
+    backend: open_clip_text
+    dimension: 512
+    input_kind: text
+    pooling: projected
+    normalize: true
+    max_length: 256
+    required_packages: [torch, transformers, open_clip]
+  general_retrieval_bge:
+    identifier: BAAI/bge-base-en-v1.5
+    revision: a5beb1e3e68b9ab74eb54cfd186867f64f240e1a
+    backend: hf_text
+    dimension: 768
+    input_kind: text
+    pooling: cls
+    normalize: true
+    max_length: 512
+  dinov2:
+    identifier: facebook/dinov2-base
+    revision: f9e44c814b77203eaa57a6bdbbd535f21ede1415
+    backend: hf_image
+    dimension: 768
+    input_kind: image
+    pooling: cls
+    normalize: true
+    input_shape: [3, 224, 224]
+  cellclip:
+    identifier: suinleelab/CellCLIP
+    revision: 15f66a48bb908dc50ad44b6689bd4c0fe60057b5
+    backend: cellclip
+    dimension: 512
+    input_kind: image
+    pooling: projected
+    normalize: true
+    input_shape: [5, 224, 224]
+    required_packages: [torch, safetensors]
+    code_revision: 95d909b4c090cb6de2c45cfd60f9b194e70812ef
+    code_approval_required: true
+  openphenom_s16:
+    identifier: recursionpharma/OpenPhenom
+    revision: 0f92333685f6e9f031b804c70fe246f9b05ae90d
+    backend: openphenom
+    dimension: 384
+    input_kind: image
+    pooling: avg
+    normalize: false
+    input_shape: [6, 256, 256]
+    required_packages: [torch, transformers]
+    code_revision: 0f92333685f6e9f031b804c70fe246f9b05ae90d
+    code_approval_required: true
+  cellprofiler_features:
+    identifier: local-cellprofiler-features
+    revision: null
+    backend: precomputed
+    dimension: -1
+    input_kind: channel_features
+    required_packages: []
+    blockers: ["needs_data: user-supplied feature manifest and immutable checksum"]
+  rxrx_provided_embeddings:
+    identifier: user-supplied-rxrx-embeddings
+    revision: null
+    backend: precomputed
+    dimension: -1
+    input_kind: channel_features
+    required_packages: []
+    blockers: ["needs_data: user-supplied embedding manifest and immutable checksum"]
