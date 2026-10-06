@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.2.0a1 — candidate, not published
+
+- Installable pixel analysis and reference image search, masks, measurements and reports.
+- Bundled API policy resources and one package-version source.
+- Explicit estimator state, input-order and retrieval-scoring contracts.
+- Wheel/sdist build provenance and independent base/pixel artifact-install checks.
+- Alpha scope, compatibility, limitations and publication instructions:
+  [Phase 4 release readiness](docs/PHASE4_RELEASE_READINESS.md).
+
 
 
 ## 2026-09-12

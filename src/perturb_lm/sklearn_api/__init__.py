@@ -18,6 +18,7 @@ from perturb_lm.sklearn_api.estimators import (
 from perturb_lm.sklearn_api.evaluation import EvaluationResult, MetricEvaluator, QueryBootstrap
 from perturb_lm.sklearn_api.model_assets import AssetSpec, LocalModelEmbedder, asset_catalog
 from perturb_lm.sklearn_api.neural import NeuralProjection
+from perturb_lm.sklearn_api.offline_backends import ImagePreprocessing
 from perturb_lm.sklearn_api.pipeline import BenchmarkPipeline
 from perturb_lm.sklearn_api.queries import POLICIES, QueryPolicyTransformer, audit_text
 from perturb_lm.sklearn_api.registry import REGISTRY, ModelConfig
@@ -44,6 +45,7 @@ __all__ = [
     "ModelConfig",
     "LocalDatasetAdapter",
     "LocalModelEmbedder",
+    "ImagePreprocessing",
     "MorphologyEmbedder",
     "POLICIES",
     "QueryBootstrap",
