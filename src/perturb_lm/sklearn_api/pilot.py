@@ -43,7 +43,13 @@ FIELDS = {
 
 
 def load_pilot(path):
-    payload = json.loads(Path(path).read_text())
+    manifest_path = Path(path).resolve()
+    root_resolved = ROOT.resolve()
+    if not manifest_path.is_relative_to(root_resolved):
+        raise ValueError("Pilot manifest must be within the repository root")
+    if not manifest_path.is_file():
+        raise ValueError("Pilot manifest must be an existing file")
+    payload = json.loads(manifest_path.read_text())
     if set(payload) - FIELDS or payload.get("schema_version") != 1:
         raise ValueError("Unknown pilot schema/fields")
     if payload.get("model") not in {"dinov2", "sapbert"}:
