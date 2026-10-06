@@ -88,10 +88,10 @@ def checked_path(root, relative, expected, tracked):
     return path
 
 
-def approval_for(payload, approval, code, asset_root):
-    if approval is None:
+def approval_for(payload, approval_path: Path, code, asset_root):
+    if approval_path is None:
         raise PermissionError("Explicit recorded approvals are required")
-    record = json.loads(Path(approval).read_text())
+    record = json.loads(approval_path.read_text())
     expected = {
         "schema_version": 1,
         "pilot_sha256": canonical_hash(payload),
@@ -144,7 +144,22 @@ def run_pilot(manifest, *, data_root, asset_root, output, approval=None):
 
     if not synthetic and dirty():
         raise ValueError("Approved inference requires a clean reviewed source checkout")
-    approval_hash = None if synthetic else approval_for(payload, approval, code, asset_root)
+    approval_path = None
+    if not synthetic:
+        if approval is None:
+            raise PermissionError("Explicit recorded approvals are required")
+        approval_rel = str(approval)
+        if (
+            not approval_rel
+            or Path(approval_rel).is_absolute()
+            or ".." in Path(approval_rel).parts
+            or "://" in approval_rel
+        ):
+            raise ValueError("Approval path must be explicit and relative to the supplied data root")
+        approval_path = (root / approval_rel).resolve()
+        if not approval_path.is_relative_to(root.resolve()) or not approval_path.is_file():
+            raise ValueError("Approval missing or outside approved root")
+    approval_hash = None if synthetic else approval_for(payload, approval_path, code, asset_root)
     spec = asset_catalog()[payload["model"]]
     if synthetic:
         supplied = dict(payload.get("synthetic_spec", {}))
