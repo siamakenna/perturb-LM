@@ -359,7 +359,7 @@ def test_unreviewed_backend_does_not_import_code(name, monkeypatch, tmp_path):
 
 
 def test_numeric_cache_hash_includes_dtype(tmp_path, monkeypatch):
-    spec = replace(asset_catalog()["dinov2"], dimension=2, input_shape=(1,))
+    spec = replace(asset_catalog()["dinov2"], name="synthetic_image", dimension=2, input_shape=(1,))
     asset = staged_asset(tmp_path, spec)
     calls = []
 
