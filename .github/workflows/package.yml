@@ -3,6 +3,11 @@ name: Package candidate
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      upload_candidate:
+        description: "Explicitly upload newly built candidate archives (does not publish a release)"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -49,9 +54,17 @@ jobs:
           python scripts/validate_release_artifacts.py
           --dist dist/candidate --out outputs/package-validation
           ${{ matrix.constraint }}
-      - name: Upload candidate and public-safe validation summary
+      - name: Upload public-safe validation summary
         uses: actions/upload-artifact@v4
         if: always()
+        with:
+          name: package-validation-${{ matrix.python }}-${{ matrix.dependencies }}
+          path: outputs/package-validation/summary.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload candidate only after explicit manual opt-in
+        uses: actions/upload-artifact@v4
+        if: success() && github.event_name == 'workflow_dispatch' && inputs.upload_candidate
         with:
           name: package-candidate-${{ matrix.python }}-${{ matrix.dependencies }}
           path: |
@@ -59,6 +72,5 @@ jobs:
             dist/candidate/*.tar.gz
             dist/candidate/SHA256SUMS
             dist/candidate/provenance.json
-            outputs/package-validation/summary.json
           if-no-files-found: error
           retention-days: 14
