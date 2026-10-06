@@ -168,10 +168,28 @@ class MetricEvaluator(BaseEstimator):
 
 
 class QueryBootstrap(BaseEstimator):
-    def __init__(self, n_resamples: int = 1000, confidence: float = 0.95, random_state: int = 0):
+    """Paired uncertainty for fixed predictions, with explicit sampling unit/estimand.
+
+    Equal-treatment query resampling is stratified within each treatment.
+    Cluster resampling draws whole treatments with replacement. Neither mode
+    estimates split selection, retraining or pretrained-data-overlap uncertainty.
+    """
+
+    def __init__(
+        self,
+        n_resamples: int = 1000,
+        confidence: float = 0.95,
+        random_state: int = 0,
+        resampling_unit: str = "query",
+        estimand: str = "query_weighted",
+        treatment_column: str = "treatment",
+    ):
         self.n_resamples = n_resamples
         self.confidence = confidence
         self.random_state = random_state
+        self.resampling_unit = resampling_unit
+        self.estimand = estimand
+        self.treatment_column = treatment_column
 
     def evaluate(
         self,
@@ -181,9 +199,36 @@ class QueryBootstrap(BaseEstimator):
     ) -> dict:
         if type(self.n_resamples) is not int or self.n_resamples < 1 or not 0 < self.confidence < 1:
             raise ValueError("Require positive integer resamples and 0 < confidence < 1")
+        if self.resampling_unit not in {"query", "treatment_cluster"}:
+            raise ValueError("Unknown resampling unit")
+        if self.estimand not in {"query_weighted", "equal_treatment"}:
+            raise ValueError("Unknown estimand")
+        if not isinstance(self.treatment_column, str) or not self.treatment_column:
+            raise ValueError("Provide a treatment membership column name")
+        frames = (values,) if reference is None else (values, reference)
         for frame in (values,) if reference is None else (values, reference):
             if not frame.query_id.map(present).all() or frame.query_id.duplicated().any():
                 raise ValueError("Bootstrap requires one row per unique query ID, not seed rows")
+
+        membership = None
+        if (
+            self.resampling_unit == "treatment_cluster"
+            or self.estimand == "equal_treatment"
+            or any(self.treatment_column in frame for frame in frames)
+        ):
+            memberships = []
+            for frame in frames:
+                if (
+                    self.treatment_column not in frame
+                    or not frame[self.treatment_column]
+                    .map(lambda value: isinstance(value, str) and present(value))
+                    .all()
+                ):
+                    raise ValueError("Treatment membership must be complete nonempty strings")
+                memberships.append(frame.set_index("query_id")[self.treatment_column].sort_index())
+            membership = memberships[0]
+            if reference is not None and not membership.equals(memberships[1]):
+                raise ValueError("Paired treatment membership differs by query ID")
 
         def eligible(frame):
             series = frame.set_index("query_id")[metric].sort_index().astype(float)
@@ -204,14 +249,45 @@ class QueryBootstrap(BaseEstimator):
         data = first.to_numpy(dtype=float)[finite]
         if not len(data):
             raise ValueError("No evaluable paired queries for bootstrap")
-        rng = np.random.default_rng(self.random_state)
-        means = np.array(
-            [rng.choice(data, size=len(data), replace=True).mean() for _ in range(self.n_resamples)]
+        groups = None if membership is None else membership.reindex(first.index).iloc[finite]
+        clusters = (
+            []
+            if groups is None
+            else [data[groups.to_numpy() == name] for name in sorted(groups.unique())]
         )
+        if self.resampling_unit == "treatment_cluster" and len(clusters) < 2:
+            raise ValueError(
+                "Treatment-cluster uncertainty requires at least two evaluable treatments"
+            )
+        estimate = (
+            data.mean()
+            if self.estimand == "query_weighted"
+            else np.mean([cluster.mean() for cluster in clusters])
+        )
+        rng = np.random.default_rng(self.random_state)
+        means = []
+        for _ in range(self.n_resamples):
+            if self.resampling_unit == "treatment_cluster":
+                sampled = [clusters[i] for i in rng.integers(len(clusters), size=len(clusters))]
+                value = (
+                    sum(cluster.sum() for cluster in sampled) / sum(map(len, sampled))
+                    if self.estimand == "query_weighted"
+                    else np.mean([cluster.mean() for cluster in sampled])
+                )
+            elif self.estimand == "equal_treatment":
+                value = np.mean(
+                    [
+                        rng.choice(cluster, size=len(cluster), replace=True).mean()
+                        for cluster in clusters
+                    ]
+                )
+            else:
+                value = rng.choice(data, size=len(data), replace=True).mean()
+            means.append(value)
         tail = (1 - self.confidence) / 2
         low, high = np.quantile(means, [tail, 1 - tail])
         return {
-            "estimate": float(data.mean()),
+            "estimate": float(estimate),
             "ci_low": float(low),
             "ci_high": float(high),
             "n_queries": n_total,
@@ -221,4 +297,9 @@ class QueryBootstrap(BaseEstimator):
             "n_resamples": self.n_resamples,
             "confidence": self.confidence,
             "random_state": self.random_state,
+            "resampling_unit": self.resampling_unit,
+            "estimand": self.estimand,
+            "uncertainty_scope": "fixed_predictions",
+            "n_treatments": None if membership is None else int(membership.nunique()),
+            "n_evaluable_treatments": None if groups is None else int(groups.nunique()),
         }
