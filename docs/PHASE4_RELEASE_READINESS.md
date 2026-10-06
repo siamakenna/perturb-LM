@@ -86,8 +86,17 @@ summary is suitable for reviewed sharing.
 The `Package candidate` workflow repeats this on Linux/Python 3.10–3.12,
 including the sklearn 1.4.2 boundary. Existing CI retains complete comparator
 dependencies. Candidate workflows have read-only repository permissions and
-upload build artifacts plus aggregate summaries; they contain no publication
-step. Inspect their diffs and successful results before approval.
+upload aggregate summaries automatically; candidate archives require explicit
+manual workflow dispatch with `upload_candidate=true`. They contain no
+publication step. Bookkeeping-only synchronized PR updates retain prior
+artifact evidence; application, packaging and unknown file changes rebuild.
+Inspect workflow diffs and successful results before approval.
+
+The reviewed Biowulf aggregate evidence in PR #61 covers exactly
+`a6ce43c9db80bb41e8884a892dfe65cf480009e0`, not a later workflow-only commit.
+Do not repeat its accepted build or rewrite its source/checksums. Final
+integration and owner-approved licensing changes require identifying a new
+release source and validating its exact artifacts before publication.
 
 ## Human publication checklist
 
