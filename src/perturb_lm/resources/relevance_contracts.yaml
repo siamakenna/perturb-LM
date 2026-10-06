@@ -1,0 +1,50 @@
+schema_version: 1
+contracts:
+  M0_GENE_AWARE_V1:
+    name: M0_GENE_AWARE_V1
+    version: '1'
+    retrieval_unit: treatment
+    positive_rule: exact_treatment
+    identity_fields: [treatment]
+    identity_namespace: dataset_treatment_v1
+    query_unit: record
+    replicate_handling: mean_scores_after_filtering
+    exclusions: [same_plate, same_well_coordinate]
+    permitted_metadata: [Metadata_gene, Metadata_pert_type, Metadata_control_type, Metadata_negcon_control_type]
+    approval: synthetic
+  M0_IDENTITY_FREE_V2:
+    name: M0_IDENTITY_FREE_V2
+    version: '2'
+    retrieval_unit: treatment
+    positive_rule: exact_treatment
+    identity_fields: [treatment]
+    identity_namespace: dataset_treatment_v2
+    query_unit: record
+    replicate_handling: mean_scores_after_filtering
+    exclusions: [same_plate, same_well_coordinate]
+    permitted_metadata: [Metadata_pert_type, Metadata_control_type, Metadata_negcon_control_type]
+    approval: synthetic
+  M1_BIOLOGICAL_CONTEXT:
+    name: M1_BIOLOGICAL_CONTEXT
+    version: 1-draft
+    retrieval_unit: treatment
+    positive_rule: exact_gene_context
+    identity_fields: [gene, perturbation_type, species]
+    identity_namespace: gene_context_draft
+    query_unit: record
+    replicate_handling: mean_scores_after_filtering
+    exclusions: [same_plate, same_well_coordinate]
+    permitted_metadata: [biological_context, annotation_provenance]
+    approval: proposed
+  M5_LEAKAGE_CONTROL:
+    name: M5_LEAKAGE_CONTROL
+    version: 1-draft
+    retrieval_unit: treatment
+    positive_rule: exact_treatment
+    identity_fields: [treatment]
+    identity_namespace: control_treatment_v1
+    query_unit: record
+    replicate_handling: mean_scores_after_filtering
+    exclusions: [same_plate, same_well_coordinate]
+    permitted_metadata: []
+    approval: proposed

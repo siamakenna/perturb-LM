@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "scope": "synthetic_software_and_pending_scientific_examinations",
+  "examinations": [
+    {"id": "installed_package", "name": "Installed-package independence", "status": "implemented_synthetic", "scope": "Installed wheel CLI smoke; full wheel/sdist base/pixel acceptance lives in the package workflow."},
+    {"id": "metadata_blindness", "name": "Biological-metadata blindness", "status": "implemented_synthetic", "scope": "External label changes leave handcrafted features and distances unchanged."},
+    {"id": "filename_independence", "name": "Filename independence", "status": "implemented_synthetic", "scope": "Renamed files with identical decoded pixels produce identical features and distances."},
+    {"id": "pixel_sensitivity", "name": "Controlled pixel sensitivity", "status": "implemented_synthetic", "scope": "Synthetic size/intensity changes have expected measurement effects."},
+    {"id": "segmentation_accuracy", "name": "Segmentation accuracy against independent annotations", "status": "requires_approved_data", "requires": ["independent masks", "reviewed annotation protocol", "approved images"]},
+    {"id": "channel_ablations", "name": "Channel ablations", "status": "requires_review", "requires": ["reviewed channel interventions", "fixed preprocessing protocol", "approved representative images"]},
+    {"id": "imaging_robustness", "name": "Imaging robustness", "status": "requires_review", "requires": ["reviewed nuisance perturbations and ranges", "approved images"]},
+    {"id": "generalization", "name": "Acquisition and biological generalization", "status": "requires_approved_data", "requires": ["independent acquisition batches", "validated treatment groups", "held-out design"]},
+    {"id": "representations", "name": "Learned-versus-handcrafted representations", "status": "requires_approved_assets", "requires": ["reviewed local model assets", "channel/preprocessing contracts", "matched queries and candidate populations"]},
+    {"id": "statistical_stability", "name": "Statistical stability and uncertainty", "status": "implemented_synthetic", "scope": "Paired fixed-prediction query/cluster bootstrap contracts; split/training variation still requires a separate repeated-fit design."}
+  ],
+  "not_acquisition_batches": true,
+  "submission_authorized": false
+}
