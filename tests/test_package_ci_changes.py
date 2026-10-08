@@ -1,4 +1,5 @@
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -39,5 +40,33 @@ def test_only_valid_synchronize_sha_can_skip_build():
         {},
         {"action": "synchronize", "before": "pending"},
         {"action": "opened", "before": "a" * 40},
+        {"action": "synchronize", "before": 2},
     ):
         assert changes.comparison(event) is None
+
+
+def test_output_and_event_paths_must_live_under_runner_temp(tmp_path, monkeypatch):
+    runner_temp = tmp_path / "runner_temp"
+    runner_temp.mkdir()
+    event_path = runner_temp / "event.json"
+    event_path.write_text(json.dumps({"action": "opened"}))
+    output_path = runner_temp / "output.txt"
+    output_path.touch()
+    monkeypatch.setenv("RUNNER_TEMP", str(runner_temp))
+    monkeypatch.setenv("GITHUB_EVENT_PATH", str(event_path))
+    monkeypatch.setenv("GITHUB_OUTPUT", str(output_path))
+    changes.main()
+    assert output_path.read_text() == "rebuild=true\n"
+
+    unauthorized = tmp_path / "output_outside.txt"
+    unauthorized.touch()
+    monkeypatch.setenv("GITHUB_OUTPUT", str(unauthorized))
+    with pytest.raises(ValueError, match="outside trusted runner temp"):
+        changes.main()
+    assert unauthorized.read_text() == ""
+
+
+def test_invalid_file_command_path_is_rejected(tmp_path, monkeypatch):
+    monkeypatch.setenv("GITHUB_OUTPUT", str(tmp_path / "missing.txt"))
+    with pytest.raises(ValueError, match="regular file"):
+        changes.safe_env_path("GITHUB_OUTPUT", tmp_path)
