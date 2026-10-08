@@ -20,50 +20,35 @@ def needs_build(paths):
 
 
 def safe_env_path(name, root):
+    """Require GitHub-provided file-command paths to remain inside runner temp."""
     raw = os.environ.get(name)
     if not raw:
         raise ValueError(f"Missing required environment variable: {name}")
-    candidate = Path(raw).resolve()
-    root_path = Path(root).resolve()
-    try:
-        candidate.relative_to(root_path)
-    except ValueError as exc:
-        raise ValueError(f"{name} points outside trusted root: {candidate}") from exc
+    candidate = Path(raw).expanduser().resolve()
+    root_path = Path(root).expanduser().resolve()
+    if not candidate.is_relative_to(root_path):
+        raise ValueError(f"{name} points outside trusted runner temp")
+    if not candidate.is_file():
+        raise ValueError(f"{name} must point to a regular file")
     return candidate
-
-
-def safe_github_output_path():
-    raw_output = os.environ["GITHUB_OUTPUT"]
-    output_path = Path(raw_output).expanduser().resolve()
-
-    workspace = os.environ.get("GITHUB_WORKSPACE")
-    if workspace:
-        workspace_path = Path(workspace).expanduser().resolve()
-        try:
-            output_path.relative_to(workspace_path)
-    workspace_root = os.environ.get("GITHUB_WORKSPACE", os.getcwd())
-    event_path = safe_env_path("GITHUB_EVENT_PATH", workspace_root)
-    output_path = safe_env_path("GITHUB_OUTPUT", workspace_root)
-
-    event = json.loads(event_path.read_text())
-            raise ValueError("GITHUB_OUTPUT must be within GITHUB_WORKSPACE") from exc
-
-    if output_path.exists() and not output_path.is_file():
-        raise ValueError("GITHUB_OUTPUT must point to a file")
-
-    return output_path
 
 
 def comparison(event):
     if event.get("action") == "synchronize":
         before = event.get("before", "")
-    with output_path.open("a") as handle:
+        if isinstance(before, str) and re.fullmatch(r"[0-9a-f]{40}", before):
             return before
     return None
 
 
 def main():
-    event = json.loads(Path(os.environ["GITHUB_EVENT_PATH"]).read_text())
+    runner_temp = os.environ.get("RUNNER_TEMP")
+    if not runner_temp:
+        raise ValueError("RUNNER_TEMP is required for GitHub file-command paths")
+    event_path = safe_env_path("GITHUB_EVENT_PATH", runner_temp)
+    output_path = safe_env_path("GITHUB_OUTPUT", runner_temp)
+
+    event = json.loads(event_path.read_text(encoding="utf-8"))
     before = comparison(event)
     rebuild = True  # Opened/reopened/manual/unknown events must validate.
     if before:
@@ -75,7 +60,7 @@ def main():
         if result.returncode == 0:
             paths = [p.decode() for p in result.stdout.split(b"\0") if p]
             rebuild = needs_build(paths)
-    with safe_github_output_path().open("a") as handle:
+    with output_path.open("a", encoding="utf-8") as handle:
         handle.write(f"rebuild={str(rebuild).lower()}\n")
     print(
         "Artifact rebuild required"
