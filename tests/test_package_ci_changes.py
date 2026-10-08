@@ -39,5 +39,41 @@ def test_only_valid_synchronize_sha_can_skip_build():
         {},
         {"action": "synchronize", "before": "pending"},
         {"action": "opened", "before": "a" * 40},
+        {"action": "synchronize", "before": 2},
     ):
         assert changes.comparison(event) is None
+
+
+def test_opened_event_requests_rebuild_without_path_environment(monkeypatch, capsys):
+    monkeypatch.setenv("PACKAGE_EVENT_ACTION", "opened")
+    monkeypatch.delenv("PACKAGE_EVENT_BEFORE", raising=False)
+    changes.main()
+    captured = capsys.readouterr()
+    assert captured.out == "rebuild=true\n"
+    assert captured.err == "Artifact rebuild required\n"
+
+
+def test_valid_synchronize_event_can_reuse_bookkeeping_evidence(monkeypatch, capsys):
+    class Result:
+        returncode = 0
+        stdout = b"scripts/package_ci_changes.py\0"
+
+    monkeypatch.setenv("PACKAGE_EVENT_ACTION", "synchronize")
+    monkeypatch.setenv("PACKAGE_EVENT_BEFORE", "a" * 40)
+    monkeypatch.setattr(changes.subprocess, "run", lambda *args, **kwargs: Result())
+    changes.main()
+    captured = capsys.readouterr()
+    assert captured.out == "rebuild=false\n"
+    assert "Bookkeeping-only update" in captured.err
+
+
+def test_invalid_before_never_reaches_git(monkeypatch, capsys):
+    def deny(*args, **kwargs):
+        raise AssertionError("invalid comparison must not reach git")
+
+    monkeypatch.setenv("PACKAGE_EVENT_ACTION", "synchronize")
+    monkeypatch.setenv("PACKAGE_EVENT_BEFORE", "not-a-commit")
+    monkeypatch.setattr(changes.subprocess, "run", deny)
+    changes.main()
+    captured = capsys.readouterr()
+    assert captured.out == "rebuild=true\n"
