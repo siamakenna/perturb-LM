@@ -37,7 +37,7 @@ def offline(monkeypatch, tmp_path):
 @pytest.fixture
 def assets(tmp_path):
     result = {}
-    for family in ("dinov2", "sapbert"):
+    for family in ("dinov2", "sapbert", "scibert"):
         path = tmp_path / family
         path.mkdir()
         spec = replace(
@@ -189,6 +189,52 @@ def test_actual_sapbert_cls_padding_truncation_batching_and_state(assets):
         adapter.transform([""])
 
 
+def test_actual_scibert_mean_pooling_padding_truncation_batching_and_state(assets):
+    spec, path = assets["scibert"]
+    text = ["large cell", "small round nucleus", "bright cell " * 20]
+    adapter = LocalModelEmbedder(spec, path, batch_size=2).fit(text[:1])
+    fitted_state = pickle.dumps(adapter)
+    result = adapter.transform(text)
+    assert pickle.dumps(adapter) == fitted_state
+
+    tokenizer = BertTokenizerFast.from_pretrained(path, local_files_only=True)
+    encoded = tokenizer(
+        text,
+        padding=True,
+        truncation=True,
+        max_length=12,
+        return_tensors="pt",
+    )
+    assert encoded["input_ids"].shape[1] == 12
+
+    direct = BertModel.from_pretrained(
+        path,
+        local_files_only=True,
+        use_safetensors=True,
+    ).eval()
+    with torch.inference_mode():
+        hidden = direct(**encoded).last_hidden_state
+        mask = encoded["attention_mask"].unsqueeze(-1)
+        expected = (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)
+
+    np.testing.assert_allclose(result, norm(expected.numpy()), atol=1e-6)
+    np.testing.assert_allclose(
+        adapter.transform(text[::-1]),
+        result[::-1],
+        atol=1e-6,
+    )
+    np.testing.assert_allclose(
+        clone(adapter).set_params(batch_size=1).fit_transform(text),
+        result,
+        atol=1e-6,
+    )
+    np.testing.assert_allclose(
+        pickle.loads(pickle.dumps(adapter)).transform(text),
+        result,
+        atol=1e-6,
+    )
+
+
 def test_cache_contract_and_tamper_rejection(assets, tmp_path, monkeypatch):
     spec, path = assets["dinov2"]
     pixels = np.full((1, 4, 28, 28), 30.0)
@@ -221,6 +267,13 @@ def test_dimension_mismatch_fails_before_inference(assets, family):
             path,
             image_preprocessing=config() if family == "dinov2" else None,
         ).fit_transform(X)
+
+
+def test_scibert_dimension_mismatch_fails_closed(assets):
+    spec, path = assets["scibert"]
+    bad = replace(spec, dimension=25)
+    with pytest.raises(ValueError, match="model contract"):
+        LocalModelEmbedder(bad, path).fit_transform(["cell"])
 
 
 def test_missing_weights_are_not_silently_randomly_initialized(assets):

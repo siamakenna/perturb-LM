@@ -42,6 +42,13 @@ _SPECS = [
         "transformers",
     ),
     ModelSpec(
+        "scibert",
+        "text",
+        "allenai/scibert_scivocab_uncased",
+        "planned",
+        "transformers",
+    ),
+    ModelSpec(
         "biomedclip_text",
         "text",
         "microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224",
