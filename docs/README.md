@@ -20,6 +20,7 @@ This index points readers to the current public-safe project documents without r
 - [Evaluation protocol](EVALUATION_PROTOCOL.md) - metrics, splits, and leakage-aware evaluation rules.
 - [Artifact map](ARTIFACT_MAP.md) - expected generated artifacts and why they remain local.
 - [Environment reproducibility](ENVIRONMENT_REPRODUCIBILITY.md) - environment capture expectations.
+- [Phase 4 comparator operator tools](PHASE4_COMPARATOR_TOOLS.md) - input preparation, native launch integration, and descriptive analysis.
 - [Real RxRx setup](REAL_RXRX_SETUP.md) - where local RxRx metadata, images, and embeddings should live.
 - [CI and remote smoke](CI_AND_REMOTE_SMOKE.md) - remote validation notes.
 
