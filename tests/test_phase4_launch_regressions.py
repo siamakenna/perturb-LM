@@ -269,6 +269,60 @@ class LaunchRegressionTests(unittest.TestCase):
         self.assertIn("explicit operator authorization", result.stdout)
         self.assertFalse(self.capture.exists())
 
+    def test_dangling_pilot_and_working_symlinks_are_not_fresh(self):
+        for suffix in ("", ".working"):
+            with self.subTest(suffix=suffix):
+                link = self.pilot_out.with_name(self.pilot_out.name + suffix)
+                link.symlink_to(self.root / "absent target")
+                with self.assertRaisesRegex(ValueError, "fresh output"):
+                    self.prepare()
+                self.assertFalse(self.out.exists())
+                self.assertEqual(self.python_calls, [])
+                link.unlink()
+
+    def test_shell_rejects_dangling_output_symlinks_before_delegation(self):
+        self.prepare()
+        for suffix in ("", ".working"):
+            with self.subTest(suffix=suffix):
+                link = self.pilot_out.with_name(self.pilot_out.name + suffix)
+                link.symlink_to(self.root / "absent target")
+                result = self.shell_handoff()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(self.capture.exists())
+                link.unlink()
+
+    def test_request_directory_aliases_preserve_external_manifest_and_environment(self):
+        alias = self.root / "directory alias"
+        alias.symlink_to(self.root, target_is_directory=True)
+        request = json.loads(self.request.read_text())
+        for key, value in request.items():
+            request[key] = str(alias / Path(value).relative_to(self.root))
+        write_json(self.request, request)
+        self.prepare()
+        # The supplied venv executable remains lexical, including its final symlink.
+        self.assertTrue(all(call[0] == str(self.python) for call in self.python_calls))
+        self.assertIn(str(self.manifest), self.python_calls[1])
+        self.assertFalse(self.manifest.is_relative_to(self.code))
+        self.assertEqual(self.shell_handoff().returncode, 0)
+
+    def test_preparation_writes_remain_at_selected_parent_after_alias_retarget(self):
+        selected = self.root / "selected"
+        other = self.root / "other"
+        selected.mkdir()
+        other.mkdir()
+        alias = self.root / "output alias"
+        alias.symlink_to(selected, target_is_directory=True)
+        (other / "preparation").mkdir()
+        self.out = alias / "preparation"
+
+        def retarget():
+            alias.unlink()
+            alias.symlink_to(other, target_is_directory=True)
+
+        self.prepare(retarget)
+        self.assertEqual(list((other / "preparation").iterdir()), [])
+        self.assertTrue((selected / "preparation/preparation-summary.json").is_file())
+
 
 if __name__ == "__main__":
     unittest.main()

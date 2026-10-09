@@ -20,6 +20,8 @@ from pathlib import Path
 from comparator_tools import (
     confined_file,
     digest,
+    fresh_output_path,
+    new_output,
     read_json,
     validate_native_record_ids,
     write_json,
@@ -29,8 +31,7 @@ REQUEST_KEYS = {"manifest", "approval", "data_root", "asset_root", "pilot_output
 
 
 def make_request(path: Path) -> None:
-    if path.exists():
-        raise FileExistsError("Request file already exists")
+    path = fresh_output_path(path)
     if not sys.stdin.isatty():
         raise ValueError("Use an interactive terminal; do not pipe commands into these prompts")
     print("Enter existing reviewed paths. No approvals will be created.")
@@ -44,10 +45,7 @@ def make_request(path: Path) -> None:
         if not p.is_absolute():
             raise ValueError("Enter an absolute local path")
         if key == "pilot_output":
-            if p.exists() or p.with_name(p.name + ".working").exists() or not p.parent.is_dir():
-                raise ValueError(
-                    "Output and its .working path must not exist; its parent directory must exist"
-                )
+            p = fresh_pilot_output(p)
         elif key in {"manifest", "approval"}:
             if not p.is_file():
                 raise ValueError("An input file is missing")
@@ -56,6 +54,15 @@ def make_request(path: Path) -> None:
         data[key] = str(p)
     write_json(path, data)
     print("Saved a PRIVATE path request. No inspection, approval, or job submission performed.")
+
+
+def fresh_pilot_output(path: Path) -> Path:
+    try:
+        path = fresh_output_path(path)
+        fresh_output_path(path.with_name(path.name + ".working"))
+    except OSError as exc:
+        raise ValueError("Choose a fresh output whose parent exists, including .working") from exc
+    return path
 
 
 def validate_request(
@@ -74,20 +81,15 @@ def validate_request(
             or not Path(value).expanduser().is_absolute()
         ):
             raise ValueError(f"UNRESOLVED: {key}")
-        path = Path(value).expanduser().resolve()
+        path = Path(value).expanduser()
+        # Resolving the leaf would hide an existing dangling output symlink.
+        path = fresh_pilot_output(path) if key == "pilot_output" else path.resolve()
         if path.is_relative_to(code):
             raise ValueError(
                 "Private manifests, data, assets, and outputs "
                 "must remain outside the source checkout"
             )
         paths[key] = path
-    pilot_output = paths["pilot_output"]
-    if (
-        pilot_output.exists()
-        or pilot_output.with_name(pilot_output.name + ".working").exists()
-        or not pilot_output.parent.is_dir()
-    ):
-        raise ValueError("Choose a fresh output whose parent exists")
     for key in ("data_root", "asset_root"):
         if not paths[key].is_dir():
             raise ValueError(f"Missing {key}")
@@ -180,7 +182,8 @@ def prepare(request: Path, code: Path, python: Path, sha: str, out: Path) -> dic
     python = Path(os.path.abspath(python.expanduser()))
     if python.name != "python" or python.parent.name != "bin" or not os.access(python, os.X_OK):
         raise ValueError("Select the existing environment's bin/python")
-    if out.exists() or out.resolve().is_relative_to(code):
+    out = fresh_output_path(out)
+    if out.is_relative_to(code):
         raise ValueError("Use a fresh preparation directory outside the source checkout")
 
     def git(*args):
@@ -208,10 +211,10 @@ def prepare(request: Path, code: Path, python: Path, sha: str, out: Path) -> dic
         OPENBLAS_NUM_THREADS="2",
         MKL_NUM_THREADS="2",
     )
-    out.mkdir(mode=0o700)
+    out = new_output(out)
     with (
-        (out / "environment.stdout.private.txt").open("wb") as so,
-        (out / "environment.stderr.private.txt").open("wb") as se,
+        (out / "environment.stdout.private.txt").open("xb") as so,
+        (out / "environment.stderr.private.txt").open("xb") as se,
     ):
         subprocess.run(
             [
@@ -232,8 +235,8 @@ def prepare(request: Path, code: Path, python: Path, sha: str, out: Path) -> dic
             stderr=se,
         )
     with (
-        (out / "inspect.stdout.private.txt").open("wb") as so,
-        (out / "inspect.stderr.private.txt").open("wb") as se,
+        (out / "inspect.stdout.private.txt").open("xb") as so,
+        (out / "inspect.stderr.private.txt").open("xb") as se,
     ):
         subprocess.run(
             [

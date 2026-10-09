@@ -46,11 +46,27 @@ def write_json(path: Path, obj: Any) -> None:
         f.write("\n")
 
 
-def new_output(path: Path) -> Path:
-    if path.exists():
+def fresh_output_path(path: Path) -> Path:
+    """Pin existing parent aliases without following an existing output leaf.
+
+    Callers must use the returned path for subsequent writes. This preserves
+    legitimate directory aliases while preventing their later retargeting from
+    redirecting output. The canonical parent must be operator-controlled.
+    """
+    path = path.expanduser()
+    parent = path.parent.resolve(strict=True)
+    if not parent.is_dir():
+        raise NotADirectoryError("Output parent must be an existing directory")
+    path = parent / path.name
+    if path.is_symlink() or path.exists():
         raise FileExistsError(
             "Output already exists; preserve it and select a new output directory"
         )
+    return path
+
+
+def new_output(path: Path) -> Path:
+    path = fresh_output_path(path)
     path.mkdir(mode=0o700, parents=False)
     return path
 
@@ -213,7 +229,7 @@ def prepare_images(selection: Path, root: Path, settings: Path, out: Path) -> di
         or any(digest(pth) != h for pth, h in before)
     ):
         raise ValueError("A preparation input changed")
-    new_output(out)
+    out = new_output(out)
     write_json(out / "image-inventory.json", inventory)
     write_json(out / "image-settings.json", image)
     write_json(out / "input-qc.private.json", technical)
@@ -425,14 +441,15 @@ def analyze(
             "or claims of generalization"
         ),
     }
-    new_output(out)
+    out = new_output(out)
     with (out / "neighbors.private.tsv").open("x", newline="", encoding="utf-8") as f:
         writer = csv.writer(f, delimiter="\t")
         writer.writerow(["query_id", "candidate_id", "rank", "cosine_similarity"])
         for i, choices in enumerate(neighbors):
             for rank, j in enumerate(choices, 1):
                 writer.writerow([ids[i], ids[j], rank, format(float(sim[i, j]), ".17g")])
-    np.savez_compressed(out / "cosine.private.npz", cosine=sim, record_ids=np.asarray(ids))
+    with (out / "cosine.private.npz").open("xb") as f:
+        np.savez_compressed(f, cosine=sim, record_ids=np.asarray(ids))
     if digest(path) != h:
         raise ValueError("Feature archive changed during analysis")
     return finish(out, report)
@@ -535,7 +552,7 @@ def compare(
             "agreement is not accuracy. No mAP or biological claims."
         ),
     }
-    new_output(out)
+    out = new_output(out)
     return finish(out, report)
 
 
@@ -639,7 +656,7 @@ def scores_summary(
             "and candidate population before summarizing."
         ),
     }
-    new_output(out)
+    out = new_output(out)
     return finish(out, report)
 
 

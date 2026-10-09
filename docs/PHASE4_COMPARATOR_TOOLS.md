@@ -28,6 +28,14 @@ compute allocation. The wrapper retains the existing Python 3.11 module setup.
 Keep requests, approvals, input files, models, row-level outputs, and launch
 environments outside the source checkout on approved private storage. All new
 output directories must have an existing parent and must not already exist.
+Use private, operator-controlled canonical directories that remain stable while
+the command runs. Output parents are canonicalized once and that location is
+used for subsequent writes; legitimate directory aliases and spaces are allowed.
+Existing output leaves, including dangling symlinks, are rejected. These tools
+are local operator commands, not a sandbox for hostile shared filesystems or
+untrusted service requests. See the [alert-by-alert path review](PHASE4_CODEQL_PATH_REVIEW.md)
+for demonstrated output defects, fixes, complete CodeQL traces, and remaining
+trust-boundary decisions.
 
 ## Input preparation
 

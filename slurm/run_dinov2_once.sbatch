@@ -29,7 +29,9 @@ source "$SESSION"
 : "${PILOT_OUT:?Missing new output directory}"
 
 test ! -e "$PILOT_OUT"
+test ! -L "$PILOT_OUT"
 test ! -e "$PILOT_OUT.working"
+test ! -L "$PILOT_OUT.working"
 test "$(git -C "$PILOT_CODE" rev-parse HEAD)" = "$PILOT_EXPECTED_SHA"
 test -z "$(git -C "$PILOT_CODE" status --porcelain)"
 
