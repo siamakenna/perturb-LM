@@ -5,6 +5,7 @@ Python import and native inspection calls are mocked; Git and the outer shell
 wrapper run locally. The delegated shell stub only records environment values.
 No native Perturb-LM implementation, Slurm job, model or download is exercised.
 """
+
 from __future__ import annotations
 
 import json
@@ -57,14 +58,27 @@ class LaunchRegressionTests(unittest.TestCase):
         tool_dirs = {str(Path(shutil.which(name)).parent) for name in ("git", "bash")}
         self.env = {
             "PATH": os.pathsep.join([str(self.module_dir), *sorted(tool_dirs), os.defpath]),
-            "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
-            "LANG": "C", "PYTHONDONTWRITEBYTECODE": "1",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "LANG": "C",
+            "PYTHONDONTWRITEBYTECODE": "1",
         }
         self.git("init", "--quiet", "--template=")
         self.git("add", ".")
-        self.git("-c", "user.name=Synthetic Test", "-c", "user.email=test@example.invalid",
-                 "-c", "commit.gpgsign=false", "-c", "core.hooksPath=" + os.devnull,
-                 "commit", "--quiet", "-m", "Synthetic launcher fixture")
+        self.git(
+            "-c",
+            "user.name=Synthetic Test",
+            "-c",
+            "user.email=test@example.invalid",
+            "-c",
+            "commit.gpgsign=false",
+            "-c",
+            "core.hooksPath=" + os.devnull,
+            "commit",
+            "--quiet",
+            "-m",
+            "Synthetic launcher fixture",
+        )
         self.sha = self.git("rev-parse", "HEAD").stdout.strip()
         self.data = self.root / "data with spaces"
         self.data.mkdir()
@@ -73,24 +87,39 @@ class LaunchRegressionTests(unittest.TestCase):
         write_json(self.assets / "asset.json", {"fixture": "not a native asset inventory"})
         self.image = self.data / "one.tif"
         self.image.write_bytes(b"opaque fixture bytes; no TIFF decoding is performed")
-        inventory = write_json(self.data / "inventory.json", [
-            {"record_id": "one", "path": "one.tif", "sha256": launcher.digest(self.image)}
-        ])
-        self.manifest = write_json(self.root / "manifest.json", {
-            "model": "dinov2", "execution": "approved_inference", "max_inputs": 1,
-            "resources": {"cpus": 2, "gpus": 0, "memory_gb": 8, "time": "00:10:00"},
-            "dataset": {"synthetic": False, "version": "fixture-not-a-real-dataset",
-                        "metadata_path": "inventory.json", "metadata_sha256": launcher.digest(inventory)},
-        })
+        inventory = write_json(
+            self.data / "inventory.json",
+            [{"record_id": "one", "path": "one.tif", "sha256": launcher.digest(self.image)}],
+        )
+        self.manifest = write_json(
+            self.root / "manifest.json",
+            {
+                "model": "dinov2",
+                "execution": "approved_inference",
+                "max_inputs": 1,
+                "resources": {"cpus": 2, "gpus": 0, "memory_gb": 8, "time": "00:10:00"},
+                "dataset": {
+                    "synthetic": False,
+                    "version": "fixture-not-a-real-dataset",
+                    "metadata_path": "inventory.json",
+                    "metadata_sha256": launcher.digest(inventory),
+                },
+            },
+        )
         approval_dir = self.data / "review records"
         approval_dir.mkdir()
         self.approval = write_json(approval_dir / "approval.json", {"source_commit": self.sha})
         self.pilot_out = self.root / "pilot output"
-        self.request = write_json(self.root / "request.json", {
-            "manifest": str(self.manifest), "approval": str(self.approval),
-            "data_root": str(self.data), "asset_root": str(self.assets),
-            "pilot_output": str(self.pilot_out),
-        })
+        self.request = write_json(
+            self.root / "request.json",
+            {
+                "manifest": str(self.manifest),
+                "approval": str(self.approval),
+                "data_root": str(self.data),
+                "asset_root": str(self.assets),
+                "pilot_output": str(self.pilot_out),
+            },
+        )
         self.python = self.root / "env with spaces/bin/python"
         self.python.parent.mkdir(parents=True)
         self.python.symlink_to(sys.executable)
@@ -99,8 +128,13 @@ class LaunchRegressionTests(unittest.TestCase):
         self.python_calls = []
 
     def git(self, *args):
-        return subprocess.run(["git", "-C", str(self.code), *args], env=self.env,
-                              check=True, capture_output=True, text=True)
+        return subprocess.run(
+            ["git", "-C", str(self.code), *args],
+            env=self.env,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
 
     def prepare(self, during_inspection=None):
         real_run = subprocess.run
@@ -121,8 +155,13 @@ class LaunchRegressionTests(unittest.TestCase):
     def shell_handoff(self, authorization="I_AUTHORIZE_ONE_DINOV2_PILOT"):
         env = dict(self.env, SLURM_JOB_ID="synthetic-test-only", STUB_CAPTURE=str(self.capture))
         wrapper = Path(launcher.__file__).resolve().parents[1] / "slurm/run_dinov2_once.sbatch"
-        return subprocess.run(["bash", str(wrapper), str(self.out / "launch.env.sh"), authorization],
-                              env=env, capture_output=True, text=True, timeout=10)
+        return subprocess.run(
+            ["bash", str(wrapper), str(self.out / "launch.env.sh"), authorization],
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
 
     def test_mocked_preparation_to_real_shell_delegation(self):
         report = self.prepare()
@@ -133,9 +172,16 @@ class LaunchRegressionTests(unittest.TestCase):
         self.assertEqual(self.out.stat().st_mode & 0o777, 0o700)
         result = self.shell_handoff()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        expected = [self.code, self.python.parent.parent, self.manifest,
-                    self.approval.relative_to(self.data),
-                    self.data, self.assets, self.pilot_out, self.sha]
+        expected = [
+            self.code,
+            self.python.parent.parent,
+            self.manifest,
+            self.approval.relative_to(self.data),
+            self.data,
+            self.assets,
+            self.pilot_out,
+            self.sha,
+        ]
         self.assertEqual(self.capture.read_text().splitlines(), [str(v) for v in expected])
         self.assertFalse(self.pilot_out.exists())
         self.assertEqual(self.git("status", "--porcelain").stdout, "")

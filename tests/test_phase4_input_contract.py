@@ -3,6 +3,7 @@
 These tests verify preparation decisions and output schemas, not TIFF-reader
 compatibility, model execution, native approval checks or scientific results.
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -58,16 +59,25 @@ class MockedTiffPreparationTests(unittest.TestCase):
     def prepare_mocked_tiff(self, axes, height, width, *, channels=None):
         """The mock exposes header shape and decoded pixels; no decoder runs."""
         names = channels or ["channel-0", "channel-1", "channel-2"]
-        self.settings.write_text(json.dumps({
-            "axes": axes,
-            "preprocessing": {
-                "input_channels": names, "model_channels": list(reversed(names)),
-                "input_range": [0, 255], "mean": [0, 0, 0], "std": [1, 1, 1],
-            },
-        }))
+        self.settings.write_text(
+            json.dumps(
+                {
+                    "axes": axes,
+                    "preprocessing": {
+                        "input_channels": names,
+                        "model_channels": list(reversed(names)),
+                        "input_range": [0, 255],
+                        "mean": [0, 0, 0],
+                        "std": [1, 1, 1],
+                    },
+                }
+            )
+        )
         shape = (3, height, width) if axes == "CYX" else (height, width, 3)
         series = types.SimpleNamespace(
-            shape=shape, dtype=np.dtype("uint16"), axes=axes,
+            shape=shape,
+            dtype=np.dtype("uint16"),
+            axes=axes,
             asarray=mock.Mock(side_effect=lambda: np.ones(shape, dtype=np.uint16)),
         )
         fake = types.ModuleType("tifffile")
@@ -90,10 +100,16 @@ class MockedTiffPreparationTests(unittest.TestCase):
                 self.assertEqual(report["n_images"], 1)
                 self.assertFalse(report["pixels_transformed"])
                 inventory = json.loads((out / "image-inventory.json").read_text())
-                self.assertEqual(inventory, [{
-                    "record_id": "record-one", "path": "fixture.tif",
-                    "sha256": comparator.digest(self.image),
-                }])
+                self.assertEqual(
+                    inventory,
+                    [
+                        {
+                            "record_id": "record-one",
+                            "path": "fixture.tif",
+                            "sha256": comparator.digest(self.image),
+                        }
+                    ],
+                )
                 self.mocked_series.asarray.assert_called_once_with()
 
     def test_spatial_bounds_reject_before_mocked_decoding(self):
