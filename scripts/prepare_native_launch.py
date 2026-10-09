@@ -182,6 +182,7 @@ def prepare(request: Path, code: Path, python: Path, sha: str, out: Path) -> dic
         raise ValueError("Select the existing environment's bin/python")
     if out.exists() or out.resolve().is_relative_to(code):
         raise ValueError("Use a fresh preparation directory outside the source checkout")
+
     def git(*args):
         return subprocess.check_output(["git", "-C", str(code), *args], text=True).strip()
 

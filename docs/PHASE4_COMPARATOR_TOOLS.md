@@ -187,3 +187,45 @@ Native contract checks use actual source inspection and embedding serialization,
 plus isolated synthetic fixtures for rejection paths and argument forwarding.
 TIFF schema checks that mock decoding do not establish actual TIFF I/O. These
 tests do not run pretrained inference or establish scientific performance.
+
+## Integration review, 2026-10-09
+
+The integration was independently fetched from GitHub at
+`c515807ca5108cf6bc0f5d77bb7c446dd9783e11`, based on
+`a6a385b2dd8389ef61c70111c76612c9e95164e4`. Review is tracked in
+[PR #71](https://github.com/siamakenna/perturb-LM/pull/71), referencing
+[issue #55](https://github.com/siamakenna/perturb-LM/issues/55).
+Commit `e8bfeba1c1dc4e4d3a4c422039b36225a8095379` fixes the capture-only
+test interpreter for Python executable paths containing spaces and applies
+the repository's lint conventions to the new Python files. The native worker,
+model adapters, evaluator, and historical results are unchanged.
+
+Local macOS Intel / Python 3.12.5 validation of that follow-up:
+
+- The five-file command above: **91 passed, 30 subtests passed**, no failures
+  or skips. This reproduces the focused count reported by the operator on
+  Biowulf for the original integration; it is not a full repository suite.
+- `python -m pytest --continue-on-collection-errors -q`: **464 passed,
+  3 collection errors, 30 subtests passed**, exit 1. No tests were excluded.
+  The errors are missing Torch imports in `test_comparator_text_encoders.py`,
+  `test_offline_model_inference.py`, and `test_pilot_inference.py`.
+  This is incomplete local dependency coverage, not a passing full suite.
+- Ruff on the seven new Python files, Bash syntax on the bounded wrapper,
+  public-copy consistency, and Git whitespace checks passed.
+- Actual native DINOv2 inspection returned `execution=plan_only`, with
+  `approval_verified`, `assets_verified`, and `inputs_verified` all false.
+
+The test groups overlap; do not add their counts. Dependency-enabled Linux
+source checks and artifact-install checks are tracked on the PR's current
+revision. The previously validated package is still **BUILT_NOT_RELEASED**;
+this integration does not establish a publication or a new pretrained result.
+
+Before a real pilot, the operator still needs an approved TIFF selection of
+at most eight images, explicit reviewed channel/preprocessing settings,
+the pinned local checkpoint inventory, and recorded decisions bound to the
+final reviewed source commit, manifest, and assets. Inspection found no TIFFs
+or native asset inventories in the local project data/output directories
+checked for this review; it does not establish their absence elsewhere.
+No new Biowulf rerun of the unchanged package candidate is required by these
+operator-tool changes. Any future pretrained pilot is separate work requiring
+those prerequisites and explicit run authorization.
