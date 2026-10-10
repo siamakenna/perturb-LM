@@ -36,6 +36,15 @@ models:
     pooling: cls
     normalize: true
     max_length: 128
+  scibert:
+    identifier: allenai/scibert_scivocab_uncased
+    revision: 952d056ace307abd2cda7cee822a1d608deb20ed
+    backend: hf_text
+    dimension: 768
+    input_kind: text
+    pooling: mean
+    normalize: true
+    max_length: 512
   biomedclip_text:
     identifier: microsoft/BiomedCLIP-PubMedBERT_256-vit_base_patch16_224
     revision: 9f341de24bfb00180f1b847274256e9b65a3a32e
