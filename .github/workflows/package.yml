@@ -26,7 +26,10 @@ jobs:
         with:
           fetch-depth: 0
       - id: changes
-        run: python3 scripts/package_ci_changes.py
+        env:
+          PACKAGE_EVENT_ACTION: ${{ github.event.action }}
+          PACKAGE_EVENT_BEFORE: ${{ github.event.before }}
+        run: python3 scripts/package_ci_changes.py >> "$GITHUB_OUTPUT"
   artifacts:
     needs: changes
     if: needs.changes.outputs.rebuild == 'true'
