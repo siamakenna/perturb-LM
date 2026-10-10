@@ -260,7 +260,8 @@ def prepare(request: Path, code: Path, python: Path, sha: str, out: Path) -> dic
         or any(digest(p) != h for p, h in bindings)
     ):
         raise ValueError("Source or bound input changed during inspection")
-    write_json(out / "bindings.private.json", {str(p): h for p, h in bindings})
+    bindings_path = out / "bindings.private.json"
+    write_json(bindings_path, {str(p): h for p, h in bindings})
     variables = {
         "PILOT_CODE": str(code),
         "PILOT_ENV": str(python.parent.parent),
@@ -270,7 +271,8 @@ def prepare(request: Path, code: Path, python: Path, sha: str, out: Path) -> dic
         "PILOT_ASSETS": str(paths["asset_root"]),
         "PILOT_OUT": str(paths["pilot_output"]),
         "PILOT_EXPECTED_SHA": sha,
-        "PILOT_BINDINGS": str((out / "bindings.private.json").resolve()),
+        "PILOT_BINDINGS": str(bindings_path.resolve()),
+        "PILOT_BINDINGS_SHA256": digest(bindings_path),
     }
     with (out / "launch.env.sh").open("x") as f:
         for key, value in variables.items():
