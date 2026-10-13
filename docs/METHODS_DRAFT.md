@@ -8,7 +8,18 @@ Perturb-LM asks whether biological language can retrieve perturbation-induced Ce
 
 ## 2. Dataset And Profile Inventory
 
-The active dataset track is JUMP CPJUMP1 Cell Painting morphology profiles. The primary local benchmark contains 4,524 profiles from 12 consistent profile files. Raw microscopy image archives are not required for the current benchmark and were not downloaded for this foundation pass.
+The active dataset track is JUMP CPJUMP1 Cell Painting morphology profiles. The primary local benchmark contains 4,524 QC profiles from 12 consistent profile files in `2020_11_04_CPJUMP1`. The separate 192-profile `2020_11_18_CPJUMP1_TimepointDay1` dataset is excluded from the submission benchmark. Raw microscopy image archives are not required for the current benchmark and were not downloaded for this foundation pass.
+
+| Population field | Count |
+| --- | ---: |
+| Profile files | 12 |
+| QC profiles | 4,524 |
+| Profiles with non-missing treatment labels | 4,190 |
+| Profiles excluded for missing treatment labels | 334 |
+| Morphology features | 904 |
+| Evaluable lexical queries | 641 / 641 |
+
+The Phase 3C inclusion rule is **profiles with non-missing treatment labels**. It is applied before splitting, preprocessing, query construction, or scoring. Profile eligibility is reported separately from split-specific query evaluability.
 
 The benchmark is profile-based. Image-level retrieval is a longer-term direction that requires additional validation.
 
@@ -34,24 +45,30 @@ The current default harmonization policy is `strict_intersection`. Silent union-
 
 ## 5. Query Construction
 
-Text queries are built from aggregate perturbation labels and public-safe metadata fields. The full-query lexical baseline contains 641 evaluable queries. Query construction records the selected query count, query-selection mode, and a public-safe checksum.
+Text queries are built from aggregate perturbation labels and public-safe metadata fields. The full-query lexical baseline contains 641 total queries and 641 evaluable queries over the 4,190 label-eligible profiles. Query construction records the selected query count, query-selection mode, and a public-safe checksum.
 
 The current benchmark evaluates retrieval at the perturbation level after profile-level scoring.
 
 ## 6. Identifier-Removal Policy
 
-Direct treatment identifiers are allowed only in the intentionally identifier-dominated full-metadata lexical reference. They are prohibited from identifier-stripped query and candidate text.
+The historical strict identifier-stripped query condition is versioned as `M0_GENE_AWARE_V1`.
+
+Direct treatment identifiers are allowed only in the intentionally identifier-dominated full-metadata lexical reference. They are prohibited from `M0_GENE_AWARE_V1` query and candidate text.
 
 `Metadata_target_sequence` is treated as a direct or near-direct treatment identifier and is prohibited.
 
-Identifier-stripped fields are limited to:
+Model-visible fields for `M0_GENE_AWARE_V1` are limited to:
 
 - gene;
 - perturbation type;
 - control type;
 - negative-control type.
 
+Direct treatment/sample identifiers, compound identifiers, SMILES/InChIKeys, target sequences, plate/well/batch identifiers, profile/source identifiers, and provenance fields remain prohibited.
+
 The validation code fails if prohibited identifier values appear in supposedly identifier-stripped query or candidate text.
+
+This names the observed historical implementation contract; it does not by itself resolve the original scientific-intent question. A future condition that removes gene identity must be separately versioned, for example as `M0_IDENTITY_FREE_V2`, rather than silently replacing historical M0 behavior.
 
 ## 7. Train-Only Preprocessing
 
@@ -112,7 +129,7 @@ Uncertainty is estimated with query-level paired bootstrap summaries. Bootstrap 
 
 The repository commits code, synthetic tests, configuration, and public-safe aggregate documentation. It does not commit real profiles, embeddings, model weights, indexes, raw image archives, row-level tables, local paths, or generated outputs.
 
-Runtime and environment summaries are written as local artifacts and dashboard-safe aggregate summaries.
+Runtime and environment summaries are written as local artifacts and dashboard-safe aggregate summaries. Future Phase 3C manifests also record the query-condition version, deterministic query-inventory SHA-256, total/evaluable/nonevaluable query counts, coverage, and positive-count summaries.
 
 ## 15. Current Limitations
 

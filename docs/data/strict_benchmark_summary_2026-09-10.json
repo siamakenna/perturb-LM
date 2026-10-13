@@ -1,0 +1,27 @@
+{
+  "source_commit": "551e98280793a1e1beefae282900b12bb586201a",
+  "split": "held_out_plate",
+  "retrieval_filter": "exclude_same_plate_and_well",
+  "n_total_queries": 1079,
+  "n_evaluable_queries": 180,
+  "methods": [
+    {
+      "method": "identifier_stripped_tfidf",
+      "average_precision": 0.15740740740740738,
+      "ci95_low": 0.1374305555555555,
+      "ci95_high": 0.17973251028806583
+    },
+    {
+      "method": "frozen_text_embeddings_unaligned",
+      "average_precision": 0.009196483009639503,
+      "ci95_low": 0.005982278632391299,
+      "ci95_high": 0.013333947419802664
+    },
+    {
+      "method": "frozen_text_embeddings_linear_projection",
+      "average_precision": 0.033155948561237124,
+      "ci95_low": 0.019585540352039514,
+      "ci95_high": 0.048472817455614665
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+include LICENSE* README.md pyproject.toml
+recursive-include src/perturb_lm/resources *.yaml
+include docs/PACKAGE_API.md docs/PIXEL_PACKAGE_EXAMPLE.md
+include scripts/build_release_candidate.py scripts/validate_release_artifacts.py
+include tests/test_release_contract.py

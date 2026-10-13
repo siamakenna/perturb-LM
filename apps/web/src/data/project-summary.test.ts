@@ -3,7 +3,10 @@ import summary from "./project-summary.json";
 
 describe("project summary", () => {
   it("keeps headline numbers public and consistent", () => {
-    expect(summary.profileCount).toBe(4524);
+    expect(summary.qcProfileCount).toBe(4524);
+    expect(summary.labeledProfileCount).toBe(4190);
+    expect(summary.excludedMissingTreatmentCount).toBe(334);
+    expect(summary.profileInclusionRule).toBe("profiles with non-missing treatment labels");
     expect(summary.featureCount).toBe(904);
     expect(summary.queryCount).toBe(641);
     expect(summary.lexicalBaselineMap).toBe(0.2513);

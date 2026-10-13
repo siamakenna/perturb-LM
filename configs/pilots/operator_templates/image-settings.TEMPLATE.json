@@ -1,0 +1,10 @@
+{
+  "axes": null,
+  "preprocessing": {
+    "input_channels": null,
+    "model_channels": null,
+    "input_range": null,
+    "mean": null,
+    "std": null
+  }
+}

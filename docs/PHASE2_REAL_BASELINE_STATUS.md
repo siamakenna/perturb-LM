@@ -101,7 +101,7 @@ The added text-to-profile baseline generates metadata-derived text queries and r
 
 In the current local run, it produced 641 evaluable queries. The full metadata TF-IDF baseline had mean hit@1 of 0.9906 and mean average precision of 0.9952, while random and shuffled-label controls were near zero at hit@1.
 
-Because full metadata TF-IDF includes direct perturbation identifiers, the run now also reports an identifier-stripped TF-IDF control. That tougher control removes direct perturbation IDs/names from candidate text and uses mechanism-style query text when possible. It had mean hit@1 of 0.2496 and mean average precision of 0.3991, still above random/shuffled controls but far below direct metadata lookup. This is a more honest rung toward biological retrieval.
+Because full metadata TF-IDF includes direct perturbation identifiers, the historical run also reported an identifier-stripped TF-IDF control. That older configuration had mean hit@1 of 0.2496 and mean average precision of 0.3991. This value is retained only as provenance for the superseded Phase 2 run; it is not the current lexical reference. The corrected full-query reference is mAP 0.2513 with a 95% query-bootstrap interval of 0.2445 to 0.2582.
 
 Positive profiles crossed plates for all 641 queries, but crossed batches for none because the local data still contains one inferred batch.
 

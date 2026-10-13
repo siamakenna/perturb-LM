@@ -1,0 +1,8 @@
+# Benchmark V2 frozen source checksums are byte-level and require LF-stable files.
+src/perturb_lm/retrieval/text_profile.py text eol=lf
+src/perturb_lm/modeling/phase3c.py text eol=lf
+scripts/run_jump_text_profile_retrieval.py text eol=lf
+scripts/run_phase3c_alignment.py text eol=lf
+docs/PHASE3B_FOUNDATION_READINESS.md text eol=lf
+docs/PHASE3C_TEXT_PROFILE_ALIGNMENT.md text eol=lf
+tests/fixtures/benchmark_v2/frozen_reference.json text eol=lf

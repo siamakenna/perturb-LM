@@ -12,12 +12,20 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from perturb_lm.data.jump import (  # noqa: E402
+    EXPECTED_BATCH,
     add_jump_profile_ids,
     detect_jump_profile_schema,
     load_jump_profile_tables,
 )
+from perturb_lm.modeling.comparator_text_encoder import (  # noqa: E402
+    BIOLORD_SPEC,
+    MEDCPT_SPEC,
+    BioLORDTextEncoder,
+    MedCPTTextEncoder,
+)
 from perturb_lm.modeling.phase3c import (  # noqa: E402
     run_phase3c_alignment,
+    validate_phase3c_qc_population,
     write_phase3c_public_safe_summary,
 )
 from perturb_lm.modeling.preprocessing import _validate_ignored_output_path  # noqa: E402
@@ -28,36 +36,92 @@ from perturb_lm.modeling.text_encoder import (  # noqa: E402
 )
 
 
+def _build_run_manifest_payload(
+    result: dict[str, object],
+    encoder_payload: dict[str, object],
+    input_population: dict[str, object],
+) -> dict[str, object]:
+    """Build the public-safe CLI run manifest."""
+
+    return {
+        "split": result["split"],
+        "retrieval_filter": result["retrieval_filter"],
+        "status": result["status"],
+        "seed": result["seed"],
+        "encoder": encoder_payload,
+        "git_commit": result["git_commit"],
+        "git_branch": result["git_branch"],
+        "git_dirty": result["git_dirty"],
+        "query_condition_version": result["query_condition_version"],
+        "query_model_visible_fields": result["query_model_visible_fields"],
+        "query_inventory_sha256": result["query_inventory_sha256"],
+        "query_count": result["query_count"],
+        "evaluable_query_count": result["evaluable_query_count"],
+        "nonevaluable_query_count": result["nonevaluable_query_count"],
+        "query_coverage": result["query_coverage"],
+        "positive_count_histogram": result["positive_count_histogram"],
+        "max_positive_count": result["max_positive_count"],
+        **input_population,
+        "population_inclusion_rule": result["population_inclusion_rule"],
+        "labeled_profile_count": result["labeled_profile_count"],
+        "excluded_unlabeled_profile_count": result[
+            "excluded_unlabeled_profile_count"
+        ],
+        "aggregate_summary_path": "phase3c_alignment_summary.csv",
+        "public_manifest_path": "phase3c_public_safe_manifest.json",
+        "artifact_policy": "Full generated outputs stay local and ignored.",
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=__doc__,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--data-root", type=Path, default=Path("data/raw/jump_pilot"))
+    parser.add_argument(
+        "--data-root",
+        type=Path,
+        default=Path("data/raw/jump_pilot/profiles") / EXPECTED_BATCH,
+    )
     parser.add_argument("--profile-file", type=Path, action="append", default=None)
     parser.add_argument("--out", type=Path, default=Path("outputs/phase3c/alignment"))
     parser.add_argument("--label-column", default=None)
-    parser.add_argument("--split", choices=["held_out_plate", "held_out_treatment", "held_out_well"], default="held_out_plate")
+    parser.add_argument(
+        "--split",
+        choices=["held_out_plate", "held_out_treatment", "held_out_well"],
+        default="held_out_plate",
+    )
     parser.add_argument(
         "--retrieval-filter",
         choices=["none", "exclude_same_plate", "exclude_same_well", "exclude_same_plate_and_well"],
         default="none",
     )
-    parser.add_argument("--encoder", choices=["fake", "biomedbert"], default="fake")
+    parser.add_argument(
+        "--encoder",
+        choices=["fake", "biomedbert", "medcpt", "biolord"],
+        default="fake",
+    )
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--bootstrap-samples", type=int, default=200)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--cache-dir", type=Path, default=None)
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        default=None,
+        help="Pinned local snapshot path required for MedCPT and BioLORD.",
+    )
     parser.add_argument("--max-rows", type=int, default=None)
     args = parser.parse_args()
 
     _validate_ignored_output_path(args.out)
-    profiles, _, warnings = load_jump_profile_tables(
+    profiles, loaded_paths, warnings = load_jump_profile_tables(
         args.data_root,
         profile_files=args.profile_file,
         max_rows=args.max_rows,
     )
+    input_population = validate_phase3c_qc_population(profiles, loaded_paths)
     schema = detect_jump_profile_schema(profiles)
     indexed = add_jump_profile_ids(profiles, schema)
     label_column = args.label_column or (
@@ -79,15 +143,47 @@ def main() -> None:
     if "batch" not in normalized.columns:
         normalized["batch"] = "unavailable"
     if args.encoder == "fake":
-        encoder = DeterministicFakeTextEncoder(seed=args.seed, embedding_dimension_value=16)
-        encoder_payload = {"model_name": "deterministic_fake_text_encoder"}
-    else:
+        encoder = DeterministicFakeTextEncoder(
+            seed=args.seed,
+            embedding_dimension_value=16,
+        )
+        encoder_payload = {
+            "model_name": "deterministic_fake_text_encoder",
+        }
+
+    elif args.encoder == "biomedbert":
         encoder = FrozenBiomedicalTextEncoder(
             batch_size=args.batch_size,
             device=args.device,
             cache_dir=args.cache_dir,
         )
         encoder_payload = BIOMEDBERT_SPEC.__dict__
+
+    elif args.encoder == "medcpt":
+        if args.model_path is None:
+            raise ValueError(
+                "--model-path is required for the frozen MedCPT comparator."
+            )
+
+        encoder = MedCPTTextEncoder(
+            args.model_path,
+            batch_size=args.batch_size,
+            device=args.device,
+        )
+        encoder_payload = MEDCPT_SPEC.__dict__
+
+    else:
+        if args.model_path is None:
+            raise ValueError(
+                "--model-path is required for the frozen BioLORD comparator."
+            )
+
+        encoder = BioLORDTextEncoder(
+            args.model_path,
+            batch_size=args.batch_size,
+            device=args.device,
+        )
+        encoder_payload = BIOLORD_SPEC.__dict__
     result = run_phase3c_alignment(
         normalized,
         encoder=encoder,
@@ -98,16 +194,11 @@ def main() -> None:
     )
     result["warnings"] = [*warnings, *result.get("warnings", [])]
     write_phase3c_public_safe_summary(result, args.out)
-    payload = {
-        "split": result["split"],
-        "retrieval_filter": result["retrieval_filter"],
-        "status": result["status"],
-        "seed": result["seed"],
-        "encoder": encoder_payload,
-        "aggregate_summary_path": "phase3c_alignment_summary.csv",
-        "public_manifest_path": "phase3c_public_safe_manifest.json",
-        "artifact_policy": "Full generated outputs stay local and ignored.",
-    }
+    payload = _build_run_manifest_payload(
+        result,
+        encoder_payload,
+        input_population,
+    )
     (args.out / "phase3c_run_manifest_public_safe.json").write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n"
     )

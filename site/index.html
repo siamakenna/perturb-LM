@@ -118,8 +118,8 @@
         </article>
         <article>
           <span>Phase 3</span>
-          <h2>Not started</h2>
-          <p>Alignment and image models wait until real-data controls are reproducible and stress-tested.</p>
+          <h2>Engineering ready</h2>
+          <p>The frozen-encoder experiment is specified and guarded, but its real learned result remains pending.</p>
         </article>
       </section>
 
@@ -131,6 +131,11 @@
             The full metadata baseline is intentionally easy because it includes direct perturbation
             identifiers. The identifier-stripped baseline removes those direct identifiers from candidate
             text and is the more honest control for future model work.
+          </p>
+          <p>
+            The inventory contains 4,524 QC profiles and 904 morphology features. Scored retrieval uses
+            4,190 profiles with valid treatment labels; 334 profiles with missing treatment labels are
+            excluded explicitly. All 641 lexical queries are evaluable.
           </p>
         </div>
         <div class="table-wrap" role="region" aria-label="JUMP text-to-profile baseline results" tabindex="0">
@@ -154,24 +159,24 @@
               </tr>
               <tr>
                 <td>Identifier-stripped TF-IDF</td>
-                <td>0.3991</td>
-                <td>0.2496</td>
-                <td>0.4774</td>
-                <td>0.5835</td>
+                <td>0.2513</td>
+                <td>0.2512</td>
+                <td>0.8549</td>
+                <td>0.9657</td>
               </tr>
               <tr>
                 <td>Random</td>
-                <td>0.0032</td>
-                <td>0.0000</td>
-                <td>0.0078</td>
-                <td>0.0156</td>
+                <td>0.0034</td>
+                <td>0.0019</td>
+                <td>0.0081</td>
+                <td>0.0144</td>
               </tr>
               <tr>
                 <td>Shuffled-label</td>
-                <td>0.0017</td>
-                <td>0.0000</td>
-                <td>0.0062</td>
-                <td>0.0156</td>
+                <td>0.0018</td>
+                <td>0.0009</td>
+                <td>0.0081</td>
+                <td>0.0175</td>
               </tr>
             </tbody>
           </table>

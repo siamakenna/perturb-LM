@@ -55,6 +55,10 @@ def test_static_site_index_is_parseable_and_has_core_copy() -> None:
     assert parser.has_title
     assert parser.has_description
     assert "Identifier-stripped TF-IDF" in html
+    assert "4,524 QC profiles" in html
+    assert "4,190 profiles with valid treatment labels" in html
+    assert "334 profiles with missing treatment labels" in html
+    assert "0.3991" not in html
     assert "not biological image understanding" in html
     assert "https://github.com/siamakenna/perturb-LM" in parser.links
     assert (

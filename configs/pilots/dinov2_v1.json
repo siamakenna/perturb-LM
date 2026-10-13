@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "name": "dinov2_pretrained_pilot_v1",
+  "execution": "plan_only",
+  "model": "dinov2",
+  "dataset": {
+    "dataset": "CPJUMP1",
+    "version": "pending-approval",
+    "metadata_path": "image-inventory.json",
+    "metadata_sha256": null,
+    "retrieval_unit": "well",
+    "representation_mode": "computed",
+    "access": "restricted",
+    "synthetic": false
+  },
+  "max_inputs": 8,
+  "batch_size": 2,
+  "resources": {
+    "resource_class": "cpu_standard",
+    "cpus": 2,
+    "gpus": 0,
+    "memory_gb": 8,
+    "time": "00:10:00"
+  },
+  "image": null,
+  "query_policy": null
+}

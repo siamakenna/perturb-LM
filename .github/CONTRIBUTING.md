@@ -5,7 +5,7 @@ Perturb-LM is a research benchmark and public prototype. Reproducibility and sci
 ## Two-Person Workflow
 
 - Makenna Rodriguez (`@siamakenna`) is the repository maintainer.
-- `@siamakenna` is the collaborating contributor.
+- `@adamdiaz313-collab` is the collaborating contributor.
 - All changes must use a branch and pull request.
 - One review from the other collaborator is required before merging.
 - Do not push directly to `main`.

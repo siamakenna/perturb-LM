@@ -8,6 +8,17 @@ This phase does not fine-tune a biomedical encoder, download raw microscopy imag
 
 Can a frozen biomedical language representation retrieve perturbation-induced cellular morphology better than an identifier-stripped TF-IDF control under held-out and leakage-aware evaluation?
 
+## Submission Population
+
+- Batch: `2020_11_04_CPJUMP1`
+- Profile files: 12
+- QC profiles: 4,524
+- Profiles with non-missing treatment labels: 4,190
+- Profiles excluded for missing treatment labels: 334
+- Morphology features: 904
+
+The inclusion rule is **profiles with non-missing treatment labels** and must be applied before splitting. The separate 192-profile `2020_11_18_CPJUMP1_TimepointDay1` dataset is not part of the submission evaluation. Profile eligibility must remain distinct from split-specific query evaluability.
+
 ## Working Hypothesis
 
 Frozen biomedical language representations contain enough mechanistic information to support retrieval of perturbation-induced morphology after lightweight alignment, but success must be demonstrated against identifier-stripped lexical controls under held-out and leakage-aware evaluation.
@@ -36,6 +47,15 @@ Beating random or shuffled-label controls alone is not enough.
 Rationale: BiomedBERT was pretrained from scratch on PubMed abstracts and PubMedCentral full text, has a permissive license, can be pinned by revision, and is small enough for frozen local inference.
 
 Limitation: BiomedBERT is a masked-language model rather than a retrieval-trained sentence encoder. Mean-pooled embeddings are a controlled feature-extraction baseline and must not be described as biological retrieval success without beating identifier-stripped TF-IDF under the predefined evaluation.
+
+## Compute Environment
+
+Use `docs/PHASE3C_COMPUTE_ENVIRONMENT.md` for the selected Phase 3C runtime target,
+required environment fields, storage/cache placeholders, and credential-safety
+rules. The preferred final run target is Google Colab or another Linux GPU
+environment. Local Windows remains acceptable for documentation, synthetic tests,
+and command dry runs, but final embedding and evaluation runs must record the
+actual runtime environment used.
 
 ## Query Text Policy
 

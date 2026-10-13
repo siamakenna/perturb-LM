@@ -45,7 +45,7 @@ jobs:
           cache: "pip"
 
       - name: Install package
-        run: python -m pip install -e ".[dev]"
+        run: python -m pip install -e ".[dev,phase3c,pixel]" wheel
 
       - name: Print public-safe environment report
         run: python scripts/print_environment_report.py
@@ -84,7 +84,7 @@ jobs:
             --out outputs/ci_phase2_local_report/readiness_check.json
 
       - name: Upload synthetic smoke summaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: synthetic-smoke-summaries
@@ -150,7 +150,7 @@ jobs:
             --out outputs/remote_jump_smoke/diagnostics
 
       - name: Upload remote smoke summaries
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: remote-jump-smoke-summaries

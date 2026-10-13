@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "scope": "linux_source_and_installed_pixel_tests",
+  "source_commit": "3549dd5e66381be33ebaf84d10590edfdc191918",
+  "runner_sha256": "9114af46e8b27919212c52ce8bd02f6b78514620ffb852c2ab8b25659056d70f",
+  "python": "3.11.11",
+  "packages": {
+    "perturb-lm": "0.1.0",
+    "pytest": "9.1.1",
+    "numpy": "2.4.6",
+    "scikit-learn": "1.9.1",
+    "scikit-image": "0.26.0",
+    "scipy": "1.17.1",
+    "tifffile": "2026.3.3",
+    "torch": "2.7.1",
+    "transformers": "4.57.6",
+    "build": "1.6.1"
+  },
+  "started_utc": "2026-10-05T21:25:57Z",
+  "stages_overlap_do_not_sum_counts": true,
+  "github_required_checks_replaced": false,
+  "pretrained_model_benchmark_performed": false,
+  "overall": "PASS",
+  "stages": {
+    "images": {
+      "status": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "elapsed_seconds": 25.93
+    },
+    "comparators": {
+      "status": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "elapsed_seconds": 2.93
+    },
+    "repository": {
+      "status": "PASS",
+      "exit_code": 0,
+      "counts": {
+        "total": 298,
+        "passed": 298,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "elapsed_seconds": 61.66
+    }
+  },
+  "source_unchanged": true
+}

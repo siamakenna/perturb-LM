@@ -7,9 +7,15 @@ describe("DashboardPage", () => {
   it("renders canonical metric values and the synthetic disclaimer", () => {
     render(<DashboardPage />);
 
-    expect(screen.getAllByText(summary.profileCount.toLocaleString())[0]).toBeInTheDocument();
+    expect(screen.getAllByText(summary.qcProfileCount.toLocaleString())[0]).toBeInTheDocument();
+    expect(screen.getAllByText(summary.labeledProfileCount.toLocaleString())[0]).toBeInTheDocument();
+    expect(
+      screen.getAllByText(summary.excludedMissingTreatmentCount.toLocaleString())[0],
+    ).toBeInTheDocument();
     expect(screen.getAllByText(summary.featureCount.toLocaleString())[0]).toBeInTheDocument();
-    expect(screen.getAllByText(summary.queryCount.toLocaleString())[0]).toBeInTheDocument();
+    expect(
+      screen.getByText(`${summary.queryCount} / ${summary.queryCount}`),
+    ).toBeInTheDocument();
     expect(screen.getAllByText(summary.lexicalBaselineMap.toFixed(4))[0]).toBeInTheDocument();
     expect(screen.getAllByText(summary.syntheticDisclaimer)[0]).toBeInTheDocument();
     expect(screen.getByText(summary.selectedEncoder.shortName)).toBeInTheDocument();

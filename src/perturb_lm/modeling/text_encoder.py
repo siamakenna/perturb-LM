@@ -9,7 +9,6 @@ from typing import Protocol
 
 import numpy as np
 
-
 BIOMEDBERT_MODEL_NAME = "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract-fulltext"
 BIOMEDBERT_REVISION = "e1354b7a3a09615f6aba48dfad4b7a613eef7062"
 BIOMEDBERT_LICENSE = "MIT"
@@ -87,7 +86,7 @@ class DeterministicFakeTextEncoder:
     def encode(self, texts: list[str]) -> np.ndarray:
         rows = []
         for text in texts:
-            digest = hashlib.sha256(f"{self.seed}|{text}".encode("utf-8")).digest()
+            digest = hashlib.sha256(f"{self.seed}|{text}".encode()).digest()
             row_seed = int.from_bytes(digest[:8], "little", signed=False)
             rng = np.random.default_rng(row_seed)
             rows.append(rng.normal(size=self.embedding_dimension))

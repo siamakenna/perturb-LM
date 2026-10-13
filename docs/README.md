@@ -4,11 +4,14 @@ This index points readers to the current public-safe project documents without r
 
 ## Current
 
+- [Benchmark V2 final review](BENCHMARK_V2_FINAL_REVIEW.md) - review corrections, validation commands, and remaining production gates.
 - [Methods draft](METHODS_DRAFT.md) - manuscript-facing benchmark and planned model methods.
 - [Claims ladder](CLAIMS_LADDER.md) - what the project may and may not claim today.
 - [Phase 3C text-profile alignment plan](PHASE3C_TEXT_PROFILE_ALIGNMENT.md) - current planned frozen-encoder and linear-projection experiment.
+- [Phase 3C compute environment](PHASE3C_COMPUTE_ENVIRONMENT.md) - selected runtime target, required fields, storage/cache placeholders, and safety rules.
 - [Known-good local run checklist](KNOWN_GOOD_LOCAL_RUN.md) - concise local validation checklist.
 - [Collaborator handoff](COLLABORATOR_HANDOFF.md) - two-person onboarding, first-run deliverables, and artifact rules.
+- [Governance](GOVERNANCE.md) - roles, decisions, authorship, and the two-person collaboration model.
 - [Data provenance](DATA_PROVENANCE.md) - how public-safe provenance is recorded.
 - [Dataset notes](DATASETS.md) - dataset scope and local-data expectations.
 
@@ -17,6 +20,7 @@ This index points readers to the current public-safe project documents without r
 - [Evaluation protocol](EVALUATION_PROTOCOL.md) - metrics, splits, and leakage-aware evaluation rules.
 - [Artifact map](ARTIFACT_MAP.md) - expected generated artifacts and why they remain local.
 - [Environment reproducibility](ENVIRONMENT_REPRODUCIBILITY.md) - environment capture expectations.
+- [Phase 4 comparator operator tools](PHASE4_COMPARATOR_TOOLS.md) - input preparation, native launch integration, and descriptive analysis.
 - [Real RxRx setup](REAL_RXRX_SETUP.md) - where local RxRx metadata, images, and embeddings should live.
 - [CI and remote smoke](CI_AND_REMOTE_SMOKE.md) - remote validation notes.
 
@@ -24,6 +28,8 @@ This index points readers to the current public-safe project documents without r
 
 These documents preserve earlier readiness or planning snapshots. Do not rewrite their recorded results unless regenerating the underlying artifact.
 
+- [Initial project direction](archive/INITIAL_PROJECT_DIRECTION.md) - original BioMorph-Search scoping document.
+- [Week 1 JUMP baselines](archive/WEEK1_JUMP_BASELINES.md) - early benchmark plan and smoke-test snapshot.
 - [Phase 2 real baseline status](PHASE2_REAL_BASELINE_STATUS.md)
 - [Phase 2 real data and model design](PHASE2_REAL_DATA_AND_MODELS.md)
 - [Phase 2 reproducibility checklist](PHASE2_REPRODUCIBILITY_CHECKLIST.md)
@@ -38,3 +44,9 @@ These documents preserve earlier readiness or planning snapshots. Do not rewrite
 - [Phase 3 entry criteria](PHASE3_ENTRY_CRITERIA.md) - criteria for stronger model work.
 - [Phase 3 proposal template](PHASE3_PROPOSAL_TEMPLATE.md) - planning scaffold.
 - [Roadmap](ROADMAP.md) - short forward-looking project notes.
+
+- [Benchmark V2 Phase 1 foundation](BENCHMARK_V2_PHASE1.md): public API, frozen regression provenance, synthetic workflow, planning, and Turn 2 boundaries.
+- [Benchmark V2 scientific contracts](BENCHMARK_V2_SCIENTIFIC_CONTRACTS.md): relevance and policy decisions.
+- [Benchmark V2 provenance reconciliation](BENCHMARK_V2_PROVENANCE_RECONCILIATION.md): frozen reference comparison.
+- [Benchmark V2 model registry](BENCHMARK_V2_MODEL_REGISTRY.md): pinned assets and blockers.
+- [Biowulf Benchmark V2 handoff](BIOWULF_BENCHMARK_V2.md): cluster commands and preflight.

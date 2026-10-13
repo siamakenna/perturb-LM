@@ -1,5 +1,33 @@
 # Changelog
 
+## 0.2.0a1 — candidate, not published
+
+- Installable pixel analysis and reference image search, masks, measurements and reports.
+- Bundled API policy resources and one package-version source.
+- Explicit estimator state, input-order and retrieval-scoring contracts.
+- Wheel/sdist build provenance and independent base/pixel artifact-install checks.
+- Alpha scope, compatibility, limitations and publication instructions:
+  [Phase 4 release readiness](docs/PHASE4_RELEASE_READINESS.md).
+
+
+
+## 2026-09-12
+
+- Completed strict M0 MedCPT, BioLORD-2023, and CellCLIP comparator runs.
+- Added a comparator-specific metadata and information-boundary framework.
+- Distinguished source-author metadata terminology from Perturb-LM causal-role classifications.
+- Recorded CellCLIP M0 WELL_MEAN and WELL_ATTENTION results under the frozen 1,079/180 strict contract.
+- Added public-safe aggregate comparator data and figure.
+- Kept the metadata-rich CellCLIP `PUBLISHED` prompt as a separate pending secondary ablation.
+
+## 2026-09-11
+
+- Reproduced the strict held-out-plate benchmark with same-plate and same-well retrieval candidates excluded: 1,079 total queries and 180 evaluable queries.
+- Recorded identifier-stripped TF-IDF mAP 0.1574, unaligned BiomedBERT mAP 0.0092, and projected BiomedBERT mAP 0.0332.
+- Added public-safe aggregate benchmark summaries and figures.
+- Recorded immutable MedCPT and BioLORD-2023 revisions and successful offline model validation; comparator performance remains pending.
+- Added the metadata and preprocessing audit framework.
+
 All notable public changes to Perturb-LM will be recorded here.
 
 ## Unreleased
