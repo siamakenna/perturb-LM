@@ -323,7 +323,7 @@ def test_alignment_shapes(method):
 
 
 def test_controls_and_lazy_registry(monkeypatch):
-    assert len(REGISTRY) == 23
+    assert len(REGISTRY) == 24
     text = ["nuclear organization", "vesicle transport"]
     assert TfidfTextEmbedder("char", (2, 3)).fit_transform(text).shape[0] == 2
     for method in ("random", "shuffled_query"):

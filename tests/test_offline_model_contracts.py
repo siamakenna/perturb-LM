@@ -76,3 +76,19 @@ def test_dinov2_requires_explicit_contract_before_optional_loading(tmp_path):
     model.set_params(image_preprocessing=replace(preprocessing(), mean=(0.0, 0.0, 0.0)))
     with pytest.raises(ValueError, match="parameters changed"):
         model.transform(pixels)
+
+
+def test_scibert_reuses_pinned_offline_hf_text_contract():
+    from perturb_lm.sklearn_api.registry import REGISTRY
+
+    spec = asset_catalog()["scibert"]
+    assert spec.identifier == "allenai/scibert_scivocab_uncased"
+    assert spec.revision == "952d056ace307abd2cda7cee822a1d608deb20ed"
+    assert spec.backend == "hf_text"
+    assert spec.dimension == 768
+    assert spec.input_kind == "text"
+    assert spec.pooling == "mean"
+    assert spec.normalize is True
+    assert spec.max_length == 512
+    assert REGISTRY["scibert"].identifier == spec.identifier
+    spec.validate()
