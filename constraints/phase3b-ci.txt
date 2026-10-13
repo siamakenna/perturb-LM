@@ -7,6 +7,6 @@ pytest==9.1.1
 PyYAML==6.0.3
 requests==2.34.2
 ruff==0.17.0
-scikit-learn==1.7.2
+scikit-learn==1.9.0
 tqdm==4.70.1
 typer==0.27.3
