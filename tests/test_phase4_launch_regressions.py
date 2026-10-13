@@ -262,6 +262,14 @@ class LaunchRegressionTests(unittest.TestCase):
         self.assertIn("file changed after launch preparation", result.stdout + result.stderr)
         self.assertFalse(self.capture.exists())
 
+    def test_shell_rejects_changed_bindings_manifest_before_delegation(self):
+        self.prepare()
+        write_json(self.out / "bindings.private.json", {})
+        result = self.shell_handoff()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("launch bindings changed after preparation", result.stdout + result.stderr)
+        self.assertFalse(self.capture.exists())
+
     def test_shell_requires_authorization_before_delegation(self):
         self.prepare()
         result = self.shell_handoff(authorization="")

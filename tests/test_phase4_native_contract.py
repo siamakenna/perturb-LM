@@ -311,7 +311,12 @@ class NativeWrapperContractTests(unittest.TestCase):
         bindings = write_json(
             self.root / "bindings.json", {str(path): file_checksum(path) for path in files}
         )
-        variables = dict(self.variables, PILOT_EXPECTED_SHA=sha, PILOT_BINDINGS=str(bindings))
+        variables = dict(
+            self.variables,
+            PILOT_EXPECTED_SHA=sha,
+            PILOT_BINDINGS=str(bindings),
+            PILOT_BINDINGS_SHA256=file_checksum(bindings),
+        )
         session = self.root / "launch with spaces.env.sh"
         session.write_text(
             "".join(f"export {key}={shlex.quote(value)}\n" for key, value in variables.items())

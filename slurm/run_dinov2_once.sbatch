@@ -23,6 +23,7 @@ test -f "$SESSION"
 source "$SESSION"
 : "${PILOT_EXPECTED_SHA:?Missing pinned source}"
 : "${PILOT_BINDINGS:?Missing immutable-file bindings}"
+: "${PILOT_BINDINGS_SHA256:?Missing immutable-file bindings checksum}"
 : "${PILOT_CODE:?Missing source checkout}"
 : "${PILOT_ENV:?Missing environment}"
 : "${PILOT_DATA:?Missing approved input root}"
@@ -42,20 +43,23 @@ export PYTHONNOUSERSITE=1 PYTHONDONTWRITEBYTECODE=1
 export HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1
 export OMP_NUM_THREADS=2 OPENBLAS_NUM_THREADS=2 MKL_NUM_THREADS=2
 
-"$PILOT_ENV/bin/python" - "$PILOT_BINDINGS" "$PILOT_MANIFEST" <<'PY'
+"$PILOT_ENV/bin/python" - "$PILOT_BINDINGS" "$PILOT_BINDINGS_SHA256" "$PILOT_MANIFEST" <<'PY'
 import hashlib
 import json
 import sys
 from pathlib import Path
 
-for filename, expected in json.loads(Path(sys.argv[1]).read_text()).items():
+bindings_bytes = Path(sys.argv[1]).read_bytes()
+if hashlib.sha256(bindings_bytes).hexdigest() != sys.argv[2]:
+    raise SystemExit('STOP: launch bindings changed after preparation')
+for filename, expected in json.loads(bindings_bytes).items():
     h = hashlib.sha256()
     with Path(filename).open('rb') as f:
         for b in iter(lambda: f.read(1024 * 1024), b''):
             h.update(b)
     if h.hexdigest() != expected:
         raise SystemExit('STOP: a file changed after launch preparation')
-manifest = json.loads(Path(sys.argv[2]).read_text())
+manifest = json.loads(Path(sys.argv[3]).read_text())
 if manifest.get('model') != 'dinov2' or manifest.get('execution') != 'approved_inference':
     raise SystemExit('STOP: not an approved DINOv2 inference request')
 if type(manifest.get('max_inputs')) is not int or not 1 <= manifest['max_inputs'] <= 8:
