@@ -108,7 +108,7 @@ def _validate(mapping: pd.DataFrame) -> pd.DataFrame:
     if not selected.resolved.map(lambda x: _boolean(x, "resolved")).all():
         raise ValueError("Resolve ambiguous selected mappings before planning")
     for field in CONFLICTS:
-        if selected[field].map(lambda x: _boolean(x, field)).any():
+        if selected[field].map(lambda x, field=field: _boolean(x, field)).any():
             raise ValueError(f"Selected mappings contain {field}")
     for field in ("experiment_status", "barcode_status", "well_status", "sample_status"):
         if not selected[field].eq("matched").all():
@@ -217,9 +217,8 @@ def plan_rotations(
                     sorted(positives.record_id), separators=(",", ":")
                 ),
             }
-        evaluable = queries[
-            queries.record_id.map(lambda x: evaluation[x]["evaluable"]).astype(bool)
-        ]
+        evaluable_flags = {key: value["evaluable"] for key, value in evaluation.items()}
+        evaluable = queries[queries.record_id.map(evaluable_flags).astype(bool)]
         reasons = Counter(
             reason
             for value in evaluation.values()
