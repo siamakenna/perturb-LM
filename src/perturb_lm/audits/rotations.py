@@ -102,7 +102,8 @@ def _validate(mapping: pd.DataFrame) -> pd.DataFrame:
     if any(first[key].casefold() != value for key, value in expected.items()):
         raise ValueError("Selected rows do not match the proposed U2OS CRISPR 144 h WGA stratum")
     if first.Cell_line.casefold() != "cas9" or first.Antibiotics.casefold() not in {
-        "absent", "none"
+        "absent",
+        "none",
     }:
         raise ValueError("Selected rows do not match Cas9 / absent-antibiotics conditions")
     if not selected.resolved.map(lambda x: _boolean(x, "resolved")).all():
@@ -144,9 +145,10 @@ def _validate(mapping: pd.DataFrame) -> pd.DataFrame:
         if not original_wells.eq(selected.well_position).all():
             raise ValueError("Contradictory selected identity annotation: Metadata_Well")
     for alias in ("Metadata_Batch", "Metadata_batch", "path_batch"):
-        if alias in selected and (
-            selected[alias].ne("") & selected[alias].ne(selected.Batch)
-        ).any():
+        if (
+            alias in selected
+            and (selected[alias].ne("") & selected[alias].ne(selected.Batch)).any()
+        ):
             raise ValueError(f"Contradictory selected identity annotation: {alias}")
     for _, group in selected[labeled].groupby("broad_sample"):
         if group.Metadata_gene.nunique() > 1 or group.is_control.nunique() > 1:

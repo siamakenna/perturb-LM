@@ -27,7 +27,8 @@ class RotationTests(unittest.TestCase):
 
     def plan(self, rows=None, **kwargs):
         options = dict(
-            min_train_groups=3, min_evaluable_groups=2,
+            min_train_groups=3,
+            min_evaluable_groups=2,
             upstream_normalization_scope="source_batch_global",
         )
         options.update(kwargs)
@@ -84,10 +85,12 @@ class RotationTests(unittest.TestCase):
 
     def test_seen_treatment_excludes_and_reports_unseen_reagent(self):
         # C occurs only on the query/gallery pair for two rotations.
-        subset = self.rows[~(
-            self.rows.Assay_Plate_Barcode.isin(PLATES[2:])
-            & self.rows.broad_sample.eq("SYNTH_TREAT_C")
-        )]
+        subset = self.rows[
+            ~(
+                self.rows.Assay_Plate_Barcode.isin(PLATES[2:])
+                & self.rows.broad_sample.eq("SYNTH_TREAT_C")
+            )
+        ]
         result, manifest = self.plan(subset, min_train_groups=2, min_evaluable_groups=1)
         rotation = result["rotations"][0]
         self.assertEqual(
@@ -107,9 +110,9 @@ class RotationTests(unittest.TestCase):
         rows = self.rows[self.rows.broad_sample.eq("SYNTH_TREAT_B")]
         result, _ = self.plan(rows, min_train_groups=1, min_evaluable_groups=1)
         self.assertEqual(result["design_eligible_rotations"], 0)
-        self.assertTrue(all(
-            "zero_evaluable_queries" in r["design_blockers"] for r in result["rotations"]
-        ))
+        self.assertTrue(
+            all("zero_evaluable_queries" in r["design_blockers"] for r in result["rotations"])
+        )
 
     def test_explicit_positive_minimums_and_threshold_failures(self):
         for key in ("min_train_groups", "min_evaluable_groups"):
@@ -142,7 +145,8 @@ class RotationTests(unittest.TestCase):
             result, _ = self.plan(upstream_normalization_scope=scope)
             self.assertFalse(result["execution_allowed"])
             expected = (
-                "upstream_normalization_unknown" if scope == "unknown"
+                "upstream_normalization_unknown"
+                if scope == "unknown"
                 else "source_batch_preprocessing_is_transductive"
             )
             self.assertIn(expected, result["execution_blockers"])
@@ -163,13 +167,22 @@ class RotationTests(unittest.TestCase):
 
     def test_missing_ambiguous_and_conflicting_metadata_fail_closed(self):
         mutations = {
-            "record_id": "", "Batch": "wrong", "well_position": "A1",
-            "resolved": "False", "experiment_status": "ambiguous",
-            "barcode_status": "unmatched", "well_status": "ambiguous",
-            "sample_status": "conflict", "annotation_status": "ambiguous",
-            "map_conflict": "True", "batch_path_conflict": "True",
-            "identity_annotation_conflict": "True", "duplicate_plate_well": "True",
-            "Metadata_pert_type": "", "Antibiotics": "Puromycin", "Anomaly": "",
+            "record_id": "",
+            "Batch": "wrong",
+            "well_position": "A1",
+            "resolved": "False",
+            "experiment_status": "ambiguous",
+            "barcode_status": "unmatched",
+            "well_status": "ambiguous",
+            "sample_status": "conflict",
+            "annotation_status": "ambiguous",
+            "map_conflict": "True",
+            "batch_path_conflict": "True",
+            "identity_annotation_conflict": "True",
+            "duplicate_plate_well": "True",
+            "Metadata_pert_type": "",
+            "Antibiotics": "Puromycin",
+            "Anomaly": "",
         }
         for field, value in mutations.items():
             changed = self.rows.copy()
@@ -201,10 +214,9 @@ class RotationTests(unittest.TestCase):
             self.plan(self.rows[self.rows.Assay_Plate_Barcode.ne(PLATES[-1])])
 
     def test_both_assigned_training_plates_need_noncontrol_rows(self):
-        rows = self.rows[~(
-            self.rows.Assay_Plate_Barcode.eq(PLATES[-1])
-            & self.rows.Metadata_pert_type.eq("trt")
-        )]
+        rows = self.rows[
+            ~(self.rows.Assay_Plate_Barcode.eq(PLATES[-1]) & self.rows.Metadata_pert_type.eq("trt"))
+        ]
         result, _ = self.plan(rows)
         rotation = result["rotations"][0]
         self.assertEqual(rotation["training"]["reagents"], 3)
@@ -265,11 +277,26 @@ class RotationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="rotation-test-", dir=output_root) as directory:
             out = Path(directory) / "new-output"
             env = dict(os.environ, PYTHONPATH=str(ROOT / "src"))
-            result = subprocess.run([
-                sys.executable, str(SCRIPT), "--synthetic-fixture", "--out", str(out),
-                "--min-train-groups", "3", "--min-evaluable-groups", "2",
-                "--upstream-normalization-scope", "source_batch_global",
-            ], cwd=directory, env=env, capture_output=True, text=True, check=False)
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT),
+                    "--synthetic-fixture",
+                    "--out",
+                    str(out),
+                    "--min-train-groups",
+                    "3",
+                    "--min-evaluable-groups",
+                    "2",
+                    "--upstream-normalization-scope",
+                    "source_batch_global",
+                ],
+                cwd=directory,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
             self.assertEqual(result.returncode, 0, result.stderr)
             summary = json.loads((out / "rotation-plan.json").read_text())
             self.assertEqual(summary["evidence_kind"], "synthetic_fixture")

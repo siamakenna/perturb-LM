@@ -18,7 +18,9 @@ def guarded_output(out: Path, repository: Path) -> Path:
     repository = repository.resolve(strict=True)
     root = subprocess.run(
         ["git", "-C", str(repository), "rev-parse", "--show-toplevel"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     if Path(root).resolve() != repository:
         raise ValueError("Script repository root does not match Git root")
@@ -28,7 +30,8 @@ def guarded_output(out: Path, repository: Path) -> Path:
     for name in ("rotation-plan.json", "rotation-manifest_PRIVATE.csv", "SHA256SUMS"):
         result = subprocess.run(
             ["git", "-C", str(repository), "check-ignore", "--quiet", str(out / name)],
-            check=False, capture_output=True,
+            check=False,
+            capture_output=True,
         )
         if result.returncode != 0:
             raise ValueError("Every output must be Git-ignored")
@@ -51,7 +54,8 @@ def main() -> None:
         "--upstream-normalization-scope", required=True, choices=NORMALIZATION_SCOPES
     )
     parser.add_argument(
-        "--split-policy", default="seen_treatment",
+        "--split-policy",
+        default="seen_treatment",
         choices=("seen_treatment", "heldout_treatment", "heldout_gene"),
     )
     args = parser.parse_args()
@@ -60,7 +64,8 @@ def main() -> None:
     out = guarded_output(args.out, repository)
     mapping = (
         repository / "tests/fixtures/phase5_1/rotation_mapping_synthetic.csv"
-        if args.synthetic_fixture else args.mapping
+        if args.synthetic_fixture
+        else args.mapping
     ).resolve(strict=True)
     if not mapping.is_file():
         raise ValueError("Mapping must be an existing CSV file")
@@ -70,7 +75,8 @@ def main() -> None:
         raise ValueError("Duplicate input CSV column names")
     before = checksum(mapping)
     summary, manifest = plan_rotations(
-        read_table(mapping), min_train_groups=args.min_train_groups,
+        read_table(mapping),
+        min_train_groups=args.min_train_groups,
         min_evaluable_groups=args.min_evaluable_groups,
         upstream_normalization_scope=args.upstream_normalization_scope,
         split_policy=args.split_policy,
@@ -83,7 +89,9 @@ def main() -> None:
     summary["input_mapping_sha256"] = before
     summary["source_git_sha"] = subprocess.run(
         ["git", "-C", str(repository), "rev-parse", "HEAD"],
-        capture_output=True, text=True, check=True,
+        capture_output=True,
+        text=True,
+        check=True,
     ).stdout.strip()
     summary["implementation_sha256"] = {
         "script": checksum(Path(__file__)),
