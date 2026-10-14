@@ -1,0 +1,5 @@
+record_id,Metadata_Plate,Metadata_Well,Metadata_broad_sample,Metadata_gene,Metadata_pert_type,Metadata_control_type,Metadata_negcon_control_type,path_batch
+r1,SYNTH_PLATE_A,A01,SYNTH_TREAT_A,SYNTH_GENE_A,trt,,,2020_11_04_CPJUMP1
+r2,SYNTH_PLATE_B,A01,SYNTH_TREAT_A,SYNTH_GENE_A,trt,,,2020_11_04_CPJUMP1
+r3,SYNTH_PLATE_A,A02,SYNTH_TREAT_B,SYNTH_GENE_B,trt,,,2020_11_04_CPJUMP1
+r4,SYNTH_PLATE_B,A02,SYNTH_TREAT_B,SYNTH_GENE_B,trt,,,2020_11_04_CPJUMP1

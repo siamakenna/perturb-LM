@@ -1,0 +1,3 @@
+Batch	Assay_Plate_Barcode	Plate_Map_Name	Perturbation	Cell_type	Time	Density	Antibiotics	Cell_line	Time_delay	Times_imaged	Anomaly
+2020_11_04_CPJUMP1	SYNTH_PLATE_A	synthetic_map	compound	A549	24	100	absent	Parental	Day0	1	none
+2020_11_04_CPJUMP1	SYNTH_PLATE_B	synthetic_map	compound	A549	24	100	absent	Parental	Day0	1	none
