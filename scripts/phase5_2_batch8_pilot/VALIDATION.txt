@@ -23,3 +23,23 @@ Authoring numeric runtime: Python 3.12, NumPy 2.3.5, Matplotlib 3.10.8.
 Actual two-plate preparation and real scoring were not executed here because
 the verified Parquet and full well-registry files are on the user's Mac.
 No performance, biological findings, GitHub push, or external approval is claimed.
+
+20 OCTOBER 2026 CORRECTIVE VALIDATION (distinct from the historical entry)
+Base: PR77 head 600a38f7161079d8a11bafc0dc4073feadf1f632.
+76 pilot unittest tests discovered: 74 passed, 2 skipped (PyArrow unavailable).
+The two skipped invented-Parquet IO tests have NOT been executed here. The
+transfer script requires the user's existing PyArrow runtime before Mac tests.
+Existing Phase5.1 rotations: 20 passed. Phase5.2 layouts: 18 passed.
+Public-copy consistency, Bash syntax and git diff whitespace checks passed.
+The core engine/query-information files and scientific constants/cohort logic/
+Parquet projection were compared against the original head and are unchanged.
+Synthetic cases include immutable metadata/profile changes, checksum-failure
+completion, output containment, tracked paths, internal links, nonregular and
+bounded reads, pointer escapes, exclusive writes, and macOS ancestor aliases.
+Independent wrapper/CI review identified and addressed a missing Matplotlib
+CI dependency, nonregular pointer destination, and incomplete archive comparison.
+Native macOS Bash3.2, fresh GitHub CI and revised CodeQL were not run here.
+The Phase5 cohort-audit test module could not import because pytest is absent;
+no cohort-audit test cases or BenchmarkV2 suite were executed in this runtime.
+No real-data scoring, model execution, Biowulf job, GitHub push, security-alert
+adjudication or collaborator contact occurred during this corrective review.

@@ -6,6 +6,7 @@ import json
 import re
 from collections import Counter, defaultdict
 from pathlib import Path
+from path_contract import PathContract, read_bytes, exclusive_write_json
 
 GALLERY = "BR00123523"
 QUERY = "BR00121428"
@@ -24,28 +25,37 @@ EXPECTED = {
 
 
 def sha256(path):
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+    return hashlib.sha256(read_bytes(path)).hexdigest()
 
 
 def write_json(path, value):
-    Path(path).write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    exclusive_write_json(path, value)
+
+
+def input_limit(name):
+    if name.startswith("profile_"):
+        return 32 * 1024 * 1024
+    if name == "well_metadata":
+        return 10 * 1024 * 1024
+    if name == "control_registry":
+        return 64 * 1024
+    return 8 * 1024 * 1024
+
+
+def bound_input_bytes(paths, name, contract):
+    body = contract.read_bytes(paths[name], max_bytes=input_limit(name))
+    size, digest = EXPECTED[name]
+    if (size is not None and len(body) != size) or hashlib.sha256(body).hexdigest() != digest:
+        raise ValueError(f"Reviewed input has changed or is missing: {name}")
+    return body
 
 
 def resolve_inputs(work_root):
-    root = Path(work_root).resolve(strict=True)
-    def pointer(name):
-        value = (root / (name + ".txt")).read_text().strip()
-        if not value or "\n" in value or not Path(value).is_absolute():
-            raise ValueError(f"Invalid recorded location: {name}")
-        return Path(value).resolve(strict=True)
-    public = pointer("latest-public-layouts")
-    pair = pointer("latest-batch8-inspection") / "inspection"
-    qc = pointer("latest-batch8-technical-qc") / "results"
-    controls = pointer("latest-batch8-controls") / "results"
+    contract = PathContract(work_root)
+    public = contract.read_pointer("latest-public-layouts")
+    pair = contract.input_directory(contract.read_pointer("latest-batch8-inspection") / "inspection")
+    qc = contract.input_directory(contract.read_pointer("latest-batch8-technical-qc") / "results")
+    controls = contract.input_directory(contract.read_pointer("latest-batch8-controls") / "results")
     layout_root = public / "audit" if (public / "audit/layout-wells_PRIVATE.csv").is_file() else public
     paths = {"layout": layout_root / "layout-wells_PRIVATE.csv",
              "annotation_ledger": layout_root / "annotation-ledger_PRIVATE.json",
@@ -55,12 +65,16 @@ def resolve_inputs(work_root):
              "well_metadata": controls / "well.csv.gz",
              "control_registry": controls / "perturbation_control.csv"}
     paths.update({f"profile_{plate}": pair / f"{plate}.parquet" for plate in PLATES})
+    snapshots = {}
     for name, path in paths.items():
-        size, digest = EXPECTED[name]
-        if (not path.is_file() or (size is not None and path.stat().st_size != size)
-                or sha256(path) != digest):
-            raise ValueError(f"Reviewed input has changed or is missing: {name}")
-    inspection, qc_report, control_report = [json.loads(paths[name].read_text())
+        try:
+            paths[name] = contract.input_file(path, max_bytes=input_limit(name))
+            body = bound_input_bytes(paths, name, contract)
+        except ValueError as exc:
+            raise ValueError(f"Reviewed input has changed or is missing: {name}") from exc
+        if name in ("inspection", "qc", "controls"):
+            snapshots[name] = body
+    inspection, qc_report, control_report = [json.loads(snapshots[name])
                                             for name in ("inspection", "qc", "controls")]
     if (qc_report["prior_inspection_sha256"] != EXPECTED["inspection"][1]
             or qc_report["layout_ledger_sha256"] != EXPECTED["layout"][1]
@@ -181,17 +195,17 @@ def prepare(work_root, out):
     import control_utils as utils
     import query_info
 
-    out = Path(out)
-    out.mkdir(mode=0o700, parents=False, exist_ok=False)
+    contract = PathContract(work_root)
+    out = contract.create_output(out)
     try:
         paths = resolve_inputs(work_root)
         layouts, observed = utils.load_reviewed_inputs(paths["layout"], paths["qc"])
-        registry = utils.read_control_registry(paths["control_registry"].read_text())
+        registry = utils.read_control_registry(bound_input_bytes(paths, "control_registry", contract).decode("utf-8"))
         annotations = utils.read_selected_wells(paths["well_metadata"])
         cohort, counts = build_cohort(layouts, annotations, registry, observed)
         if any(counts["dmso_wells"][plate] != 64 for plate in PLATES):
             raise ValueError("Observed DMSO counts do not match the reviewed annotation evidence")
-        write_json(out / "cohort_LOCAL.json", cohort)
+        contract.write_json(out / "cohort_LOCAL.json", cohort)
         plan = {
             "schema_version": 1, "status": "PROPOSED_NOT_APPROVED",
             "scope": "One-batch, two-plate morphology recovery of design-assigned sample labels with production-ID agreement",
@@ -233,9 +247,13 @@ def prepare(work_root, out):
                             "This phenotype-only diagnostic cannot establish language-to-biology retrieval performance."],
             "approval": "Explicit approval must bind the SHA256 of this plan.json and code/input hashes before fitting or scoring.",
             "execution_performed": False}
-        write_json(out / "plan.json", plan)
+        # Recheck immutable sources after cohort/query derivation and before a
+        # completed plan is recorded. No same-user concurrent-race proof is implied.
+        for name in paths:
+            bound_input_bytes(paths, name, contract)
+        contract.write_json(out / "plan.json", plan)
         digest = sha256(out / "plan.json")
-        (out / "plan.sha256").write_text(digest + "  plan.json\n")
+        contract.write_text(out / "plan.sha256", digest + "  plan.json\n")
         human_counts = [("Eligible Target1 gallery samples", counts["gallery_population"]),
                         ("Eligible Target2 query samples", counts["query_population"]),
                         ("Queries with an eligible exact-label positive", counts["evaluable_queries"]),
@@ -263,11 +281,11 @@ def prepare(work_root, out):
                 f"<p>Plan SHA256: <code>{digest}</code></p>"
                 "<details><summary>Complete protocol, exclusions and evidence hashes</summary><pre>"
                 + html.escape(json.dumps(plan, indent=2, sort_keys=True)) + "</pre></details>")
-        (out / "REPORT.html").write_text(body)
+        contract.write_text(out / "REPORT.html", body)
         files = sorted(path for path in out.iterdir() if path.is_file())
-        (out / "SHA256SUMS").write_text("".join(f"{sha256(path)}  {path.name}\n" for path in files))
+        contract.write_text(out / "SHA256SUMS", "".join(f"{sha256(path)}  {path.name}\n" for path in files))
         return plan
     except Exception as exc:
-        write_json(out / "preparation-error.json", {"status": "INCOMPLETE", "exception": type(exc).__name__,
-                                                   "message": str(exc)})
+        contract.write_json(out / "preparation-error.json", {"status": "INCOMPLETE", "exception": type(exc).__name__,
+                                                            "message": str(exc)})
         raise

@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import html
+import io
 import json
 import os
 import platform
@@ -11,24 +12,37 @@ import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
+from path_contract import PathContract, exclusive_write_bytes, exclusive_write_json, exclusive_write_text, read_bytes
+
 SCHEMA_SHA = 'd75e6ce7741f5a50af7947ed75fb4e1555b3567635ca9b498c75e5e709efdce2'
 PREFIXES = ('Cells_', 'Cytoplasm_', 'Nuclei_')
 
 
 def digest(path):
-    h = hashlib.sha256()
-    with Path(path).open('rb') as f:
-        for block in iter(lambda: f.read(1024 * 1024), b''): h.update(block)
-    return h.hexdigest()
+    return hashlib.sha256(read_bytes(path)).hexdigest()
 
 
 def write_json(path, obj):
-    Path(path).write_text(json.dumps(obj, indent=2, sort_keys=True, allow_nan=False) + '\n')
+    exclusive_write_json(path, obj)
 
 
-def checksums(out):
+def checksums(out, contract=None, pending_summary=None):
+    if contract is not None:
+        out = contract.input_directory(out, within=contract.outputs)
     files = sorted(p for p in Path(out).iterdir() if p.is_file() and p.name != 'SHA256SUMS')
-    (Path(out) / 'SHA256SUMS').write_text(''.join(f'{digest(p)}  {p.name}\n' for p in files))
+    entries = {p.name: digest(p) for p in files}
+    if pending_summary is not None:
+        if not isinstance(pending_summary, bytes) or 'pilot-summary.json' in entries:
+            raise ValueError('Completion summary must be new bytes not yet published')
+        entries['pilot-summary.json'] = hashlib.sha256(pending_summary).hexdigest()
+    text = ''.join(f'{entries[name]}  {name}\n' for name in sorted(entries))
+    if contract is None:
+        exclusive_write_text(Path(out) / 'SHA256SUMS', text)
+    else:
+        contract.write_text(Path(out) / 'SHA256SUMS', text)
+    for path in files:
+        if digest(path) != entries[path.name]:
+            raise ValueError('Output checksum verification failed before completion')
 
 
 def load_plate(path, plate, expected_rows, expected_schema=SCHEMA_SHA, expected_features=3673):
@@ -59,7 +73,7 @@ def load_plate(path, plate, expected_rows, expected_schema=SCHEMA_SHA, expected_
     return wells, features, matrix
 
 
-def make_figure(summary, rows, out):
+def make_figure(summary, rows, out, contract=None):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -95,37 +109,57 @@ def make_figure(summary, rows, out):
     for ax in axes:
         ax.spines[['top', 'right']].set_visible(False)
     fig.suptitle(f"One-pair design-label recovery: {len(valid)}/{summary['query_count']} queries evaluable", fontsize=12)
-    fig.savefig(out / 'retrieval-summary.png', dpi=180)
-    fig.savefig(out / 'retrieval-summary.svg')
+    for format_name in ('png', 'svg'):
+        buffer = io.BytesIO()
+        fig.savefig(buffer, format=format_name, dpi=180)
+        path = out / ('retrieval-summary.' + format_name)
+        if contract is None:
+            exclusive_write_bytes(path, buffer.getvalue())
+        else:
+            contract.write_bytes(path, buffer.getvalue())
     plt.close(fig)
 
 
 def score(work_root, plan_dir, approval, out):
     # Check approval before importing numeric libraries or reading profile values.
     import prepare as prep
-    plan_dir, out = Path(plan_dir).resolve(), Path(out).resolve()
-    if not approval or digest(plan_dir / 'plan.json') != approval:
+    contract = PathContract(work_root)
+    plan_dir = contract.input_directory(plan_dir, within=contract.outputs)
+    out = contract.fresh_output(out, forbidden=(plan_dir,))
+    plan_bytes = contract.read_bytes(plan_dir / 'plan.json', max_bytes=1024 * 1024, within=plan_dir)
+    if not approval or hashlib.sha256(plan_bytes).hexdigest() != approval:
         raise ValueError('Approval must equal the SHA256 of the reviewed plan.json')
-    plan = json.loads((plan_dir / 'plan.json').read_text())
+    cohort_bytes = contract.read_bytes(plan_dir / 'cohort_LOCAL.json', max_bytes=8 * 1024 * 1024, within=plan_dir)
+    plan = json.loads(plan_bytes)
+    cohort = json.loads(cohort_bytes)
     # Recreate the entire preparation, including code/input bindings, before scoring.
     with tempfile.TemporaryDirectory(prefix='pilot-recheck-', dir=out.parent) as temporary:
         fresh_dir = Path(temporary) / 'plan'
         prep.prepare(work_root, fresh_dir)
-        if digest(fresh_dir / 'plan.json') != approval:
+        fresh_plan = contract.read_bytes(fresh_dir / 'plan.json', max_bytes=1024 * 1024, within=fresh_dir)
+        if hashlib.sha256(fresh_plan).hexdigest() != approval:
             raise ValueError('Inputs, implementation, or proposed contract changed; regenerate and review the plan')
-        if digest(fresh_dir / 'cohort_LOCAL.json') != digest(plan_dir / 'cohort_LOCAL.json'):
+        fresh_cohort = contract.read_bytes(fresh_dir / 'cohort_LOCAL.json', max_bytes=8 * 1024 * 1024, within=fresh_dir)
+        if hashlib.sha256(fresh_cohort).digest() != hashlib.sha256(cohort_bytes).digest():
             raise ValueError('Prepared cohort differs from its rederived contents')
     paths = prep.resolve_inputs(work_root)
-    cohort = json.loads((plan_dir / 'cohort_LOCAL.json').read_text())
+    gallery_plate, query_plate = cohort['gallery_plate'], cohort['query_plate']
+    profile_paths = {plate: contract.input_file(paths['profile_' + plate])
+                     for plate in (gallery_plate, query_plate)}
+    profile_hashes = {plate: prep.EXPECTED['profile_' + plate][1]
+                      for plate in profile_paths}
+    for plate, path in profile_paths.items():
+        if digest(path) != profile_hashes[plate]:
+            raise ValueError('Profile bytes differ from the reviewed input binding')
     import numpy as np
     import pyarrow as pa
     import matplotlib
     from engine import fit_controls, transform, evaluate
-    gallery_plate, query_plate = cohort['gallery_plate'], cohort['query_plate']
-    out.mkdir(mode=0o700, exist_ok=False)
+    # Recheck after preparation; no temporary/output directory may redirect this run.
+    contract.create_output(out, forbidden=(plan_dir,))
     try:
-        gw, features, gx = load_plate(paths['profile_' + gallery_plate], gallery_plate, 384)
-        qw, qfeatures, qx = load_plate(paths['profile_' + query_plate], query_plate, 383)
+        gw, features, gx = load_plate(profile_paths[gallery_plate], gallery_plate, 384)
+        qw, qfeatures, qx = load_plate(profile_paths[query_plate], query_plate, 383)
         if features != qfeatures: raise ValueError('Ordered feature names disagree')
         gindex, qindex = {w:i for i,w in enumerate(gw)}, {w:i for i,w in enumerate(qw)}
         controls = cohort['dmso_wells'][gallery_plate]
@@ -143,6 +177,12 @@ def score(work_root, plan_dir, approval, out):
         for record, result in zip(cohort['queries'], rows):
             if record['candidate_count'] != result['candidate_count'] or bool(record['evaluable']) != (result['status'] == 'evaluable'):
                 raise ValueError('Scoring coverage differs from preparation')
+        # Parsed matrices are already in memory. Refuse completion if their bound
+        # input files changed during loading/evaluation.
+        for plate, path in profile_paths.items():
+            contract.input_file(path)
+            if digest(path) != profile_hashes[plate]:
+                raise ValueError('Profile bytes changed during scoring')
         summary.update(status='COMPLETED_DESCRIPTIVE_DESIGN_LABEL_PILOT', plan_sha256=approval,
             created_utc=datetime.now(timezone.utc).isoformat(),
             approval='operator supplied exact reviewed plan SHA256 to score command',
@@ -153,18 +193,17 @@ def score(work_root, plan_dir, approval, out):
             scope=plan['scope'], limitations=plan['limitations'],
             environment={'python': platform.python_version(), 'numpy': np.__version__, 'pyarrow': pa.__version__,
                          'matplotlib': matplotlib.__version__, 'platform': platform.platform()})
-        write_json(out / 'pilot-summary.json', summary)
-        write_json(out / 'per-query_LOCAL.json', rows)
-        write_json(out / 'fitted-preprocessing_LOCAL.json', {
+        contract.write_json(out / 'per-query_LOCAL.json', rows)
+        contract.write_json(out / 'fitted-preprocessing_LOCAL.json', {
             'fit_plate': gallery_plate, 'fit_wells': controls,
             'feature_names': features, 'center': center.tolist(), 'scale': scale.tolist(), 'retained': keep.tolist()})
-        write_json(out / 'approved-plan.json', plan)
-        make_figure(summary, rows, out)
+        contract.write_json(out / 'approved-plan.json', plan)
+        make_figure(summary, rows, out, contract)
         metric_rows = ''.join('<tr><td>' + html.escape(method) + '</td>' + ''.join(
             f'<td>{metrics[key]:.4f}</td>' for key in ('reciprocal_rank','recall_at_1','recall_at_5','recall_at_10')) + '</tr>'
             for method, metrics in summary['metrics_conditional_on_evaluability'].items())
         limitations = ''.join('<li>' + html.escape(str(x)) + '</li>' for x in plan['limitations'])
-        (out / 'REPORT.html').write_text('<!doctype html><meta charset="utf-8"><title>Batch8 pilot results</title>'
+        contract.write_text(out / 'REPORT.html', '<!doctype html><meta charset="utf-8"><title>Batch8 pilot results</title>'
             '<style>body{font:17px/1.5 system-ui;max-width:1050px;margin:40px auto;padding:0 20px}td,th{padding:10px;text-align:left;border-bottom:1px solid #ddd}img{max-width:100%}</style>'
             '<h1>One-pair morphology recovery pilot</h1><p>Descriptive results; no language model or biological relationship validation.</p>'
             f'<p>Evaluable queries: <strong>{summary["evaluable_query_count"]}/{summary["query_count"]}</strong>. '
@@ -173,10 +212,14 @@ def score(work_root, plan_dir, approval, out):
             '<p>Metrics condition on having an eligible positive. Queries without positives are counted separately and excluded from conditional metric means.</p>'
             '<img src="retrieval-summary.png" alt="Descriptive retrieval comparison"><h2>Interpretation limits</h2><ul>' + limitations + '</ul>'
             '<p>Share only pilot-summary.json and, if useful, the aggregate figure. Keep LOCAL files on your computer.</p>')
-        checksums(out)
+        summary_bytes = (json.dumps(summary, indent=2, sort_keys=True, allow_nan=False) + '\n').encode('utf-8')
+        # Hash the pending summary alongside the completed outputs, verify those
+        # files, and publish the completion summary only after that succeeds.
+        checksums(out, contract, pending_summary=summary_bytes)
+        contract.write_bytes(out / 'pilot-summary.json', summary_bytes)
         return summary
     except Exception as exc:
-        write_json(out / 'FAILED.json', {'status':'INCOMPLETE_DO_NOT_INTERPRET_PARTIAL_RESULTS', 'error': str(exc)})
+        contract.write_json(out / 'FAILED.json', {'status':'INCOMPLETE_DO_NOT_INTERPRET_PARTIAL_RESULTS', 'error': str(exc)})
         raise
 
 
