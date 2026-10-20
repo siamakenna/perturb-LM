@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import os
 import re
+import stat
 import subprocess
 from pathlib import Path, PurePosixPath
 
@@ -26,6 +28,46 @@ OUTPUT_NAMES = (
     "annotation-ledger_PRIVATE.json",
     "SHA256SUMS",
 )
+MAX_PROVENANCE_BYTES = 1_000_000
+
+
+def read_manifest_snapshot(path: Path) -> bytes:
+    """Read one bounded regular manifest; parsing and hashing share these bytes."""
+    try:
+        before = path.lstat()
+        if not stat.S_ISREG(before.st_mode) or before.st_size > MAX_PROVENANCE_BYTES:
+            raise ValueError("Provenance must be a bounded regular nonsymlink file")
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+        descriptor = os.open(path, flags)
+        try:
+            opened = os.fstat(descriptor)
+            if (
+                not stat.S_ISREG(opened.st_mode)
+                or opened.st_size > MAX_PROVENANCE_BYTES
+                or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
+            ):
+                raise ValueError("Provenance file changed while opening")
+            chunks, total = [], 0
+            while True:
+                block = os.read(descriptor, min(64 * 1024, MAX_PROVENANCE_BYTES - total + 1))
+                if not block:
+                    break
+                total += len(block)
+                if total > MAX_PROVENANCE_BYTES:
+                    raise ValueError("Provenance exceeds its byte bound")
+                chunks.append(block)
+            after = os.fstat(descriptor)
+            if (
+                after.st_size != total
+                or after.st_size != opened.st_size
+                or after.st_mtime_ns != opened.st_mtime_ns
+            ):
+                raise ValueError("Provenance file changed while reading")
+            return b"".join(chunks)
+        finally:
+            os.close(descriptor)
+    except OSError as exc:
+        raise ValueError("Provenance is missing, unreadable, or unsafe") from exc
 
 
 def guarded_output(out: Path, repository: Path) -> Path:
@@ -66,7 +108,8 @@ def resolve_inputs(args: argparse.Namespace, repository: Path) -> tuple[dict, di
         if args.provenance is None:
             raise ValueError("Real metadata requires --provenance")
         root = args.metadata_dir.resolve(strict=True)
-        manifest = json.loads(args.provenance.read_text())
+        manifest_snapshot = read_manifest_snapshot(args.provenance)
+        manifest = json.loads(manifest_snapshot)
         revision = manifest.get("revision", "")
         if (
             manifest.get("schema_version") != 1
@@ -102,7 +145,7 @@ def resolve_inputs(args: argparse.Namespace, repository: Path) -> tuple[dict, di
             "evidence_kind": "operator_supplied_public_metadata",
             "source_repository": manifest["repository"],
             "upstream_revision": revision,
-            "source_provenance_manifest_sha256": sha256(args.provenance),
+            "source_provenance_manifest_sha256": hashlib.sha256(manifest_snapshot).hexdigest(),
             "source_files": source_files,
             "source_binding": "local_checksums_verified_upstream_origin_not_contacted",
         }

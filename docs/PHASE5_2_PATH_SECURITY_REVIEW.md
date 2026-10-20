@@ -91,3 +91,30 @@ custom path helpers are not guaranteed to be recognized as sanitizers. Do not
 dismiss alerts, suppress rules, alter workflow permissions or bypass a failing
 check to make the PR mergeable. No alert disposition or repository setting was
 changed by this review. PR #77 remains unmerged.
+
+## Follow-up review of PR83
+
+The authenticated export at `2026-10-20T16:58:23.980553+00:00` binds PR83 to
+`9b9513af32e7dfe58e1512f911ca27eac93f786d`. It contains 17 current high
+`py/path-injection` findings: alert 125 and alerts 133–148. The changed source
+tree matches the reviewed correction exactly. A complete evidence export is
+not a passing security review; no findings were dismissed.
+
+The follow-up identified a separate layout-CLI provenance defect associated
+with alert 134: the manifest was parsed and later reopened to calculate its
+recorded hash. The proposed correction reads one bounded regular-file byte
+snapshot and uses it for both JSON parsing and SHA256. It rejects oversized,
+special, leaf-symlink, and detected read-time substitutions. It does not alter
+the TSV comparison, cohort definition, preprocessing or scoring mathematics.
+
+Nine invented tests cover this correction, including a complete fixture audit
+where a later same-size manifest edit leaves the recorded digest correctly
+bound to the bytes actually parsed. The 18 existing layout regressions also
+pass. Native Mac tests and a CodeQL scan on this follow-up source remain
+pending. Remaining operator-path/guard traces require individual review under
+the documented trusted, quiescent-workspace scope. Pathname guards do not claim
+concurrency isolation against an active same-owner ancestor-directory swap.
+
+GitHub alert dismissal affects all branches. Before any repository-wide
+classification, inspect all affected open instances rather than using only
+the PR83-scoped export. This follow-up contains no dismissal or bypass logic.
