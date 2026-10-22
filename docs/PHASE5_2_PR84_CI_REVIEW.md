@@ -1,102 +1,112 @@
 # PR #84 source and CI follow-up (#30, #52)
 
-Prepared October 22, 2026 against supplied PR head
-`8f78d9b984dc61bfe852bbb609791d8351de35ea`.
+October 22, 2026. Package repair prepared against the supplied source checkpoint
+`e470bec0bd8a934bc5de2a7ba3766c20e0797779`. A subsequent source-Mac publication
+receipt verified the handoff-only commit
+`9814a061d8af2507c0f7c02bf8eb2df5bfe9304e`. This review environment did not
+independently authenticate to GitHub.
 
-## Verified checkpoint and evidence
+## Confirmed package failure
 
-The follow-up review ZIP has SHA-256
-`38b8138157ea7354b50feee6c2b54bdaeb6769bbd9c2b9cc0334b4a315733f09`.
-Its internal checksums pass. The source archive matches all nine reviewed
-post-patch file hashes from the previous kit. The source-machine verification
-report records the local commit, remote branch and PR head at the SHA above.
-This confirms the previous push succeeded; the earlier helper stopped at its
-post-push comparison. The transient mismatch's cause was not established.
+The new review ZIP has SHA-256
+`1ec5a08ae1db3ddb3c94c420f028e236bd72264ddd109584a766f5fe7851dc75`.
+Its internal checksums pass. Public policy-file receipts include Git blob and
+SHA-256 bindings. Artifact 12444304259 from run 39822753612 records Python
+3.10.22 and a dependency-resolution conflict at `install_dependencies`.
 
-The captured checks have eleven successes, one skipped manual workflow, and
-two failures: CodeQL and Python 3.10 minimum-dependency artifact installation.
-Python 3.11 and 3.12 artifact matrices passed at this checkpoint. These are
-uploaded GitHub observations, not a live authenticated query from this review.
-No original private profiles or mappings were supplied or read.
+The artifact was built from GitHub's merge revision
+`3dfb4b7f95c925ab06e95c82bd8fb3aa47d06e76`, whose verified parent list is:
 
-## Path-flow review and follow-up
+1. main: `ef7e74ac2f76b6c111d0f8bac2a9f2ff0e7ef6f7`;
+2. PR source: `e470bec0bd8a934bc5de2a7ba3766c20e0797779`.
 
-The first patch bound four supplemental JSON parses and hashes to bounded
-snapshots. Current SARIF shows that alert #150 still reaches the shared
-`cohort.checksum` through the HGNC approved and withdrawn TSV paths.
-Alerts #153 and #154 concern stat/open of the freely selected JSON root itself.
-The first patch therefore did not resolve the security gate.
+The actual build and captured main both selected NumPy 2.2.6 while retaining
+SciPy 1.12.0. SciPy 1.12.0 requires NumPy `>=1.22.4,<1.29.0`, so those pins
+cannot be resolved together. The PR-head file still showed NumPy 1.26.4;
+looking only at that file concealed the integration failure. The two earlier
+public summaries lacked pip's error text; the bounded diagnostic and immutable
+merge-policy receipts now establish this specific conflict.
 
-The follow-up makes the invocation directory the independent confinement
-anchor. `--evidence-root`, `--census-root` and `--reference-root` default to it
-and can only select subdirectories beneath it. Root arguments no longer widen
-the boundary. Opening begins at the literal current directory, then walks
-root/input components using directory descriptors and no-follow flags.
-Canonical boundary checks, file identity checks and nonregular-file rejection
-remain. Aliases above the invocation directory remain supported on macOS;
-symlinks beneath it do not.
+| Dependency | Supplied PR head | Executed merge/main | Repaired CI cohort |
+| --- | --- | --- | --- |
+| NumPy | 1.26.4 | 2.2.6 | 2.2.6 |
+| pandas | 2.2.3 | 2.2.3 | 2.2.3 |
+| SciPy | 1.12.0 | 1.12.0 | 1.15.3 |
+| scikit-learn | 1.4.2 | 1.4.2 | 1.4.2 |
+| scikit-image | 0.22.0 | 0.22.0 | 0.25.2 |
 
-Both HGNC TSVs now use the same bounded snapshot reader as the supplemental
-JSONs. Their parsed rows and verified reference hashes come from the same
-bytes. JSON retains its 4 MiB limit. HGNC TSVs have a separate 32 MiB bound:
-the preserved approved reference is 16,982,321 bytes and cannot use the JSON
-limit. The updated examples explain how to choose a common input anchor,
-use narrower roots and keep fresh outputs beneath the ignored repository
-output directory. This is an input-access policy change, not a new science run.
+The repair preserves main's NumPy update and the documented sklearn 1.4.2
+boundary. It advances SciPy and scikit-image to maintenance releases whose
+published requirements accommodate NumPy 2.2.6 and Python 3.10. Scikit-image
+0.25.2 builds with NumPy 2; this also avoids relying on the older 0.22 build
+cohort under the new NumPy selection. Scikit-learn 1.4.2 explicitly supports
+NumPy 2; the former assumption that it required NumPy 1.x was incorrect.
 
-The shared cohort checksum helper and existing private mapping/provenance
-handling remain unchanged. This patch does not certify all existing readers
-as atomic, authenticate the operator's chosen working directory, or change
-cohort definitions, gene/guide rules, F10 handling or historical evidence.
-CodeQL must analyze the pushed follow-up before its gate can be called resolved.
-No alerts were dismissed, relabelled or suppressed.
+The existing matrix label `minimum` identifies this lower-sklearn cohort. It
+does not claim to exercise every declared dependency floor or every Cartesian
+combination of permitted versions. Package-declared dependency ranges, matrix
+check names, acceptance/isolation checks and normal merge-checkout CI remain
+unchanged. Main's unrelated setup-python and optional Torch changes are left
+to the existing merge integration; this repair does not overwrite them.
+The reason main originally changed NumPy was not established, and no claim of
+vulnerability-free dependencies is made.
 
-## Python 3.10 installation evidence
+The source checks supporting version selection are:
 
-Artifact 12442928590 from run 39819113634 matches this PR head. Its summary
-records validator Python 3.10.22, `wheel-base`, `CalledProcessError`, and
-`failure_step: install_dependencies`. It contains no pip diagnostic text.
-The workflow did not upload its raw private log, so this packet cannot identify
-a particular package, resolver conflict, index failure or compiler failure.
-No dependency pin or accepted Python version was changed speculatively.
+- [SciPy 1.12.0 requirements](https://raw.githubusercontent.com/scipy/scipy/v1.12.0/pyproject.toml): NumPy below 1.29.
+- [SciPy 1.15.3 requirements](https://raw.githubusercontent.com/scipy/scipy/v1.15.3/pyproject.toml): Python >=3.10 and NumPy >=1.23.5,<2.5.
+- [scikit-image 0.25.2 requirements](https://raw.githubusercontent.com/scikit-image/scikit-image/v0.25.2/pyproject.toml): Python >=3.10, NumPy >=1.24, SciPy >=1.11.4; builds use NumPy >=2.
+- [sklearn 1.4.2 release notes](https://scikit-learn.org/1.4/whats_new/v1.4.html): NumPy 2 support.
+- PyPI release files for [SciPy 1.15.3](https://pypi.org/project/scipy/1.15.3/#files) and [scikit-image 0.25.2](https://pypi.org/project/scikit-image/0.25.2/#files) include CPython 3.10 Linux x86-64 wheels.
 
-The follow-up adds bounded, allowlisted pip failure diagnostics to the public
-summary. Raw logs, arbitrary command arguments, paths, URLs and exception
-messages remain local. The failure step, failing exit status and all artifact
-acceptance/isolation checks remain enforced. This improves the next failing
-run's evidence; it is not a demonstrated repair of the dependency failure.
+Compatible published ranges and available wheels are not a substitute for an
+actual install/import or artifact acceptance run. Python 3.10's installed-wheel
+and sdist/base/pixel matrix must pass on the new commit before this package gate
+can be called resolved.
 
-The artifact's build source commit is
-`8712d616989629545b73837638a594b34843e53d`, while its Actions run records the
-PR head above. A pull-request merge checkout could explain this difference;
-that explanation has not been independently verified. Preserve both fields.
+## CodeQL remains a separate gate
 
-## Validation and limits
+The latest archive has no Python CodeQL analysis matching e470bec. Its exported
+alerts #150, #153 and #154 still refer to the earlier 8f78d9b source revision.
+The collector timed out with partial evidence and queried only the head ref.
+GitHub's [code-scanning API](https://docs.github.com/en/rest/code-scanning/code-scanning)
+documents PR analyses on `refs/pull/84/merge` and supports a PR-number filter.
+The head-only query could therefore miss an integration analysis. The corrected
+collector searches PR analyses and binds an accepted merge SHA to its actual
+parents, including the captured PR head. No current security verdict or failure
+to run CodeQL can be inferred from the earlier absence alone. No alerts were
+dismissed or suppressed, and no security settings were changed.
 
-Validation of this follow-up uses synthetic inputs only. On Linux x86-64,
-CPython 3.12.14, 46 unittest methods and 61 subtests passed with no skips.
-The public-copy check and Python 3.10 syntax parsing passed. Nine separate
-offline publication-helper tests also passed. The packaged validation receipt
-records these checks separately and lists runtime limits.
-Python 3.10 runtime, macOS execution, the full pytest suite, Ruff, CodeQL and
-the wheel/sdist installation matrix cannot be claimed from the Linux review
-environment. Earlier dependency/runtime downloads returned HTTP 403.
-Python 3.10 syntax parsing is not Python 3.10 runtime validation.
+The previous path fix remains unchanged: the invocation directory is the
+independent confinement anchor, root flags can only narrow it, reads begin at
+the literal current-directory descriptor and descendants use no-follow flags.
+JSON is bounded to 4 MiB and each HGNC TSV to 32 MiB. Parsing and verification
+use the same bytes, and aliases above the invocation directory remain supported.
+Existing private mapping/provenance readers and the shared checksum helper are
+not claimed universally atomic. Review the actual new-head analysis and gate
+before making another security change or declaring the gate clear.
 
-The prior patch passed 35 unittest methods and 57 subtests here. The user's
-Mac subsequently reported those focused suites, the public-copy check and
-existing Phase 5 pytest suites passing before the verified push. Those
-historical checks are not substituted for follow-up validation.
+## Validation and publication limits
 
-## Publication and scientific boundary
+This repair changes only the fixed CI cohort and this engineering record.
+A local synthetic Git merge using the captured PR/main policy files confirmed
+that the forward NumPy change coalesces, the repaired cohort survives, and main's
+pyproject/workflow bytes are preserved. This is merge-behavior evidence, not
+runtime package validation. The accompanying kit records the checks actually
+executed in the review environment separately from checks performed later on
+the Mac or GitHub. Python 3.10, the repaired dependency environment, CodeQL and
+the complete artifact matrix were not executed in the review environment.
 
-The Mac helper applies only reviewed files in a fresh checkout, runs synthetic
-checks, commits and pushes to PR #84, then verifies local, branch and PR SHAs.
-It retries read-only publication observations and records all compared SHAs;
-it never retries a push or uses force. Keep the PR unmerged and record the
-new head's checks separately. A successful source push does not imply green CI.
+The Mac helper uses a fresh checkout and environment, installs the selected
+software dependencies, checks exact versions and imports, and runs existing
+synthetic package/pixel acceptance tests before a non-force push. Local editable
+installation is a separate step from binary-only dependency installation.
+Its Python version is recorded; a Python 3.12 Mac pass is not a Python 3.10 pass.
+Publication SHA verification and current-head CI remain separate observations.
 
-No historical census, HGNC preparation or Batch8/MOA analysis was repeated.
-No research files were transferred, scientific approval granted, model run,
-collaborator contacted or Biowulf resource used. The cross-guide experiment
-remains proposed and unapproved.
+No private datasets or logs are committed. No historical census, nomenclature,
+Batch8 or MOA calculation was repeated. No pretrained inference, training,
+scientific scoring, collaborator contact, release, deployment, PR merge or
+Biowulf use occurred. The cross-guide scientific experiment remains proposed
+and unapproved. Keep the existing next-device handoff as a historical checkpoint;
+this record supplies the subsequent, source-bound package diagnosis.
