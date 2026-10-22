@@ -1,0 +1,31 @@
+{
+  "actual_local_metadata_analyses": [
+    "Original October 22 census receipt checksum verified and aggregate reused; no census rerun",
+    "Offline whole-reference HGNC matching against 130 original source strings, using preserved mapping/provenance/annotation hash bindings",
+    "Pinned public recipe/config source inspection; no upstream execution",
+    "Public infection workbook sheet/header structure inspection; no numerical assay analysis"
+  ],
+  "date": "2026-10-22",
+  "format": "passed for the same nine files",
+  "full_optional_dependency_suite": "not run locally",
+  "git_whitespace": "passed",
+  "lint": "passed for nine audit/planning/CLI/test files",
+  "no_real_profile_scores_or_models": true,
+  "public_copy": "passed",
+  "publication_source_base": "c0518710d38adb17a21e150db45b0388a503b030",
+  "runtime": {
+    "numpy": "2.5.0",
+    "pandas": "3.0.3",
+    "pytest": "9.1.1",
+    "python": "3.12.5",
+    "ruff": "0.15.20"
+  },
+  "tests": {
+    "command": "python -m pytest -q tests/test_phase5_cross_guide_readiness.py tests/test_phase5_guide_support.py tests/test_phase5_1_rotations.py tests/test_phase5_audits.py tests/test_query_generation.py tests/test_public_copy_consistency.py",
+    "failures": 0,
+    "log_sha256": "d17f7472e891763fa4502ec65711d5c8e4910d9b913cb9233ff9cc9154b559ad",
+    "passed": 119,
+    "skips": 0,
+    "subtests_passed": 41
+  }
+}
