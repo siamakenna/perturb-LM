@@ -11,9 +11,28 @@ the old chat and a ZIP/export are not dependencies.
 - Branch: `science/phase5-2-cross-guide-readiness-20261022T144928Z`
 - Verified base/main: `c0518710d38adb17a21e150db45b0388a503b030`.
 - The isolated branch starts at that base; old unpublished ancestors are not pushed.
-- Publication checkpoint and draft PR receipt are added after the first verified push.
-  The current authoritative head is the draft PR `headRefOid`, verified against
-  `git ls-remote origin refs/heads/science/phase5-2-cross-guide-readiness-20261022T144928Z`.
+- Draft PR: [#84](https://github.com/siamakenna/perturb-LM/pull/84).
+- Verified published implementation HEAD/checkpoint:
+  `aa0f5a57c9028551f628f45a2833864e1fadc7cc`. Local HEAD equaled the exact
+  `git ls-remote` branch SHA after the first push. This subsequent documentation
+  receipt advances the branch; the current authoritative head is PR84 `headRefOid`,
+  which must equal the remote branch and local checkout. The PR body records the
+  final verified publication head without requiring a commit to contain its own SHA.
+
+## Published file groups
+
+- Audit modules: `guide_support.py`, `support_inputs.py`, `rotations.py`,
+  `gene_identity.py` and `cross_guide_design.py` under `src/perturb_lm/audits/`.
+- CLIs: `scripts/audit_phase5_guide_support.py` and
+  `scripts/prepare_phase5_cross_guide_readiness.py`.
+- Synthetic tests: `tests/test_phase5_guide_support.py` and
+  `tests/test_phase5_cross_guide_readiness.py`, using existing main fixtures and
+  planner/audit/guard tests. No private fixtures or new dependencies are required.
+- Scientific docs: guide-support feasibility/closeout, concordance protocol and
+  review checklist, figure specifications, historical handoff, readiness and this
+  continuation document.
+- Five JSON records in `docs/evidence/phase5_2/`: sanitized census receipt,
+  nomenclature aggregate, HGNC pins, public-source pins and actual validation.
 
 ## Read first
 
@@ -108,6 +127,14 @@ scorer needs separate authorization, protocol review and synthetic validation.
 Do not repeat Batch8, dismiss security alerts, merge, release, deploy or contact
 collaborators under this handoff. PR77/83 remain separate unmerged proposals;
 their code was neither incorporated nor executed.
+
+The local validation passed **119 tests and 41 subtests**, with lint/format,
+public-copy and whitespace checks passing; full optional tests were left to CI.
+GitHub reported 14 default-branch dependency alerts on push (2 critical, 5 high,
+7 moderate). They were not suppressed or adjudicated here; see the repository
+[dependency alerts](https://github.com/siamakenna/perturb-LM/security/dependabot).
+Inspect the draft PR checks for the current head before any further publication
+or merge decision; passing local tests does not clear these separate concerns.
 
 The next task that needs only GitHub is independent review of the nomenclature
 precedence rules, candidate exclusions, complete-support weighting and tests,
