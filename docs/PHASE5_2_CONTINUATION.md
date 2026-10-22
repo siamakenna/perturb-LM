@@ -98,11 +98,21 @@ Set these local variables to their actual retained locations before using:
 PYTHONPATH=src python scripts/prepare_phase5_cross_guide_readiness.py \
   --audit-root "$P5_AUDIT_ROOT" \
   --census-summary "$P5_ORIGINAL_CENSUS_RECEIPT" \
+  --census-root "$P5_CENSUS_RECEIPT_ROOT" \
   --expected-summary-sha256 bf193358fdb31d06f68fdd7d937310787c7c686829b6f19b54c2251e4f6ba81a \
   --hgnc-approved "$P5_HGNC_APPROVED" --hgnc-withdrawn "$P5_HGNC_WITHDRAWN" \
   --reference-manifest docs/evidence/phase5_2/hgnc-reference.json \
+  --reference-root "$PWD/docs/evidence/phase5_2" \
   --out outputs/phase5_2_identity_FRESH
 ```
+
+`P5_CENSUS_RECEIPT_ROOT` is the explicitly selected directory containing the
+original receipt. Both JSON roots default to the invocation directory; nominate
+a different trusted directory when the JSON is outside it. JSON reads are
+confined beneath that directory, reject symlinks below it and nonregular files,
+and are limited to 4 MiB. Aliases above a trusted root, including macOS `/var`,
+are canonicalized. Each parsed JSON value and its SHA-256 bind the same bounded
+byte snapshot. These input checks do not rerun or revise historical results.
 
 This preparation is already completed; rerun only when an independent review or
 an authorized identity revision requires it, using a fresh ignored directory.

@@ -75,9 +75,16 @@ aggregate validation/context records:
 ```bash
 PYTHONPATH=src python scripts/audit_phase5_guide_support.py \
   --audit-root "$P5_AUDIT_ROOT" --data-root "$P5_PROFILE_ROOT" \
+  --evidence-root "$P5_EVIDENCE_ROOT" \
   --validation "$P5_VALIDATION" --repository-context "$P5_CONTEXT" \
   --out outputs/guide-support-FRESH-RUN
 ```
+
+Set `P5_EVIDENCE_ROOT` to the independently selected trusted directory containing
+both aggregate validation and repository-context JSON files. It defaults to the
+invocation directory. These JSON inputs must be regular files beneath that
+root, without symlinks below it, and at most 4 MiB. Parsing and SHA-256 now use
+the same byte snapshot; aliases above the trusted root remain valid on macOS.
 
 The directory must be fresh and Git-ignored. The only census outputs are the
 aggregate `metadata-support-summary.json` and its `SHA256SUMS`, with private

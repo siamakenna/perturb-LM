@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 import re
 import shutil
 import subprocess
@@ -74,6 +75,7 @@ def main():
         "schema_version": 1,
         "source_commit": manifest["source_commit"],
         "validator_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+        "validator_python": platform.python_version(),
         "version": manifest["version"],
         "artifact_sha256": artifacts,
         "overall": "INCOMPLETE",
@@ -95,6 +97,7 @@ def main():
             report["stages"][label] = stage
             save()
             try:
+                step = "create_environment"
                 with tempfile.TemporaryDirectory(prefix="plm-artifact-") as temporary:
                     area = Path(temporary)
                     if area.is_relative_to(root):
@@ -112,7 +115,9 @@ def main():
                     )
                     with (out / f"{label}.private.log").open("x") as log:
 
-                        def run(command, work=work, run_env=run_env, log=log):
+                        def run(command, *, operation, work=work, run_env=run_env, log=log):
+                            nonlocal step
+                            step = operation
                             subprocess.run(
                                 command,
                                 cwd=work,
@@ -135,9 +140,13 @@ def main():
                                 *constraint,
                                 target,
                                 "pytest>=8",
-                            ]
+                            ],
+                            operation="install_dependencies",
                         )
-                        run([str(python), "-I", "-m", "pip", "check"])
+                        run(
+                            [str(python), "-I", "-m", "pip", "check"],
+                            operation="check_dependencies",
+                        )
                         # Check import origin, metadata agreement and base isolation.
                         probe = (
                             "import importlib.metadata as m, importlib.util as u, sys; "
@@ -154,7 +163,11 @@ def main():
                                 else "assert u.find_spec('skimage') is not None"
                             )
                         )
-                        run([str(python), "-I", "-c", probe])
+                        run(
+                            [str(python), "-I", "-c", probe],
+                            operation="verify_installed_origin_and_isolation",
+                        )
+                        step = "capture_environment_versions"
                         versions = subprocess.check_output(
                             [
                                 str(python),
@@ -171,6 +184,7 @@ def main():
                             timeout=args.timeout,
                         )
                         stage["environment"] = json.loads(versions)
+                        step = "prepare_acceptance_tests"
                         shutil.copyfile(
                             root / "tests/test_release_contract.py", work / "test_api.py"
                         )
@@ -207,8 +221,10 @@ def main():
                                 f"--junitxml={xml}",
                                 "test_api.py",
                                 "test_examples.py",
-                            ]
+                            ],
+                            operation="run_acceptance_tests",
                         )
+                        step = "verify_acceptance_counts"
                         stage["counts"] = counts(xml)
                         if (
                             stage["counts"]["skipped"]
@@ -224,10 +240,13 @@ def main():
                     status="REVIEW_REQUIRED",
                     exit_code=getattr(error, "returncode", None),
                     error_type=type(error).__name__,
+                    failure_step=step,
                 )
                 report["overall"] = "REVIEW_REQUIRED"
                 save()
-                raise SystemExit(f"{label} failed; inspect its local private log") from error
+                raise SystemExit(
+                    f"{label} failed during {step}; inspect its local private log"
+                ) from error
             stage["elapsed_seconds"] = round(time.monotonic() - start, 2)
             save()
             print(f"{label}: PASS {stage['counts']}", flush=True)

@@ -15,6 +15,7 @@ from plan_phase5_1_rotations import guarded_output
 from perturb_lm.audits.cohort import checksum, read_table
 from perturb_lm.audits.gene_identity import resolution_summary, resolve_symbols
 from perturb_lm.audits.guide_support import attach_identities
+from perturb_lm.audits.json_inputs import read_json_snapshot
 from perturb_lm.audits.rotations import _validate
 
 
@@ -32,15 +33,24 @@ def main():
     parser.add_argument("--hgnc-withdrawn", type=Path, required=True)
     parser.add_argument("--reference-manifest", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--census-root", type=Path, default=Path.cwd(),
+        help="Trusted directory containing the census JSON (default: invocation directory)",
+    )
+    parser.add_argument(
+        "--reference-root", type=Path, default=Path.cwd(),
+        help="Trusted directory containing the reference JSON (default: invocation directory)",
+    )
     args = parser.parse_args()
     os.umask(0o077)
     root = Path(__file__).resolve().parents[1]
     out = guarded_output(args.out, root)
     if out.exists():
         raise ValueError("Use a fresh ignored output directory")
-    if checksum(args.census_summary) != args.expected_summary_sha256:
+    census_snapshot = read_json_snapshot(args.census_summary, root=args.census_root)
+    if census_snapshot.sha256 != args.expected_summary_sha256:
         raise ValueError("Census receipt checksum mismatch")
-    census = json.loads(args.census_summary.read_text())
+    census = census_snapshot.value
     if (
         census["status"] not in {"COMPLETE", "COMPLETED_DESCRIPTIVE_METADATA_AUDIT"}
         or not census["verification"]["verified"]
@@ -63,7 +73,8 @@ def main():
     annotation_path = args.audit_root / "source" / Path(annotation["path"]).name
     if checksum(annotation_path) != annotation["sha256"]:
         raise ValueError("Original source annotation checksum mismatch")
-    reference = json.loads(args.reference_manifest.read_text())
+    reference_snapshot = read_json_snapshot(args.reference_manifest, root=args.reference_root)
+    reference = reference_snapshot.value
     for name, path in (("approved", args.hgnc_approved), ("withdrawn", args.hgnc_withdrawn)):
         if checksum(path) != reference[name]["sha256"]:
             raise ValueError("Pinned HGNC reference checksum mismatch")
@@ -88,7 +99,7 @@ def main():
         "original_mapping_sha256": checksum(mapping_path),
         "source_provenance_sha256": checksum(provenance_path),
         "annotation_sha256": checksum(annotation_path),
-        "reference_manifest_sha256": checksum(args.reference_manifest),
+        "reference_manifest_sha256": reference_snapshot.sha256,
         "HGNC_references": reference,
         "resolution": aggregate,
         "identity_conflict_counts": conflicts,
@@ -114,6 +125,7 @@ def main():
             for name in (
                 "scripts/prepare_phase5_cross_guide_readiness.py",
                 "src/perturb_lm/audits/gene_identity.py",
+                "src/perturb_lm/audits/json_inputs.py",
                 "src/perturb_lm/audits/guide_support.py",
                 "src/perturb_lm/audits/rotations.py",
             )

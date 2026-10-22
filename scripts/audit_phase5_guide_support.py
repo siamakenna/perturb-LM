@@ -14,6 +14,7 @@ from plan_phase5_1_rotations import guarded_output
 
 from perturb_lm.audits.cohort import checksum
 from perturb_lm.audits.guide_support import IdentityError, support_census
+from perturb_lm.audits.json_inputs import read_json_snapshot
 from perturb_lm.audits.support_inputs import VerificationError, verify_inputs
 
 
@@ -22,6 +23,12 @@ def main():
     parser.add_argument("--audit-root", type=Path, required=True)
     parser.add_argument("--data-root", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument(
+        "--evidence-root",
+        type=Path,
+        default=Path.cwd(),
+        help="Trusted directory containing validation/context JSON (default: invocation directory)",
+    )
     parser.add_argument(
         "--validation",
         type=Path,
@@ -38,6 +45,8 @@ def main():
     os.umask(0o077)
     repository = Path(__file__).resolve().parents[1]
     out = guarded_output(args.out, repository)
+    validation = read_json_snapshot(args.validation, root=args.evidence_root)
+    repository_context = read_json_snapshot(args.repository_context, root=args.evidence_root)
     summary = {
         "schema_version": 1,
         "evidence_kind": "actual_local_metadata_census",
@@ -58,16 +67,17 @@ def main():
             for p in (
                 "scripts/audit_phase5_guide_support.py",
                 "src/perturb_lm/audits/guide_support.py",
+                "src/perturb_lm/audits/json_inputs.py",
                 "src/perturb_lm/audits/support_inputs.py",
                 "src/perturb_lm/audits/rotations.py",
                 "src/perturb_lm/audits/cohort.py",
             )
         },
         "runtime": {"python": platform.python_version()},
-        "validation": json.loads(args.validation.read_text()),
-        "validation_evidence_sha256": checksum(args.validation),
-        "repository_context": json.loads(args.repository_context.read_text()),
-        "repository_context_sha256": checksum(args.repository_context),
+        "validation": validation.value,
+        "validation_evidence_sha256": validation.sha256,
+        "repository_context": repository_context.value,
+        "repository_context_sha256": repository_context.sha256,
     }
     try:
         mapping, annotations, evidence, inputs = verify_inputs(args.audit_root, args.data_root)
