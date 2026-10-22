@@ -12,6 +12,7 @@ from perturb_lm.audits.cross_guide_design import (
 )
 from perturb_lm.audits.gene_identity import resolution_summary, resolve_symbols
 from perturb_lm.audits.guide_support import training_plate_support
+from perturb_lm.audits.support_inputs import manifest_path
 
 
 def hgnc(identity="HGNC:900000001", symbol="SYNTH_A", **kwargs):
@@ -221,6 +222,34 @@ def test_contradictory_physical_anchor_fails_before_weighting():
     conflicting = ("SYNTH_OTHER_GENE", *rows[0][1:])
     with pytest.raises(ValueError, match="Physical"):
         balanced_comparison_weights(rows + [conflicting], PLATES)
+
+
+def test_manifest_containment_returns_checked_canonical_path(tmp_path):
+    root = tmp_path / "root"
+    root.mkdir()
+    target = root / "metadata.txt"
+    target.write_text("SYNTHETIC_METADATA_ONLY")
+    alias = root / "alias.txt"
+    alias.symlink_to(target)
+    assert manifest_path(root, "alias.txt") == target.resolve()
+    assert manifest_path(root, "metadata.txt") == target.resolve()
+    with pytest.raises(ValueError, match="missing"):
+        manifest_path(root, "missing.txt")
+
+
+def test_manifest_rejects_symlink_escape_and_sibling_prefix(tmp_path):
+    root, sibling = tmp_path / "root", tmp_path / "root_extra"
+    root.mkdir()
+    sibling.mkdir()
+    outside = sibling / "metadata.txt"
+    outside.write_text("SYNTHETIC_OUTSIDE_METADATA")
+    (root / "escape.txt").symlink_to(outside)
+    with pytest.raises(ValueError, match="outside"):
+        manifest_path(root, "escape.txt")
+    with pytest.raises(ValueError, match="relative"):
+        manifest_path(root, "../root_extra/metadata.txt")
+    with pytest.raises(ValueError, match="relative"):
+        manifest_path(root, outside)
 
 
 @pytest.mark.parametrize("tamper_receipt", [False, True])

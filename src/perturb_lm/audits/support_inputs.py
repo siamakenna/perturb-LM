@@ -6,6 +6,7 @@ import csv
 import gzip
 import hashlib
 import json
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -33,8 +34,15 @@ def manifest_path(root, relative):
     relative = Path(relative)
     if relative.is_absolute() or ".." in relative.parts:
         raise ValueError("Manifest path must be relative and confined to its input root")
-    path = root / relative
-    if not path.resolve().is_relative_to(root.resolve()) or not path.is_file():
+    # Normalize before filesystem access, check a directory-boundary prefix, and
+    # return the checked canonical path rather than the original symlink spelling.
+    # This is also the validation idiom documented by CodeQL for path injection.
+    root_real = os.path.realpath(root)
+    candidate = os.path.realpath(os.path.join(root_real, relative))
+    if not candidate.startswith(root_real.rstrip(os.sep) + os.sep):
+        raise ValueError("Manifest input missing or outside its input root")
+    path = Path(candidate)
+    if not path.is_file():
         raise ValueError("Manifest input missing or outside its input root")
     return path
 

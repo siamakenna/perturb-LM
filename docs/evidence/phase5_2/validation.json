@@ -9,6 +9,14 @@
   "format": "passed for the same nine files",
   "full_optional_dependency_suite": "not run locally",
   "git_whitespace": "passed",
+  "initial_validation_tests": {
+    "command": "python -m pytest -q tests/test_phase5_cross_guide_readiness.py tests/test_phase5_guide_support.py tests/test_phase5_1_rotations.py tests/test_phase5_audits.py tests/test_query_generation.py tests/test_public_copy_consistency.py",
+    "failures": 0,
+    "log_sha256": "d17f7472e891763fa4502ec65711d5c8e4910d9b913cb9233ff9cc9154b559ad",
+    "passed": 119,
+    "skips": 0,
+    "subtests_passed": 41
+  },
   "lint": "passed for nine audit/planning/CLI/test files",
   "no_real_profile_scores_or_models": true,
   "public_copy": "passed",
@@ -20,12 +28,31 @@
     "python": "3.12.5",
     "ruff": "0.15.20"
   },
+  "security_followup": {
+    "alerts_dismissed": false,
+    "change": "Return a canonical input path after normalized directory-boundary containment validation; add two symlink/containment regression tests",
+    "final_remote_gate": "Must be checked at the follow-up head; local tests do not establish CodeQL clearance",
+    "initial_gate": "https://github.com/siamakenna/perturb-LM/runs/119910049152",
+    "initial_high_severity_annotations": 3,
+    "shared_cohort_or_security_policy_changed": false
+  },
   "tests": {
     "command": "python -m pytest -q tests/test_phase5_cross_guide_readiness.py tests/test_phase5_guide_support.py tests/test_phase5_1_rotations.py tests/test_phase5_audits.py tests/test_query_generation.py tests/test_public_copy_consistency.py",
     "failures": 0,
-    "log_sha256": "d17f7472e891763fa4502ec65711d5c8e4910d9b913cb9233ff9cc9154b559ad",
-    "passed": 119,
+    "log_sha256": "c74abfbcdb76d7ace0b2f8e53e05182efe865669e5bcdb74274cae29a051383a",
+    "passed": 121,
     "skips": 0,
     "subtests_passed": 41
+  },
+  "validated_implementation_sha256": {
+    "scripts/audit_phase5_guide_support.py": "a887fb135342507b7a018efe2dd8d80187640efbaefe0b821bd9f5d87ae80088",
+    "scripts/prepare_phase5_cross_guide_readiness.py": "55b14737a71701dc92ad4a09351816a6be6d42b21b01b46af91af2af6e36e3a1",
+    "src/perturb_lm/audits/cross_guide_design.py": "bd813066d643281bcfd1788aa98e649aca29372973ad6c9444cb2c2489908b1c",
+    "src/perturb_lm/audits/gene_identity.py": "07a23d2fea998ad32c588258b9645179251f6fb65ae244f9d01aec1aba920e3e",
+    "src/perturb_lm/audits/guide_support.py": "d4ad4b26071b32497b2da49ab8b5735bfdabfdb67f5b0326d24cf1478de22f4b",
+    "src/perturb_lm/audits/rotations.py": "e5c16b4119519a98b59852c254cd471d79bde03a9fccf07db8df44f71cdc371d",
+    "src/perturb_lm/audits/support_inputs.py": "3e709bee974be012058e55622f710fcd2a1089c078c3db2fa217234578646a25",
+    "tests/test_phase5_cross_guide_readiness.py": "6262519f3cb2235cbd9cde0e98b87c3591dd80d016a01654e068405f8cb371dc",
+    "tests/test_phase5_guide_support.py": "a9a9749c1a5c7d291f64b97601d332ae4030f4d01313ed36f51543a51fba2c9e"
   }
 }

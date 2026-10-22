@@ -149,6 +149,19 @@ exchangeability despite repeated wells, related genes and reused references.
 Until that contract is approved, report no randomization p-value. The conditional
 uncertainty proposal in the protocol also requires human review.
 
+## Publication security follow-up
+
+The first final-head CI inspection reported three high-severity
+`py/path-injection` annotations: two in the new manifest-path helper and one at
+its shared checksum reader. The manifest helper now normalizes paths with
+`os.path.realpath`, checks containment with a directory-boundary prefix, and
+returns the checked canonical path before file access. This avoids reopening
+an unchecked symlink spelling. Synthetic tests cover valid in-root aliases,
+missing files, symlink escapes, sibling-prefix escapes and traversal/absolute
+paths. Shared cohort code, CodeQL policy and alerts are not altered. This follows
+[CodeQL's path-validation guidance](https://codeql.github.com/codeql-query-help/python/py-path-injection/);
+CI, rather than this text, establishes whether its gate clears.
+
 ## Remaining decisions
 
 Claire must review intended stable target and canonical guide/locus/orientation,

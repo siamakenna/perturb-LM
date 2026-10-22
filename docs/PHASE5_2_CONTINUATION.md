@@ -14,8 +14,9 @@ the old chat and a ZIP/export are not dependencies.
 - Draft PR: [#84](https://github.com/siamakenna/perturb-LM/pull/84).
 - Verified published implementation HEAD/checkpoint:
   `aa0f5a57c9028551f628f45a2833864e1fadc7cc`. Local HEAD equaled the exact
-  `git ls-remote` branch SHA after the first push. This subsequent documentation
-  receipt advances the branch; the current authoritative head is PR84 `headRefOid`,
+  `git ls-remote` branch SHA after the first push. Subsequent commits add
+  this documentation receipt and the scoped manifest-path security follow-up.
+  The current authoritative head is PR84 `headRefOid`,
   which must equal the remote branch and local checkout. The PR body records the
   final verified publication head without requiring a commit to contain its own SHA.
 
@@ -128,8 +129,11 @@ Do not repeat Batch8, dismiss security alerts, merge, release, deploy or contact
 collaborators under this handoff. PR77/83 remain separate unmerged proposals;
 their code was neither incorporated nor executed.
 
-The local validation passed **119 tests and 41 subtests**, with lint/format,
-public-copy and whitespace checks passing; full optional tests were left to CI.
+Initial local validation passed **119 tests and 41 subtests**. A publication
+CodeQL path-handling finding prompted the narrowly scoped manifest-path
+hardening documented in the readiness report and two additional regression
+tests. The follow-up passed **121 tests and 41 subtests**; the validation JSON records
+both runs separately. Full optional-dependency tests are left to CI.
 GitHub reported 14 default-branch dependency alerts on push (2 critical, 5 high,
 7 moderate). They were not suppressed or adjudicated here; see the repository
 [dependency alerts](https://github.com/siamakenna/perturb-LM/security/dependabot).
