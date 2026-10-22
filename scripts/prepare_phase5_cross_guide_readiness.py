@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import os
 import subprocess
@@ -15,13 +14,8 @@ from plan_phase5_1_rotations import guarded_output
 from perturb_lm.audits.cohort import checksum, read_table
 from perturb_lm.audits.gene_identity import resolution_summary, resolve_symbols
 from perturb_lm.audits.guide_support import attach_identities
-from perturb_lm.audits.json_inputs import read_json_snapshot
+from perturb_lm.audits.json_inputs import read_json_snapshot, read_tsv_snapshot
 from perturb_lm.audits.rotations import _validate
-
-
-def read_tsv(path):
-    with path.open(newline="") as stream:
-        return list(csv.DictReader(stream, delimiter="\t"))
 
 
 def main():
@@ -35,11 +29,11 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument(
         "--census-root", type=Path, default=Path.cwd(),
-        help="Trusted directory containing the census JSON (default: invocation directory)",
+        help="Census JSON directory beneath invocation directory (default: invocation directory)",
     )
     parser.add_argument(
         "--reference-root", type=Path, default=Path.cwd(),
-        help="Trusted directory containing the reference JSON (default: invocation directory)",
+        help="Reference JSON/HGNC TSV root within invocation directory (default: same directory)",
     )
     args = parser.parse_args()
     os.umask(0o077)
@@ -56,6 +50,13 @@ def main():
         or not census["verification"]["verified"]
     ):
         raise ValueError("A complete verified metadata census receipt is required")
+    reference_snapshot = read_json_snapshot(args.reference_manifest, root=args.reference_root)
+    reference = reference_snapshot.value
+    approved = read_tsv_snapshot(args.hgnc_approved, root=args.reference_root)
+    withdrawn = read_tsv_snapshot(args.hgnc_withdrawn, root=args.reference_root)
+    for name, snapshot in (("approved", approved), ("withdrawn", withdrawn)):
+        if snapshot.sha256 != reference[name]["sha256"]:
+            raise ValueError("Pinned HGNC reference checksum mismatch")
     mapping_path = args.audit_root / "cohort/local_mapping_PRIVATE.csv"
     provenance_path = args.audit_root / "source/provenance.json"
     for key, path in (
@@ -73,11 +74,6 @@ def main():
     annotation_path = args.audit_root / "source" / Path(annotation["path"]).name
     if checksum(annotation_path) != annotation["sha256"]:
         raise ValueError("Original source annotation checksum mismatch")
-    reference_snapshot = read_json_snapshot(args.reference_manifest, root=args.reference_root)
-    reference = reference_snapshot.value
-    for name, path in (("approved", args.hgnc_approved), ("withdrawn", args.hgnc_withdrawn)):
-        if checksum(path) != reference[name]["sha256"]:
-            raise ValueError("Pinned HGNC reference checksum mismatch")
     mapping = read_table(mapping_path)
     annotations = read_table(annotation_path)
     annotations["Perturbation"] = "crispr"
@@ -85,7 +81,7 @@ def main():
     selected = _validate(identities)
     usable = selected[selected.broad_sample.ne("") & ~selected.is_control]
     records = resolve_symbols(
-        set(usable.source_gene), read_tsv(args.hgnc_approved), read_tsv(args.hgnc_withdrawn)
+        set(usable.source_gene), approved.rows, withdrawn.rows
     )
     aggregate = resolution_summary(records)
     unchanged = (

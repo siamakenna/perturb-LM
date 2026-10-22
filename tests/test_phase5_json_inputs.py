@@ -1,4 +1,4 @@
-"""Invented JSON receipts only: confinement and same-byte provenance (#30, #52)."""
+"""Invented JSON/TSV receipts: confinement and same-byte provenance (#30, #52)."""
 
 import hashlib
 import importlib.util
@@ -7,17 +7,31 @@ import os
 import sys
 import tempfile
 import unittest
+from contextlib import contextmanager
 from pathlib import Path
 from unittest import mock
 
 from perturb_lm.audits import json_inputs
-from perturb_lm.audits.json_inputs import read_json_snapshot
+from perturb_lm.audits.json_inputs import read_json_snapshot, read_tsv_snapshot
+
+
+@contextmanager
+def invocation(directory):
+    before = Path.cwd()
+    os.chdir(directory)
+    try:
+        yield
+    finally:
+        os.chdir(before)
 
 
 class JsonInputTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
+        original_cwd = Path.cwd()
+        os.chdir(self.temporary.name)
+        self.addCleanup(os.chdir, original_cwd)
         self.root = Path(self.temporary.name) / "evidence with spaces"
         self.root.mkdir()
         self.path = self.root / "receipt.json"
@@ -30,21 +44,47 @@ class JsonInputTests(unittest.TestCase):
         self.assertEqual(snapshot.value, {"synthetic": True})
         self.assertEqual(snapshot.sha256, hashlib.sha256(self.data).hexdigest())
 
-    def test_trusted_root_alias_resolves_but_child_aliases_are_rejected(self):
-        root_alias = self.root.parent / "trusted-alias"
-        root_alias.symlink_to(self.root, target_is_directory=True)
+    def test_invocation_ancestor_alias_is_allowed_but_descendant_aliases_are_rejected(self):
+        anchor_alias = Path(self.temporary.name + "-alias")
+        anchor_alias.symlink_to(self.temporary.name, target_is_directory=True)
+        self.addCleanup(anchor_alias.unlink)
+        aliased_root = anchor_alias / self.root.name
         self.assertEqual(
-            read_json_snapshot(root_alias / self.path.name, root=root_alias).value,
+            read_json_snapshot(aliased_root / self.path.name, root=aliased_root).value,
             {"synthetic": True},
         )
         self.assertEqual(
-            read_json_snapshot(root_alias / self.path.name, root=self.root).value,
+            read_json_snapshot(aliased_root / self.path.name, root=self.root).value,
             {"synthetic": True},
         )
+        narrowed_alias = self.root.parent / "narrowed-alias"
+        narrowed_alias.symlink_to(self.root, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            read_json_snapshot(narrowed_alias / self.path.name, root=narrowed_alias)
         child_alias = self.root / "child-alias.json"
         child_alias.symlink_to(self.path)
         with self.assertRaisesRegex(ValueError, "regular file|symlink"):
             read_json_snapshot(child_alias, root=self.root)
+
+    def test_root_cannot_widen_invocation_directory_or_escape_via_sibling_prefix(self):
+        outside = Path(self.temporary.name + "-outside")
+        outside.mkdir()
+        self.addCleanup(outside.rmdir)
+        outside_path = outside / "receipt.json"
+        outside_path.write_bytes(self.data)
+        self.addCleanup(outside_path.unlink)
+        alias = self.root / "outside-root"
+        alias.symlink_to(outside, target_is_directory=True)
+        with mock.patch.object(json_inputs.os, "read", side_effect=AssertionError("read")):
+            for path, root in (
+                (outside_path, outside), (outside_path, Path(self.temporary.name).parent),
+                (alias / outside_path.name, alias),
+                (self.path, self.root / ".."),
+            ):
+                with self.subTest(root=root.name), self.assertRaisesRegex(
+                    ValueError, "outside|parent traversal"
+                ):
+                    read_json_snapshot(path, root=root)
 
     def test_outside_sibling_and_symlink_escape_are_rejected_before_read(self):
         sibling = self.root.parent / (self.root.name + "-other")
@@ -159,6 +199,34 @@ class JsonInputTests(unittest.TestCase):
                     with self.assertRaisesRegex(ValueError, "symlink"):
                         read_json_snapshot(path, root=self.root)
 
+    def test_tsv_snapshot_binds_original_rows_and_digest(self):
+        data = b'hgnc_id\tsymbol\tstatus\r\nHGNC:900000001\tSYNTH_GENE\tApproved\r\n'
+        self.path.write_bytes(data)
+        snapshot = read_tsv_snapshot(self.path, root=self.root)
+        self.path.write_text("replaced after snapshot")
+        self.assertEqual(snapshot.sha256, hashlib.sha256(data).hexdigest())
+        self.assertEqual(snapshot.rows, [{
+            "hgnc_id": "HGNC:900000001", "symbol": "SYNTH_GENE", "status": "Approved",
+        }])
+
+    def test_tsv_uses_separate_bounded_limit_and_shared_path_guards(self):
+        with mock.patch.object(json_inputs, "MAX_TSV_BYTES", 64):
+            self.path.write_bytes(b"id\n" + b"x" * 61)
+            self.assertEqual(read_tsv_snapshot(self.path, root=self.root).rows, [{"id": "x" * 61}])
+            self.path.write_bytes(b"id\n" + b"x" * 62)
+            with mock.patch.object(json_inputs.os, "read", side_effect=AssertionError("read")):
+                with self.assertRaisesRegex(ValueError, "limit"):
+                    read_tsv_snapshot(self.path, root=self.root)
+        self.path.write_bytes(b"\xff")
+        with self.assertRaisesRegex(ValueError, "UTF-8"):
+            read_tsv_snapshot(self.path, root=self.root)
+        symlink = self.root / "alias.tsv"
+        symlink.symlink_to(self.path)
+        with mock.patch.object(json_inputs.os, "read", side_effect=AssertionError("read")):
+            with self.assertRaisesRegex(ValueError, "symlink"):
+                read_tsv_snapshot(symlink, root=self.root)
+
+
 
 def load_cli(name):
     root = Path(__file__).resolve().parents[1]
@@ -175,7 +243,7 @@ def load_cli(name):
 class JsonCliTests(unittest.TestCase):
     def test_census_cli_uses_snapshot_value_and_digest(self):
         cli = load_cli("audit_phase5_guide_support")
-        with tempfile.TemporaryDirectory() as temporary:
+        with tempfile.TemporaryDirectory() as temporary, invocation(temporary):
             root = Path(temporary)
             validation, context = root / "validation.json", root / "context.json"
             validation.write_bytes(b'{"validation": "synthetic"}\n')
@@ -210,9 +278,40 @@ class JsonCliTests(unittest.TestCase):
                 summary["repository_context_sha256"], hashlib.sha256(context_data).hexdigest()
             )
 
+    def test_readiness_rejects_outside_hgnc_before_original_metadata_reads(self):
+        cli = load_cli("prepare_phase5_cross_guide_readiness")
+        with tempfile.TemporaryDirectory() as temporary, invocation(temporary):
+            anchor = Path(temporary)
+            census = anchor / "census.json"
+            census.write_text(json.dumps({
+                "status": "COMPLETE", "verification": {"verified": True},
+            }))
+            reference = anchor / "reference.json"
+            reference.write_text(json.dumps({
+                "approved": {"sha256": "synthetic-unused"},
+                "withdrawn": {"sha256": "synthetic-unused"},
+            }))
+            out = anchor / "result"
+            outside = anchor.parent / "outside-synthetic-hgnc.tsv"
+            argv = [
+                "prepare", "--audit-root", str(anchor / "absent-original-audit"),
+                "--census-summary", str(census),
+                "--expected-summary-sha256", hashlib.sha256(census.read_bytes()).hexdigest(),
+                "--reference-manifest", str(reference), "--reference-root", str(anchor),
+                "--hgnc-approved", str(outside),
+                "--hgnc-withdrawn", str(anchor / "not-read.tsv"), "--out", str(out),
+            ]
+            with mock.patch.object(sys, "argv", argv):
+                with mock.patch.object(cli, "guarded_output", return_value=out):
+                    with mock.patch.object(cli, "checksum", side_effect=AssertionError("read")):
+                        with mock.patch.object(cli, "read_table", side_effect=AssertionError()):
+                            with self.assertRaisesRegex(ValueError, "outside"):
+                                cli.main()
+            self.assertFalse(out.exists())
+
     def test_readiness_cli_keeps_both_json_snapshot_digests(self):
         cli = load_cli("prepare_phase5_cross_guide_readiness")
-        with tempfile.TemporaryDirectory() as temporary:
+        with tempfile.TemporaryDirectory() as temporary, invocation(temporary):
             root = Path(temporary)
             audit = root / "audit"
             (audit / "cohort").mkdir(parents=True)
@@ -272,17 +371,31 @@ class JsonCliTests(unittest.TestCase):
                 # Existing input bytes remain preserved by their snapshots.
                 census.write_text('{"modified": true}')
                 reference.write_text('{"modified": true}')
+                approved.write_text("not the approved reference anymore")
+                withdrawn.write_text("not the withdrawn reference anymore")
                 return original_table(path)
+
+            original_checksum = cli.checksum
+
+            def metadata_checksum(path):
+                if path in {census, reference, approved, withdrawn}:
+                    raise AssertionError("Supplemental inputs must use snapshot digests")
+                return original_checksum(path)
 
             with mock.patch.object(sys, "argv", argv):
                 with mock.patch.object(cli, "guarded_output", return_value=output):
                     with mock.patch.object(cli.subprocess, "check_output", return_value=""):
                         with mock.patch.object(cli, "read_table", side_effect=read_after_replace):
-                            cli.main()
+                            with mock.patch.object(cli, "checksum", side_effect=metadata_checksum):
+                                cli.main()
             summary = json.loads((output / "identity-summary.json").read_text())
             self.assertEqual(summary["census_receipt_sha256"], census_hash)
             self.assertEqual(summary["reference_manifest_sha256"], reference_hash)
             self.assertEqual(summary["HGNC_references"], expected_reference)
+            self.assertEqual(summary["resolution"]["source_gene_strings"], len(genes))
+            self.assertEqual(
+                summary["resolution"]["nomenclature_assigned_source_strings"], len(genes)
+            )
             self.assertFalse(summary["scores_computed"])
 
 

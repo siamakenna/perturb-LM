@@ -95,24 +95,38 @@ The GitHub aggregate projection is not a substitute for that original receipt.
 Set these local variables to their actual retained locations before using:
 
 ```sh
-PYTHONPATH=src python scripts/prepare_phase5_cross_guide_readiness.py \
+P5_CODE_ROOT="$PWD"
+(
+cd "$P5_INPUT_ANCHOR"
+PYTHONPATH="$P5_CODE_ROOT/src" "$P5_PYTHON" \
+  "$P5_CODE_ROOT/scripts/prepare_phase5_cross_guide_readiness.py" \
   --audit-root "$P5_AUDIT_ROOT" \
   --census-summary "$P5_ORIGINAL_CENSUS_RECEIPT" \
   --census-root "$P5_CENSUS_RECEIPT_ROOT" \
   --expected-summary-sha256 bf193358fdb31d06f68fdd7d937310787c7c686829b6f19b54c2251e4f6ba81a \
   --hgnc-approved "$P5_HGNC_APPROVED" --hgnc-withdrawn "$P5_HGNC_WITHDRAWN" \
-  --reference-manifest docs/evidence/phase5_2/hgnc-reference.json \
-  --reference-root "$PWD/docs/evidence/phase5_2" \
-  --out outputs/phase5_2_identity_FRESH
+  --reference-manifest "$P5_CODE_ROOT/docs/evidence/phase5_2/hgnc-reference.json" \
+  --reference-root "$P5_REFERENCE_INPUT_ROOT" \
+  --out "$P5_CODE_ROOT/outputs/phase5_2_identity_FRESH"
+)
 ```
 
-`P5_CENSUS_RECEIPT_ROOT` is the explicitly selected directory containing the
-original receipt. Both JSON roots default to the invocation directory; nominate
-a different trusted directory when the JSON is outside it. JSON reads are
-confined beneath that directory, reject symlinks below it and nonregular files,
-and are limited to 4 MiB. Aliases above a trusted root, including macOS `/var`,
-are canonicalized. Each parsed JSON value and its SHA-256 bind the same bounded
-byte snapshot. These input checks do not rerun or revise historical results.
+Before this example, set `P5_PYTHON` to the absolute path of the validated Python
+environment and `P5_INPUT_ANCHOR` to a trusted common ancestor of the receipt,
+reference manifest and both HGNC TSVs. Start in the repository so `P5_CODE_ROOT`
+captures its absolute location. The subshell changes only the input anchor;
+output stays beneath the repository's ignored `outputs/` directory.
+
+`P5_CENSUS_RECEIPT_ROOT` contains the original receipt.
+`P5_REFERENCE_INPUT_ROOT` contains both HGNC TSVs and the reference manifest;
+it can equal the anchor if those files occupy separate subdirectories. Both
+root flags default to the invocation directory and can only narrow access
+beneath it. They cannot authorize access outside it. Descendant symlinks and
+parent traversal are rejected, while aliases above the invocation directory,
+including macOS `/var`, remain supported. JSON is limited to 4 MiB and each
+HGNC TSV to 32 MiB; the preserved approved reference exceeds the JSON limit.
+Each parsed value and its SHA-256 bind the same bounded byte snapshot.
+These input checks do not rerun or revise historical results.
 
 This preparation is already completed; rerun only when an independent review or
 an authorized identity revision requires it, using a fresh ignored directory.

@@ -16,6 +16,105 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 
+PUBLIC_INSTALL_PACKAGES = frozenset(
+    """annotated-doc build certifi charset-normalizer click exceptiongroup idna imageio
+    iniconfig joblib lazy-loader markdown-it-py mdurl networkx numpy packaging pandas
+    perturb-lm pillow pip pluggy pyarrow pygments pytest python-dateutil pytz pyyaml
+    requests rich scikit-image scikit-learn scipy setuptools shellingham six threadpoolctl
+    tifffile tomli tqdm typer typing-extensions tzdata urllib3 wheel""".split()
+)
+
+
+def install_failure_diagnostic(stream):
+    """Return bounded, allowlisted pip facts; never publish an arbitrary log line.
+
+    The raw log remains local. Requirement facts use a deliberately small grammar:
+    known public distribution names, numeric versions, extras, and comparisons only.
+    Only numeric Python-version markers are retained. Direct references, URLs, paths,
+    other markers, and free-text error messages are omitted.
+    Read the same binary descriptor used by the installer, without reopening a path.
+    """
+    limit = 64 * 1024
+    try:
+        stream.flush()
+        stream.seek(0, os.SEEK_END)
+        size = stream.tell()
+        stream.seek(max(0, size - limit))
+        raw = stream.read(limit)
+    except OSError:
+        return {"categories": ["diagnostic_unavailable"], "requirements": [], "conflicts": []}
+    text = raw.decode("utf-8", errors="replace")
+    if size > limit:
+        # Do not interpret a truncated first line as an independently valid fact.
+        text = text.partition("\n")[2]
+    categories = set()
+    for needle, category in (
+        ("ResolutionImpossible", "dependency_resolution_conflict"),
+        ("No matching distribution found", "no_matching_distribution"),
+        ("Could not find a version that satisfies the requirement", "no_matching_distribution"),
+        ("requires a different Python", "python_version_incompatible"),
+        ("require a different python version", "python_version_incompatible"),
+        ("CERTIFICATE_VERIFY_FAILED", "certificate_verification_failed"),
+        ("ReadTimeoutError", "network_timeout"),
+        ("ConnectTimeoutError", "network_timeout"),
+        ("ConnectionError", "network_connection_failed"),
+        ("NewConnectionError", "network_connection_failed"),
+        ("Temporary failure in name resolution", "network_connection_failed"),
+        ("Failed building wheel", "source_build_failed"),
+        ("subprocess-exited-with-error", "installer_subprocess_failed"),
+        ("No space left on device", "insufficient_disk_space"),
+        ("Permission denied", "permission_denied"),
+        ("DO NOT MATCH THE HASHES", "download_hash_mismatch"),
+    ):
+        if needle.casefold() in text.casefold():
+            categories.add(category)
+
+    name = r"[A-Za-z0-9](?:[A-Za-z0-9._-]{0,78}[A-Za-z0-9])?"
+    version = (
+        r"[0-9]{1,8}(?:\.[0-9]{1,8}){0,5}(?:(?:a|b|rc)[0-9]{1,8})?"
+        r"(?:\.post[0-9]{1,8})?(?:\.dev[0-9]{1,8})?"
+    )
+    requirement = (
+        rf"{name}(?:\[pixel\])?"
+        rf"(?:[<>=!~]{{1,3}}{version}(?:,[<>=!~]{{1,3}}{version})*)?"
+        rf"(?:; python_(?:full_)?version [<>=!~]{{1,3}} ['\"]{version}['\"])?"
+    )
+    missing = re.compile(rf"ERROR: No matching distribution found for ({requirement})")
+    requested = re.compile(rf"The user requested(?: \(constraint\))? ({requirement})")
+    conflict = re.compile(rf"({name}) ({version}) depends on ({requirement})")
+
+    def public_requirement(value):
+        base = re.split(r"[\[<>=!~]", value, maxsplit=1)[0]
+        return re.sub(r"[-_.]+", "-", base.casefold()) in PUBLIC_INSTALL_PACKAGES
+
+    requirements, conflicts = set(), set()
+    for line in text.splitlines():
+        if len(line) > 512:
+            continue
+        line = line.strip()
+        if (match := missing.fullmatch(line)) and public_requirement(match[1]):
+            requirements.add(match[1])
+        elif (match := requested.fullmatch(line)) and public_requirement(match[1]):
+            requirements.add(match[1])
+        elif (
+            (match := conflict.fullmatch(line))
+            and public_requirement(match[1])
+            and public_requirement(match[3])
+        ):
+            conflicts.add((match[1], match[2], match[3]))
+    return {
+        "categories": sorted(categories) or ["unclassified_install_failure"],
+        "requirements": sorted(requirements)[:20],
+        "conflicts": [
+            {"package": package, "version": version, "requires": requirement}
+            for package, version, requirement in sorted(conflicts)[:20]
+        ],
+        "tail_bytes_examined": len(raw),
+        "log_tail_truncated": size > limit,
+        "unmatched_text_omitted": True,
+    }
+
+
 def counts(path):
     result = dict(total=0, passed=0, skipped=0, failed=0, errors=0)
     for case in ET.parse(path).getroot().iter("testcase"):
@@ -94,6 +193,7 @@ def main():
             start = time.monotonic()
             stage = {"status": "INCOMPLETE", "exit_code": None, "counts": None}
             xml = out / f"{label}.private.xml"
+            log_path = out / f"{label}.private.log"
             report["stages"][label] = stage
             save()
             try:
@@ -113,20 +213,25 @@ def main():
                         PATH=str(binary) + os.pathsep + env.get("PATH", ""),
                         HF_HOME=str(area / "empty-model-cache"),
                     )
-                    with (out / f"{label}.private.log").open("x") as log:
+                    with log_path.open("x+b") as log:
 
                         def run(command, *, operation, work=work, run_env=run_env, log=log):
                             nonlocal step
                             step = operation
-                            subprocess.run(
-                                command,
-                                cwd=work,
-                                env=run_env,
-                                check=True,
-                                stdout=log,
-                                stderr=subprocess.STDOUT,
-                                timeout=args.timeout,
-                            )
+                            try:
+                                subprocess.run(
+                                    command,
+                                    cwd=work,
+                                    env=run_env,
+                                    check=True,
+                                    stdout=log,
+                                    stderr=subprocess.STDOUT,
+                                    timeout=args.timeout,
+                                )
+                            except (subprocess.SubprocessError, OSError):
+                                if operation == "install_dependencies":
+                                    stage["install_diagnostic"] = install_failure_diagnostic(log)
+                                raise
 
                         target = str(dist / name) + ("[pixel]" if extra == "pixel" else "")
                         run(

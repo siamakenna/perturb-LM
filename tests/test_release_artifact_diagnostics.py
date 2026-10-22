@@ -2,6 +2,7 @@
 
 import hashlib
 import importlib.util
+import io
 import json
 import platform
 import subprocess
@@ -21,7 +22,9 @@ SPEC.loader.exec_module(validator)
 
 
 class ArtifactFailureDiagnosticsTests(unittest.TestCase):
-    def failure(self, *, failed_command=None, environment_error=False, counts=None):
+    def failure(
+        self, *, failed_command=None, environment_error=False, counts=None, installer_output=""
+    ):
         outside_repository = Path(__file__).resolve().parents[2]
         with tempfile.TemporaryDirectory(dir=outside_repository) as temporary:
             root = Path(temporary)
@@ -41,6 +44,8 @@ class ArtifactFailureDiagnosticsTests(unittest.TestCase):
 
             def run(command, **kwargs):
                 calls.append(command)
+                if len(calls) == 1:
+                    kwargs["stdout"].write(installer_output.encode())
                 if len(calls) == failed_command:
                     raise subprocess.CalledProcessError(1, command)
                 return subprocess.CompletedProcess(command, 0)
@@ -99,6 +104,21 @@ class ArtifactFailureDiagnosticsTests(unittest.TestCase):
         self.assertIsNone(stage["exit_code"])
         self.assertIn("create_environment", message)
 
+    def test_failed_install_includes_only_structured_public_package_facts(self):
+        stage, _ = self.failure(
+            failed_command=1,
+            installer_output=(
+                "ERROR: No matching distribution found for numpy==1.26.4\n"
+                "ERROR: Error at https://username:secret@example.invalid/private-project\n"
+                "private-person /Users/private-person/private-project\n"
+            ),
+        )
+        diagnostic = stage["install_diagnostic"]
+        self.assertEqual(diagnostic["categories"], ["no_matching_distribution"])
+        self.assertEqual(diagnostic["requirements"], ["numpy==1.26.4"])
+        self.assertEqual(diagnostic["conflicts"], [])
+        self.assertTrue(diagnostic["unmatched_text_omitted"])
+
     def test_acceptance_rejection_retains_counts_and_failed_phase(self):
         counts = {"total": 1, "passed": 0, "skipped": 1, "failed": 0, "errors": 0}
         stage, message = self.failure(counts=counts)
@@ -106,6 +126,75 @@ class ArtifactFailureDiagnosticsTests(unittest.TestCase):
         self.assertEqual(stage["error_type"], "RuntimeError")
         self.assertEqual(stage["counts"], counts)
         self.assertIn("verify_acceptance_counts", message)
+        self.assertNotIn("install_diagnostic", stage)
+
+
+class PublicPipDiagnosticTests(unittest.TestCase):
+    def parse(self, text):
+        return validator.install_failure_diagnostic(io.BytesIO(text.encode()))
+
+    def test_dependency_conflict_retains_known_requirements_and_public_numeric_versions(self):
+        result = self.parse(
+            "The conflict is caused by:\n"
+            "    The user requested (constraint) numpy==1.26.4\n"
+            "    pandas 2.2.3 depends on numpy>=1.22.4\n"
+            '    pandas 2.2.3 depends on numpy>=1.26.0; python_version < "3.11"\n'
+            "ERROR: ResolutionImpossible: arbitrary text is not copied\n"
+        )
+        self.assertEqual(result["categories"], ["dependency_resolution_conflict"])
+        self.assertEqual(result["requirements"], ["numpy==1.26.4"])
+        self.assertEqual(result["conflicts"], [
+            {"package": "pandas", "version": "2.2.3", "requires": "numpy>=1.22.4"},
+            {"package": "pandas", "version": "2.2.3",
+             "requires": 'numpy>=1.26.0; python_version < "3.11"'},
+        ])
+
+    def test_paths_urls_unknown_names_extras_and_local_versions_are_never_exported(self):
+        secret = "private-secret"
+        result = self.parse(
+            f"ERROR: No matching distribution found for {secret}\n"
+            f"ERROR: No matching distribution found for numpy[{secret}]\n"
+            f"ERROR: No matching distribution found for numpy==1.0+{secret}\n"
+            f"ERROR: No matching distribution found for numpy @ https://example.invalid/{secret}\n"
+            f"ERROR: No matching distribution found for /Users/{secret}/wheel.whl\n"
+            f"The user requested (constraint) {secret}==1.0\n"
+            f"pandas 2.2.3 depends on {secret}>=1\n"
+            f"{secret} 1.0 depends on pandas>=2.2\n"
+        )
+        self.assertNotIn(secret, json.dumps(result))
+        self.assertEqual(result["requirements"], [])
+        self.assertEqual(result["conflicts"], [])
+        self.assertEqual(result["categories"], ["no_matching_distribution"])
+
+    def test_certificate_and_network_diagnostics_do_not_copy_endpoints_or_paths(self):
+        result = self.parse(
+            "SSLError: [SSL: CERTIFICATE_VERIFY_FAILED] server https://secret.invalid\n"
+            "urllib3.exceptions.NewConnectionError: /Users/private-secret/project\n"
+        )
+        self.assertEqual(result["categories"], [
+            "certificate_verification_failed", "network_connection_failed",
+        ])
+        self.assertNotIn("secret", json.dumps(result))
+
+    def test_unknown_failures_are_explicit_without_fabricated_package_diagnosis(self):
+        result = self.parse("an unexpected installer error: private-secret\n")
+        self.assertEqual(result["categories"], ["unclassified_install_failure"])
+        self.assertEqual(result["requirements"], [])
+        self.assertEqual(result["conflicts"], [])
+        self.assertNotIn("secret", json.dumps(result))
+
+    def test_only_bounded_tail_is_examined_and_partial_first_line_is_discarded(self):
+        text = "ResolutionImpossible\n" + "x" * (64 * 1024)
+        result = self.parse(text + "\nERROR: No matching distribution found for numpy==1.26.4\n")
+        self.assertTrue(result["log_tail_truncated"])
+        self.assertLessEqual(result["tail_bytes_examined"], 64 * 1024)
+        self.assertEqual(result["categories"], ["no_matching_distribution"])
+        self.assertEqual(result["requirements"], ["numpy==1.26.4"])
+
+    def test_unreadable_log_does_not_mask_original_install_failure(self):
+        with tempfile.TemporaryFile("wb") as stream:
+            result = validator.install_failure_diagnostic(stream)
+        self.assertEqual(result["categories"], ["diagnostic_unavailable"])
 
 
 if __name__ == "__main__":

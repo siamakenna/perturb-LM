@@ -27,7 +27,7 @@ def main():
         "--evidence-root",
         type=Path,
         default=Path.cwd(),
-        help="Trusted directory containing validation/context JSON (default: invocation directory)",
+        help="Validation/context JSON root within invocation directory (default: same directory)",
     )
     parser.add_argument(
         "--validation",
