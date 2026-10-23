@@ -1,0 +1,68 @@
+[
+  {
+    "path": ".gitmodules",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1/56845c7d4dc322652952783d91dae0ffef47829f/.gitmodules",
+    "sha256": "ca83214bb080da7c174ba840cef3fa93095695c08fa36a01a04982ac6abb01ad"
+  },
+  {
+    "path": "run.sh",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1/56845c7d4dc322652952783d91dae0ffef47829f/run.sh",
+    "sha256": "efc4a8be59d9663897a3e7526e774050c61842d27737ed14d587723fcd52493e"
+  },
+  {
+    "path": "config_files/config_crispr.yml",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1/56845c7d4dc322652952783d91dae0ffef47829f/config_files/config_crispr.yml",
+    "sha256": "799944c07f33f65d151640a12746e3a80bb865e2646b9dd624ecc23bd971f03c"
+  },
+  {
+    "path": "config_files/config_compounds_crispr_orf_feature_select.yml",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1/56845c7d4dc322652952783d91dae0ffef47829f/config_files/config_compounds_crispr_orf_feature_select.yml",
+    "sha256": "172b5b0824a17a50e718c0f9f33a04c31f3c9c2b75a2dc0849ab758f351c43c3"
+  },
+  {
+    "path": "benchmark/0.create-experiment-metadata.ipynb",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1/56845c7d4dc322652952783d91dae0ffef47829f/benchmark/0.create-experiment-metadata.ipynb",
+    "sha256": "380cc6cbac83df3b47a586b8c44b9511137b34885b456672146972de92e0a025"
+  },
+  {
+    "path": "profiles/profile.py",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/profiling-recipe/342789895ec349a16ed38ccee1d6385e89063029/profiles/profile.py",
+    "sha256": "cf76a1b622224e0f2c35554b712dd42eccf0b3d30648ab662ca554acac685fd9"
+  },
+  {
+    "path": "profiles/profiling_pipeline.py",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/profiling-recipe/342789895ec349a16ed38ccee1d6385e89063029/profiles/profiling_pipeline.py",
+    "sha256": "71e388f947cee448b5c0f2479f4d36c84ab16707db2cbd635ec156e03d7858ca"
+  },
+  {
+    "path": "profiles/utils.py",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/profiling-recipe/342789895ec349a16ed38ccee1d6385e89063029/profiles/utils.py",
+    "sha256": "503d5a8f2ce240c85534eb343367698e3117adeac750c436f1700af349ea57b9"
+  },
+  {
+    "path": "environment.yml",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/profiling-recipe/342789895ec349a16ed38ccee1d6385e89063029/environment.yml",
+    "sha256": "2e0aa2e0baa0d50cd2b92eda251e7813300ce3e790d7d93d265c44435e628477"
+  },
+  {
+    "path": "pycytominer/normalize.py",
+    "url": "https://raw.githubusercontent.com/cytomining/pycytominer/36241269c4293c24484986568ca16b2d7eb9e808/pycytominer/normalize.py",
+    "sha256": "26853330a8d393df24392d3b603a91abfd70077c86cdc6ae2ddf924a6a706379"
+  },
+  {
+    "path": "pycytominer/feature_select.py",
+    "url": "https://raw.githubusercontent.com/cytomining/pycytominer/36241269c4293c24484986568ca16b2d7eb9e808/pycytominer/feature_select.py",
+    "sha256": "c27e9d42d7f3f2539440204d446d7082b8f0ef3aff74dddf0228b5521e775fe9"
+  },
+  {
+    "path": "README.md",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/JUMP-Target/2da0551610a26548a384537b28d05f6fc72ea33c/README.md",
+    "sha256": "1fa0850d284c41e83cb97976e66c51da37072451324809171c444bb2e19edd91"
+  },
+  {
+    "path": "metadata/external_metadata/CPJUMP1_Infection_Efficiency.xlsx",
+    "url": "https://raw.githubusercontent.com/jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1/56845c7d4dc322652952783d91dae0ffef47829f/metadata/external_metadata/CPJUMP1_Infection_Efficiency.xlsx",
+    "sha256": "4dc0ab26dcefc0f93f2168fd37c7e6b515bdf0cd5563e300e1a790dff08a7fbf",
+    "inspection_scope": "Workbook structure and header strings only; no numerical assay analysis"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "approved": {
+    "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt?generation=1792157775531227",
+    "generation": "1792157775531227",
+    "bytes": 16982321,
+    "sha256": "12363916be36f8f6f91879b0faade4eeaac973722de7136ec61329b77f2c2f91",
+    "retrieved_date": "2026-10-22",
+    "last_modified": "2026-10-16"
+  },
+  "withdrawn": {
+    "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/withdrawn.txt?generation=1792157780083023",
+    "generation": "1792157780083023",
+    "bytes": 258994,
+    "sha256": "9328a7361ed5149bf7901cae52c6c30b832b8ec55af22146ea296081278a3140",
+    "retrieved_date": "2026-10-22",
+    "last_modified": "2026-10-16"
+  }
+}

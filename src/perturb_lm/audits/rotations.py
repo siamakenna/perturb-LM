@@ -42,6 +42,17 @@ REQUIRED = (
 NORMALIZATION_SCOPES = ("unknown", "source_batch_global")
 
 
+def plate_roles():
+    """The existing ordered query/gallery roles; training plates are unordered."""
+    for query_plate, gallery_plate in itertools.permutations(PLATES, 2):
+        yield query_plate, gallery_plate, sorted(set(PLATES) - {query_plate, gallery_plate})
+
+
+def canonical_wells(values: pd.Series) -> pd.Series:
+    """Reuse the planner's well-alias rule; this does not validate plate format."""
+    return values.str.upper().str.replace(r"^([A-P])(\d)$", r"\g<1>0\2", regex=True)
+
+
 def _boolean(value: object, field: str) -> bool:
     """Do not treat the CSV string 'False' as truthy or accept unknown control flags."""
     text = clean(value).casefold()
@@ -139,9 +150,7 @@ def _validate(mapping: pd.DataFrame) -> pd.DataFrame:
             if not selected[alias].eq(selected[canonical]).all():
                 raise ValueError(f"Contradictory selected identity annotation: {alias}")
     if "Metadata_Well" in selected:
-        original_wells = selected.Metadata_Well.str.upper().str.replace(
-            r"^([A-P])(\d)$", r"\g<1>0\2", regex=True
-        )
+        original_wells = canonical_wells(selected.Metadata_Well)
         if not original_wells.eq(selected.well_position).all():
             raise ValueError("Contradictory selected identity annotation: Metadata_Well")
     for alias in ("Metadata_Batch", "Metadata_batch", "path_batch"):
@@ -187,9 +196,8 @@ def plan_rotations(
     labeled = rows.broad_sample.ne("")
     usable = rows[labeled & ~rows.is_control]
     rotations, assignments = [], []
-    for query_plate, gallery_plate in itertools.permutations(PLATES, 2):
+    for query_plate, gallery_plate, train_plates in plate_roles():
         rotation = f"query-{query_plate}__gallery-{gallery_plate}"
-        train_plates = sorted(set(PLATES) - {query_plate, gallery_plate})
         training = usable[usable.Assay_Plate_Barcode.isin(train_plates)]
         queries = usable[usable.Assay_Plate_Barcode.eq(query_plate)]
         gallery = usable[usable.Assay_Plate_Barcode.eq(gallery_plate)]
