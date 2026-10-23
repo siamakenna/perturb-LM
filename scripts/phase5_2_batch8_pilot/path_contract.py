@@ -8,32 +8,78 @@ not. Exclusive writes refuse pre-existing files and symbolic links.
 import json
 import os
 import re
+import secrets
 import stat
 import subprocess
-import tempfile
+from contextlib import contextmanager
 from pathlib import Path
-
 
 MAX_INPUT_BYTES = 32 * 1024 * 1024
 POINTERS = {"latest-public-layouts", "latest-batch8-inspection",
             "latest-batch8-technical-qc", "latest-batch8-controls", "latest-batch8-pilot"}
 
 
-def read_bytes(path, max_bytes=MAX_INPUT_BYTES):
-    """Read one bounded regular nonsymlink file, never a FIFO or device."""
-    path = Path(path)
+def _identity(info):
+    return (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+
+@contextmanager
+def parent_descriptor(path, *, root=Path("/")):
+    """Open each directory without following links; yield a parent fd and one name.
+
+    The root is selected by the local operator, not by metadata or pointer text.
+    Root/OS aliases are canonicalized once. Descendants never follow symlinks.
+    A held parent descriptor prevents a later pathname swap redirecting the IO.
+    """
+    required = ("O_DIRECTORY", "O_NOFOLLOW", "O_NONBLOCK")
+    if not all(hasattr(os, flag) for flag in required):
+        raise ValueError("Descriptor-relative no-follow IO is required")
+    if ".." in Path(path).parts:
+        raise ValueError("Parent traversal is not allowed")
+    root_real = os.path.realpath(root)
+    absolute = Path(path).absolute()
+    # Preserve lexical descendants, allowing aliases only at/above the root.
+    parts = None
+    for ancestor in reversed((absolute, *absolute.parents)):
+        if os.path.realpath(ancestor) == root_real:
+            parts = absolute.relative_to(ancestor).parts
+            break
+    if not parts or any(part in {"", ".", ".."} for part in parts):
+        raise ValueError("Path must name a descendant of its trusted root")
+    descriptor = None
+    try:
+        descriptor = os.open("/", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        for part in (*Path(root_real).parts[1:], *parts[:-1]):
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW,
+                            dir_fd=descriptor)
+            os.close(descriptor)
+            descriptor = child
+        yield descriptor, parts[-1]
+    except OSError as exc:
+        # Preserve exclusive-creation semantics for callers.
+        if isinstance(exc, FileExistsError):
+            raise
+        raise ValueError(
+            "Path is missing, unreadable, or unsafe (Symlinks are not allowed)"
+        ) from exc
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
+def read_bytes(path, max_bytes=MAX_INPUT_BYTES, *, root=Path("/")):
+    """Read and identify one bounded regular-file snapshot via a held parent fd."""
     if type(max_bytes) is not int or max_bytes <= 0:
         raise ValueError("A positive file byte bound is required")
-    try:
-        before = path.lstat()
+    with parent_descriptor(path, root=root) as (parent, name):
+        before = os.stat(name, dir_fd=parent, follow_symlinks=False)
         if not stat.S_ISREG(before.st_mode) or before.st_size > max_bytes:
             raise ValueError("Input must be a bounded regular nonsymlink file")
-        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-        descriptor = os.open(path, flags)
+        descriptor = os.open(name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK,
+                             dir_fd=parent)
         try:
             opened = os.fstat(descriptor)
-            if (not stat.S_ISREG(opened.st_mode) or opened.st_size > max_bytes
-                    or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)):
+            if _identity(opened) != _identity(before):
                 raise ValueError("Input file changed while opening")
             chunks, total = [], 0
             while True:
@@ -45,43 +91,30 @@ def read_bytes(path, max_bytes=MAX_INPUT_BYTES):
                     raise ValueError("Input exceeds its byte bound")
                 chunks.append(block)
             after = os.fstat(descriptor)
-            if (after.st_size != total or after.st_size != opened.st_size
-                    or after.st_mtime_ns != opened.st_mtime_ns):
+            named = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if (total != after.st_size or _identity(after) != _identity(opened)
+                    or _identity(named) != _identity(after)):
                 raise ValueError("Input file changed while reading")
             return b"".join(chunks)
         finally:
             os.close(descriptor)
-    except OSError as exc:
-        raise ValueError("Input is changed or is missing, unreadable, or unsafe") from exc
 
 
-def exclusive_write_text(path, text):
+def exclusive_write_bytes(path, content, *, root=Path("/")):
+    if not isinstance(content, bytes):
+        raise TypeError("Binary output must be bytes")
+    with parent_descriptor(path, root=root) as (parent, name):
+        descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                             0o600, dir_fd=parent)
+        with os.fdopen(descriptor, "wb") as stream:
+            stream.write(content)
+
+
+def exclusive_write_text(path, text, *, root=Path("/")):
     """Create a new private file; never truncate an existing path or link."""
     if not isinstance(text, str):
         raise TypeError("Text output must be a string")
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
-    descriptor = os.open(Path(path), flags, 0o600)
-    try:
-        with os.fdopen(descriptor, "w", encoding="utf-8", newline="") as stream:
-            descriptor = None
-            stream.write(text)
-    finally:
-        if descriptor is not None:
-            os.close(descriptor)
-
-
-def exclusive_write_bytes(path, content):
-    if not isinstance(content, bytes):
-        raise TypeError("Binary output must be bytes")
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
-    descriptor = os.open(Path(path), flags, 0o600)
-    try:
-        with os.fdopen(descriptor, "wb") as stream:
-            descriptor = None
-            stream.write(content)
-    finally:
-        if descriptor is not None:
-            os.close(descriptor)
+    exclusive_write_bytes(path, text.encode("utf-8"), root=root)
 
 
 def exclusive_write_json(path, value):
@@ -99,44 +132,53 @@ class PathContract:
         self.repo = self.work_root / "repo"
         self.outputs = self.repo / "outputs"
 
-    def _reject_internal_links(self, requested):
-        for component in (Path(requested).absolute(), *Path(requested).absolute().parents):
-            if component.is_symlink():
-                parent = component.parent.resolve(strict=True)
-                if parent == self.work_root or parent.is_relative_to(self.work_root):
-                    raise ValueError("Symlinks inside the trusted work root are not allowed")
-
     def _canonical(self, requested, *, within=None, must_exist=True):
         requested = Path(requested).absolute()
-        self._reject_internal_links(requested)
-        try:
-            resolved = requested.resolve(strict=must_exist)
-            bound = Path(within).resolve(strict=True) if within is not None else self.work_root
-        except OSError as exc:
-            raise ValueError("Input is changed or is missing, unreadable, or unsafe") from exc
-        if (not bound.is_relative_to(self.work_root)
-                or not resolved.is_relative_to(bound)):
+        bound = self.work_root if within is None else Path(within)
+        bound_real = os.path.realpath(bound)
+        candidate = os.path.realpath(requested)
+        root_real = str(self.work_root)
+        if (bound_real != root_real
+                and not bound_real.startswith(root_real.rstrip(os.sep) + os.sep)):
             raise ValueError("Path escapes its trusted root")
-        self._reject_internal_links(resolved)
-        return resolved
+        if candidate != bound_real and not candidate.startswith(bound_real.rstrip(os.sep) + os.sep):
+            raise ValueError("Path escapes its trusted root")
+        if requested == self.work_root:
+            return self.work_root
+        with parent_descriptor(requested, root=self.work_root) as (parent, name):
+            try:
+                info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            except FileNotFoundError:
+                if must_exist:
+                    raise ValueError(
+                        "Input is changed or is missing, unreadable, or unsafe"
+                    ) from None
+            else:
+                if stat.S_ISLNK(info.st_mode):
+                    raise ValueError("Symlinks inside the trusted work root are not allowed")
+        return Path(candidate)
 
     def input_directory(self, path, within=None):
         result = self._canonical(path, within=within)
-        if not result.is_dir():
-            raise ValueError("Expected an existing regular directory")
+        if result == self.work_root:
+            return result
+        with parent_descriptor(result, root=self.work_root) as (parent, name):
+            info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISDIR(info.st_mode):
+                raise ValueError("Expected an existing regular directory")
         return result
 
     def input_file(self, path, max_bytes=MAX_INPUT_BYTES, within=None):
         result = self._canonical(path, within=within)
-        info = result.lstat()
-        if not stat.S_ISREG(info.st_mode) or info.st_size > max_bytes:
-            raise ValueError("Input is changed or is missing, or is not a bounded regular file")
+        with parent_descriptor(result, root=self.work_root) as (parent, name):
+            info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(info.st_mode) or info.st_size > max_bytes:
+                raise ValueError("Input is changed or is missing, or is not a bounded regular file")
         return result
 
     def read_bytes(self, path, max_bytes=MAX_INPUT_BYTES, within=None):
         result = self.input_file(path, max_bytes=max_bytes, within=within)
-        body = read_bytes(result, max_bytes=max_bytes)
-        # Detect changed ancestors before interpreting the returned snapshot.
+        body = read_bytes(result, max_bytes=max_bytes, root=self.work_root)
         if self._canonical(path, within=within) != result:
             raise ValueError("Input path changed while reading")
         return body
@@ -178,12 +220,15 @@ class PathContract:
         if not isinstance(prefix, str) or not re.fullmatch(r"[A-Za-z0-9_.-]+", prefix):
             raise ValueError("A fixed safe run-directory prefix is required")
         root = self._output_root()
-        result = Path(tempfile.mkdtemp(prefix=prefix, dir=root))
+        result = root / (prefix + secrets.token_hex(16))
+        self._git_output_policy(result)
+        with parent_descriptor(result, root=self.work_root) as (parent, name):
+            os.mkdir(name, mode=0o700, dir_fd=parent)
         try:
             self.input_directory(result, within=root)
             self._git_output_policy(result)
         except Exception:
-            result.rmdir()  # Only the new empty directory, before any log/file write.
+            # Preserve the empty directory for inspection; never clean by a stale path.
             raise
         return result
 
@@ -198,9 +243,16 @@ class PathContract:
 
     def fresh_output(self, out, forbidden=()):
         requested = Path(out).absolute()
-        self._reject_internal_links(requested)
-        if requested.exists() or requested.is_symlink():
-            raise FileExistsError("Output must be a new, nonexistent directory")
+        # Preserve an existing target even before output-policy checks.
+        with parent_descriptor(requested, root=self.work_root) as (parent, name):
+            try:
+                info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            except FileNotFoundError:
+                pass
+            else:
+                if stat.S_ISLNK(info.st_mode):
+                    raise ValueError("Symlinks inside the trusted work root are not allowed")
+                raise FileExistsError("Output must be a new, nonexistent directory")
         root = self._output_root()
         parent = self.input_directory(requested.parent, within=root)
         result = parent / requested.name
@@ -216,22 +268,24 @@ class PathContract:
 
     def create_output(self, out, forbidden=()):
         result = self.fresh_output(out, forbidden=forbidden)
-        result.mkdir(mode=0o700, parents=False, exist_ok=False)
+        with parent_descriptor(result, root=self.work_root) as (parent, name):
+            os.mkdir(name, mode=0o700, dir_fd=parent)
         return result
 
     def write_text(self, path, text):
         root = self._output_root()
         requested = self._canonical(path, within=root, must_exist=False)
         self.input_directory(requested.parent, within=root)
-        exclusive_write_text(requested, text)
+        exclusive_write_text(requested, text, root=self.work_root)
 
     def open_output_file(self, path):
         """Return an exclusively created private binary stream for a fixed artifact."""
         root = self._output_root()
         requested = self._canonical(path, within=root, must_exist=False)
         self.input_directory(requested.parent, within=root)
-        descriptor = os.open(requested, os.O_WRONLY | os.O_CREAT | os.O_EXCL
-                             | getattr(os, "O_NOFOLLOW", 0), 0o600)
+        with parent_descriptor(requested, root=self.work_root) as (parent, name):
+            descriptor = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL
+                                 | os.O_NOFOLLOW, 0o600, dir_fd=parent)
         return os.fdopen(descriptor, "wb")
 
     def write_json(self, path, value):
@@ -241,4 +295,13 @@ class PathContract:
         root = self._output_root()
         requested = self._canonical(path, within=root, must_exist=False)
         self.input_directory(requested.parent, within=root)
-        exclusive_write_bytes(requested, content)
+        exclusive_write_bytes(requested, content, root=self.work_root)
+
+    def unlink_file(self, path):
+        """Remove only a regular scratch file under the verified output root."""
+        requested = self._canonical(path, within=self._output_root())
+        with parent_descriptor(requested, root=self.work_root) as (parent, name):
+            info = os.stat(name, dir_fd=parent, follow_symlinks=False)
+            if not stat.S_ISREG(info.st_mode):
+                raise ValueError("Scratch file must be regular")
+            os.unlink(name, dir_fd=parent)

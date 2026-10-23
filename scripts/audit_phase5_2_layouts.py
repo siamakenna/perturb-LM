@@ -8,9 +8,10 @@ import csv
 import hashlib
 import os
 import re
-import stat
 import subprocess
 from pathlib import Path, PurePosixPath
+
+from phase5_2_batch8_pilot.path_contract import read_bytes as read_bounded_bytes
 
 from perturb_lm.audits.layouts import compare_compound_layouts, read_tsv, sha256, write_json
 
@@ -33,41 +34,7 @@ MAX_PROVENANCE_BYTES = 1_000_000
 
 def read_manifest_snapshot(path: Path) -> bytes:
     """Read one bounded regular manifest; parsing and hashing share these bytes."""
-    try:
-        before = path.lstat()
-        if not stat.S_ISREG(before.st_mode) or before.st_size > MAX_PROVENANCE_BYTES:
-            raise ValueError("Provenance must be a bounded regular nonsymlink file")
-        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-        descriptor = os.open(path, flags)
-        try:
-            opened = os.fstat(descriptor)
-            if (
-                not stat.S_ISREG(opened.st_mode)
-                or opened.st_size > MAX_PROVENANCE_BYTES
-                or (opened.st_dev, opened.st_ino) != (before.st_dev, before.st_ino)
-            ):
-                raise ValueError("Provenance file changed while opening")
-            chunks, total = [], 0
-            while True:
-                block = os.read(descriptor, min(64 * 1024, MAX_PROVENANCE_BYTES - total + 1))
-                if not block:
-                    break
-                total += len(block)
-                if total > MAX_PROVENANCE_BYTES:
-                    raise ValueError("Provenance exceeds its byte bound")
-                chunks.append(block)
-            after = os.fstat(descriptor)
-            if (
-                after.st_size != total
-                or after.st_size != opened.st_size
-                or after.st_mtime_ns != opened.st_mtime_ns
-            ):
-                raise ValueError("Provenance file changed while reading")
-            return b"".join(chunks)
-        finally:
-            os.close(descriptor)
-    except OSError as exc:
-        raise ValueError("Provenance is missing, unreadable, or unsafe") from exc
+    return read_bounded_bytes(path, max_bytes=MAX_PROVENANCE_BYTES, root=path.parent)
 
 
 def guarded_output(out: Path, repository: Path) -> Path:
@@ -174,6 +141,7 @@ def main() -> None:
     summary["implementation_sha256"] = {
         "script": sha256(Path(__file__)),
         "module": sha256(repository / "src/perturb_lm/audits/layouts.py"),
+        "path_contract": sha256(repository / "scripts/phase5_2_batch8_pilot/path_contract.py"),
     }
     out.mkdir(parents=True, exist_ok=False, mode=0o700)
     write_json(out / "summary.json", summary)

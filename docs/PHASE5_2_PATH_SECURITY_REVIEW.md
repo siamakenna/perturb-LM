@@ -1,5 +1,8 @@
 # Phase 5.2 Batch8 path and integrity review
 
+Historical record. See [the 23 October PR83 resolution](PHASE5_2_PR83_SECURITY_RESOLUTION.md)
+for current main integration, individual finding dispositions and fresh-check requirements.
+
 Status: proposed corrective implementation, 20 October 2026. Linked review:
 PR #77; scientific scope remains bounded by issues #30 and #52. This document
 does not adjudicate GitHub alerts or approve a new scientific experiment.

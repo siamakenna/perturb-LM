@@ -1,0 +1,912 @@
+{
+  "schema_version": 1,
+  "scope": "PR83 code review and invented-fixture security regressions only",
+  "original_pr83_head": "a15704ba31beee6cec0a35fc9b7f0e1016335afb",
+  "integrated_main": "ef7e74ac2f76b6c111d0f8bac2a9f2ff0e7ef6f7",
+  "pr84_head_unchanged": "97aa27e78aa3fb52f1628bbd046ff6ad64ac822d",
+  "pr84_checks": {
+    "complete": 14,
+    "successful": 13,
+    "manual_real_profile_smoke": "SKIPPED"
+  },
+  "review_threads": {
+    "total": 18,
+    "unresolved": 17,
+    "already_resolved_alert": 134,
+    "pagination_complete": true
+  },
+  "original_python_sarif_sha256": "a55592de1162c9c1f8ee84139eba4e40e4e38bd511c071a683d11e0de4c6b730",
+  "original_analysis_id": 1990394690,
+  "findings": [
+    {
+      "alert": 133,
+      "thread": "PRRT_kwDOTDcteM6ua8sF",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474847",
+      "original_path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+      "original_line": 91,
+      "classification": "confirmed defect",
+      "original_evidence": "The downloaded scratch file was unlinked through its absolute path after validation; a changed parent could select a different file.",
+      "correction_or_mitigation": "control_utils.fetch_file calls PathContract.unlink_file; unlink is relative to a held output-parent descriptor and never follows a leaf link.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 91
+          },
+          "steps": 31
+        }
+      ]
+    },
+    {
+      "alert": 135,
+      "thread": "PRRT_kwDOTDcteM6ua8sT",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474871",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 28,
+      "classification": "confirmed defect",
+      "original_evidence": "Standalone lstat did not bind parent components to the later open; an ancestor swap/restore can bypass whole-path postchecks.",
+      "correction_or_mitigation": "read_bytes uses descriptor-relative no-follow stat/open, inode/size/mtime/ctime checks and named-leaf revalidation.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 28
+          },
+          "steps": 21
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 28
+          },
+          "steps": 22
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 28
+          },
+          "steps": 22
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 28
+          },
+          "steps": 34
+        }
+      ]
+    },
+    {
+      "alert": 136,
+      "thread": "PRRT_kwDOTDcteM6ua8se",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474888",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 32,
+      "classification": "confirmed defect",
+      "original_evidence": "Leaf O_NOFOLLOW does not protect ancestors of the full-path os.open.",
+      "correction_or_mitigation": "read_bytes opens only a single leaf name relative to its no-follow parent descriptor.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 32
+          },
+          "steps": 21
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 32
+          },
+          "steps": 22
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 32
+          },
+          "steps": 22
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 32
+          },
+          "steps": 34
+        }
+      ]
+    },
+    {
+      "alert": 137,
+      "thread": "PRRT_kwDOTDcteM6ua8sp",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474897",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 63,
+      "classification": "confirmed defect",
+      "original_evidence": "O_EXCL prevents truncation but full-path text creation could still be redirected into a different parent. A controlled original-source fixture reproduced an outside write.",
+      "correction_or_mitigation": "exclusive_write_text delegates to descriptor-relative exclusive_write_bytes; private mode and O_EXCL remain.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 63
+          },
+          "steps": 27
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 63
+          },
+          "steps": 29
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 63
+          },
+          "steps": 16
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 63
+          },
+          "steps": 40
+        }
+      ]
+    },
+    {
+      "alert": 138,
+      "thread": "PRRT_kwDOTDcteM6ua8ss",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474906",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 77,
+      "classification": "confirmed defect",
+      "original_evidence": "Binary exclusive creation shared the demonstrated full-path parent-redirection gap.",
+      "correction_or_mitigation": "exclusive_write_bytes pins the parent and opens one name with O_CREAT|O_EXCL|O_NOFOLLOW, mode 0600.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 77
+          },
+          "steps": 41
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 77
+          },
+          "steps": 17
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 77
+          },
+          "steps": 35
+        }
+      ]
+    },
+    {
+      "alert": 139,
+      "thread": "PRRT_kwDOTDcteM6ua8s0",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474917",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 94,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Original is_symlink checks inspect metadata only; CLI paths are intentional local inputs. The checks rejected static internal links but did not prove race isolation.",
+      "correction_or_mitigation": "The pathname link-scanning loop is removed; parent_descriptor rejects internal directory links during actual traversal.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 94
+          },
+          "steps": 7
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 94
+          },
+          "steps": 7
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 94
+          },
+          "steps": 7
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 94
+          },
+          "steps": 9
+        }
+      ]
+    },
+    {
+      "alert": 140,
+      "thread": "PRRT_kwDOTDcteM6ua8s6",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474930",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 97,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Original parent.resolve was part of the metadata-only link guard, not an arbitrary payload read; post-normalization containment and fixed root constrained the static flow.",
+      "correction_or_mitigation": "The parent.resolve guard is removed; root remains operator-selected, with descriptor-relative descendant traversal.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 97
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 97
+          },
+          "steps": 11
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 97
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 97
+          },
+          "steps": 11
+        }
+      ]
+    },
+    {
+      "alert": 141,
+      "thread": "PRRT_kwDOTDcteM6ua8tB",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474941",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 113,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Original input_directory.is_dir was a bounded metadata probe after containment; it was not alone proof the returned path remained safe.",
+      "correction_or_mitigation": "Directory type is checked with descriptor-relative nonfollowing stat; subsequent IO independently traverses without following links.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 113
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 113
+          },
+          "steps": 21
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 113
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 113
+          },
+          "steps": 23
+        }
+      ]
+    },
+    {
+      "alert": 142,
+      "thread": "PRRT_kwDOTDcteM6ua8tF",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474949",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 114,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Original input_file.lstat was metadata-only after confinement. It rejected leaf links/special/oversize files, but its returned pathname was not a capability.",
+      "correction_or_mitigation": "Descriptor-relative stat retains regular-file/size checks; consumers read snapshots rather than trusting a checked pathname.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 114
+          },
+          "steps": 24
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 114
+          },
+          "steps": 34
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 114
+          },
+          "steps": 21
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 114
+          },
+          "steps": 24
+        }
+      ]
+    },
+    {
+      "alert": 143,
+      "thread": "PRRT_kwDOTDcteM6ua8tP",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474961",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 125,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Original fresh_output.exists checked preservation, not content access; static containment and ignored-output policy were present.",
+      "correction_or_mitigation": "Existence/preservation checks now use descriptor-relative nonfollowing stat before creation.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 125
+          },
+          "steps": 28
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 125
+          },
+          "steps": 29
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 125
+          },
+          "steps": 14
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 125
+          },
+          "steps": 29
+        }
+      ]
+    },
+    {
+      "alert": 144,
+      "thread": "PRRT_kwDOTDcteM6ua8tX",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474973",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 131,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Original is_symlink probe rejected leaf aliases in the static local-operator model; it was not an unrestricted write.",
+      "correction_or_mitigation": "Leaf links are rejected via descriptor-relative nonfollowing stat, with exclusive no-follow creation at use time.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 131
+          },
+          "steps": 14
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 131
+          },
+          "steps": 14
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 131
+          },
+          "steps": 28
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 131
+          },
+          "steps": 29
+        }
+      ]
+    },
+    {
+      "alert": 145,
+      "thread": "PRRT_kwDOTDcteM6ua8te",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327474985",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 202,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "First source trace into requested.exists came from the control-lookup output CLI; this was the same metadata-only preservation check after path policy.",
+      "correction_or_mitigation": "Same descriptor-relative fresh-output preservation check; separate trace retained in this ledger.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 8
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 8
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        }
+      ]
+    },
+    {
+      "alert": 146,
+      "thread": "PRRT_kwDOTDcteM6ua8tm",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327475001",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 202,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "Second source trace into requested.exists came from the pilot CLI; distinct input flow, same metadata-only preservation sink.",
+      "correction_or_mitigation": "Same descriptor-relative fresh-output preservation check; both control and pilot call sites retain output confinement.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 8
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 8
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 202
+          },
+          "steps": 10
+        }
+      ]
+    },
+    {
+      "alert": 147,
+      "thread": "PRRT_kwDOTDcteM6ua8tu",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327475018",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 219,
+      "classification": "confirmed defect",
+      "original_evidence": "Full-path mkdir could be redirected between fresh_output validation and creation by a changed parent.",
+      "correction_or_mitigation": "create_output and randomized run creation use os.mkdir(single_name, dir_fd=held_parent, mode=0700).",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 219
+          },
+          "steps": 14
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 219
+          },
+          "steps": 26
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 219
+          },
+          "steps": 14
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 219
+          },
+          "steps": 45
+        }
+      ]
+    },
+    {
+      "alert": 148,
+      "thread": "PRRT_kwDOTDcteM6ua8t1",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327475033",
+      "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+      "original_line": 233,
+      "classification": "confirmed defect",
+      "original_evidence": "The streamed-download os.open used a full checked path; O_EXCL/O_NOFOLLOW did not secure parent directories.",
+      "correction_or_mitigation": "open_output_file creates a single name relative to a held parent; curl still writes to that descriptor and downloaded bytes are receipt-checked.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
+            "line": 278
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+            "line": 233
+          },
+          "steps": 40
+        }
+      ]
+    },
+    {
+      "alert": 125,
+      "thread": "PRRT_kwDOTDcteM6ua8t7",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4327475046",
+      "original_path": "scripts/phase5_2_batch8_pilot/pilot.py",
+      "original_line": 136,
+      "classification": "confirmed defect",
+      "original_evidence": "Recheck TemporaryDirectory used a validated but reopened output-parent pathname; a parent swap can redirect directory creation.",
+      "correction_or_mitigation": "pilot.score now obtains a fresh ignored recheck directory through descriptor-relative create_run_directory and retains it as evidence.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 136
+          },
+          "steps": 12
+        },
+        {
+          "source": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 238
+          },
+          "sink": {
+            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
+            "line": 136
+          },
+          "steps": 24
+        }
+      ]
+    },
+    {
+      "alert": 149,
+      "thread": "PRRT_kwDOTDcteM6ucVK1",
+      "thread_url": "https://github.com/siamakenna/perturb-LM/pull/83#discussion_r4328064020",
+      "original_path": "scripts/audit_phase5_2_layouts.py",
+      "original_line": 41,
+      "classification": "sufficiently mitigated finding",
+      "original_evidence": "The selected provenance path intentionally comes from a trusted local operator; bounded regular-file checks, leaf no-follow, opened-inode checks and shared parse/hash bytes already mitigate the static path-injection flow.",
+      "correction_or_mitigation": "The existing single snapshot is retained using the shared descriptor-relative reader anchored to the operator-selected manifest parent; helper code hash is included in implementation provenance.",
+      "review_resolution": "not resolved or dismissed by this work; independent review pending",
+      "sarif_flows": [
+        {
+          "source": {
+            "path": "scripts/audit_phase5_2_layouts.py",
+            "line": 162
+          },
+          "sink": {
+            "path": "scripts/audit_phase5_2_layouts.py",
+            "line": 41
+          },
+          "steps": 7
+        }
+      ]
+    }
+  ],
+  "scientific_preservation_checks": "engine.py, query_info.py and layouts.py byte-identical to main; build_cohort AST and module constants unchanged",
+  "limitations": [
+    "Trusted local operator selects work root and implementation; no hostile-owner or administrator isolation is claimed.",
+    "A process able to rename an already opened directory can move that directory; a held descriptor prevents symlink redirection but is not a filesystem sandbox or transaction.",
+    "Shell wrapper setup, interpreter pointer and dependencies remain trusted; no active same-owner concurrency safety claim for the entire wrapper.",
+    "Standalone layout provenance is intentionally operator-selected; its manifest-parent root is separate from Batch8 work-root policy.",
+    "Different entry points retain separate trust policies; no PR84 JSON reader or scientific contract is imported."
+  ],
+  "fresh_ci": "Inspect exact published head; original checks do not prove the revision."
+}

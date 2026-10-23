@@ -8,7 +8,6 @@ import json
 import os
 import platform
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -50,7 +49,8 @@ def load_plate(path, plate, expected_rows, expected_schema=SCHEMA_SHA, expected_
     import pyarrow as pa
     import pyarrow.parquet as pq
     from control_utils import canonical_well
-    pf = pq.ParquetFile(path)
+    payload = path if isinstance(path, bytes) else read_bytes(path, root=Path(path).parent)
+    pf = pq.ParquetFile(io.BytesIO(payload))
     schema = pf.schema_arrow
     records = [{'name': f.name, 'type': str(f.type)} for f in schema]
     actual = hashlib.sha256(json.dumps(records).encode()).hexdigest()
@@ -133,23 +133,25 @@ def score(work_root, plan_dir, approval, out):
     plan = json.loads(plan_bytes)
     cohort = json.loads(cohort_bytes)
     # Recreate the entire preparation, including code/input bindings, before scoring.
-    with tempfile.TemporaryDirectory(prefix='pilot-recheck-', dir=out.parent) as temporary:
-        fresh_dir = Path(temporary) / 'plan'
-        prep.prepare(work_root, fresh_dir)
-        fresh_plan = contract.read_bytes(fresh_dir / 'plan.json', max_bytes=1024 * 1024, within=fresh_dir)
-        if hashlib.sha256(fresh_plan).hexdigest() != approval:
-            raise ValueError('Inputs, implementation, or proposed contract changed; regenerate and review the plan')
-        fresh_cohort = contract.read_bytes(fresh_dir / 'cohort_LOCAL.json', max_bytes=8 * 1024 * 1024, within=fresh_dir)
-        if hashlib.sha256(fresh_cohort).digest() != hashlib.sha256(cohort_bytes).digest():
-            raise ValueError('Prepared cohort differs from its rederived contents')
+    # Retain recheck evidence in a fresh ignored directory; do not clean by pathname.
+    fresh_dir = contract.create_run_directory('pilot-recheck.') / 'plan'
+    prep.prepare(work_root, fresh_dir)
+    fresh_plan = contract.read_bytes(fresh_dir / 'plan.json', max_bytes=1024 * 1024, within=fresh_dir)
+    if hashlib.sha256(fresh_plan).hexdigest() != approval:
+        raise ValueError('Inputs, implementation, or proposed contract changed; regenerate and review the plan')
+    fresh_cohort = contract.read_bytes(fresh_dir / 'cohort_LOCAL.json', max_bytes=8 * 1024 * 1024, within=fresh_dir)
+    if hashlib.sha256(fresh_cohort).digest() != hashlib.sha256(cohort_bytes).digest():
+        raise ValueError('Prepared cohort differs from its rederived contents')
     paths = prep.resolve_inputs(work_root)
     gallery_plate, query_plate = cohort['gallery_plate'], cohort['query_plate']
     profile_paths = {plate: contract.input_file(paths['profile_' + plate])
                      for plate in (gallery_plate, query_plate)}
     profile_hashes = {plate: prep.EXPECTED['profile_' + plate][1]
                       for plate in profile_paths}
+    profile_snapshots = {}
     for plate, path in profile_paths.items():
-        if digest(path) != profile_hashes[plate]:
+        profile_snapshots[plate] = contract.read_bytes(path)
+        if hashlib.sha256(profile_snapshots[plate]).hexdigest() != profile_hashes[plate]:
             raise ValueError('Profile bytes differ from the reviewed input binding')
     import numpy as np
     import pyarrow as pa
@@ -158,8 +160,8 @@ def score(work_root, plan_dir, approval, out):
     # Recheck after preparation; no temporary/output directory may redirect this run.
     contract.create_output(out, forbidden=(plan_dir,))
     try:
-        gw, features, gx = load_plate(profile_paths[gallery_plate], gallery_plate, 384)
-        qw, qfeatures, qx = load_plate(profile_paths[query_plate], query_plate, 383)
+        gw, features, gx = load_plate(profile_snapshots[gallery_plate], gallery_plate, 384)
+        qw, qfeatures, qx = load_plate(profile_snapshots[query_plate], query_plate, 383)
         if features != qfeatures: raise ValueError('Ordered feature names disagree')
         gindex, qindex = {w:i for i,w in enumerate(gw)}, {w:i for i,w in enumerate(qw)}
         controls = cohort['dmso_wells'][gallery_plate]
@@ -181,7 +183,7 @@ def score(work_root, plan_dir, approval, out):
         # input files changed during loading/evaluation.
         for plate, path in profile_paths.items():
             contract.input_file(path)
-            if digest(path) != profile_hashes[plate]:
+            if hashlib.sha256(contract.read_bytes(path)).hexdigest() != profile_hashes[plate]:
                 raise ValueError('Profile bytes changed during scoring')
         summary.update(status='COMPLETED_DESCRIPTIVE_DESIGN_LABEL_PILOT', plan_sha256=approval,
             created_utc=datetime.now(timezone.utc).isoformat(),

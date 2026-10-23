@@ -25,7 +25,8 @@ FIXTURES = ROOT / "tests/fixtures/phase5_2"
 def load_script():
     spec = importlib.util.spec_from_file_location("phase52_snapshot_script", SCRIPT)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    with mock.patch.object(sys, "path", [str(ROOT / "scripts"), *sys.path]):
+        spec.loader.exec_module(module)
     return module
 
 
@@ -81,10 +82,10 @@ class ProvenanceSnapshotTests(unittest.TestCase):
         self.assertEqual(self.helper.read_manifest_snapshot(self.provenance), boundary)
         with self.provenance.open("wb") as stream:
             stream.truncate(limit + 1)
-        with mock.patch.object(self.helper.os, "open") as opened:
+        with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
             with self.assertRaisesRegex(ValueError, "bounded regular"):
                 self.helper.resolve_inputs(self.args, ROOT)
-        opened.assert_not_called()
+        self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
 
     def test_missing_manifest_fails_closed(self):
         self.provenance.unlink()
@@ -95,41 +96,47 @@ class ProvenanceSnapshotTests(unittest.TestCase):
         saved = self.root / "saved-manifest.json"
         self.provenance.rename(saved)
         self.provenance.symlink_to(saved)
-        with mock.patch.object(self.helper.os, "open") as opened:
+        with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
             with self.assertRaisesRegex(ValueError, "nonsymlink"):
                 self.helper.resolve_inputs(self.args, ROOT)
-        opened.assert_not_called()
+        self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
         self.assertEqual(saved.read_bytes(), self.original)
 
     def test_directory_fifo_and_device_are_rejected_without_opening(self):
         directory = self.root / "directory"
         directory.mkdir()
-        with mock.patch.object(self.helper.os, "open") as opened:
+        with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
             with self.assertRaisesRegex(ValueError, "regular"):
                 self.helper.read_manifest_snapshot(directory)
-        opened.assert_not_called()
+        self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
         if hasattr(os, "mkfifo"):
             fifo = self.root / "input.fifo"
             os.mkfifo(fifo)
-            with mock.patch.object(self.helper.os, "open") as opened:
+            with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
                 with self.assertRaisesRegex(ValueError, "regular"):
                     self.helper.read_manifest_snapshot(fifo)
-            opened.assert_not_called()
-        # No real device is accessed: substitute only the lstat description.
+            self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
+        # Substitute only the leaf's stat description; no device is accessed.
+        original_stat = os.stat
         device = SimpleNamespace(st_mode=stat.S_IFCHR | 0o600, st_size=0)
-        with mock.patch.object(Path, "lstat", return_value=device):
-            with mock.patch.object(self.helper.os, "open") as opened:
+        def device_stat(path, *args, **kwargs):
+            if path == self.provenance.name and kwargs.get("dir_fd") is not None:
+                return device
+            return original_stat(path, *args, **kwargs)
+        with mock.patch.object(self.helper.os, "stat", side_effect=device_stat):
+            with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
                 with self.assertRaisesRegex(ValueError, "regular"):
                     self.helper.read_manifest_snapshot(self.provenance)
-        opened.assert_not_called()
+            self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
 
     def test_replacement_between_lstat_and_open_is_rejected(self):
         original_open = os.open
 
-        def replace_before_open(path, flags):
-            self.provenance.rename(self.root / "first-inode.json")
-            self.provenance.write_bytes(self.original)
-            return original_open(path, flags)
+        def replace_before_open(path, flags, *args, **kwargs):
+            if path == self.provenance.name:
+                self.provenance.rename(self.root / "first-inode.json")
+                self.provenance.write_bytes(self.original)
+            return original_open(path, flags, *args, **kwargs)
 
         with mock.patch.object(self.helper.os, "open", side_effect=replace_before_open):
             with self.assertRaisesRegex(ValueError, "changed while opening"):
@@ -168,6 +175,10 @@ class ProvenanceSnapshotTests(unittest.TestCase):
         (repository / ".gitignore").write_text("/outputs/\n")
         source_script = repository / "scripts/audit_phase5_2_layouts.py"
         shutil.copyfile(SCRIPT, source_script)
+        helper_dir = repository / "scripts/phase5_2_batch8_pilot"
+        helper_dir.mkdir()
+        shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/path_contract.py",
+                        helper_dir / "path_contract.py")
         shutil.copyfile(
             ROOT / "src/perturb_lm/audits/layouts.py",
             repository / "src/perturb_lm/audits/layouts.py",

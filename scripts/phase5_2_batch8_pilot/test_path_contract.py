@@ -186,11 +186,7 @@ class PathContractTests(unittest.TestCase):
         self.git("add", "-f", "outputs/run.fixed-fixture/old.txt")
         shutil.rmtree(predicted)
 
-        def invented_mkdtemp(*args, **kwargs):
-            predicted.mkdir(mode=0o700)
-            return str(predicted)
-
-        with mock.patch.object(path_contract.tempfile, "mkdtemp", side_effect=invented_mkdtemp):
+        with mock.patch.object(path_contract.secrets, "token_hex", return_value="fixed-fixture"):
             with self.assertRaisesRegex(ValueError, "tracked"):
                 self.contract.create_run_directory("run.")
         self.assertFalse(predicted.exists())
@@ -218,6 +214,115 @@ class PathContractTests(unittest.TestCase):
         self.assertEqual((out / "perturbation_control.csv").read_bytes(), body)
         self.assertEqual(receipt["sha256"], hashlib.sha256(body).hexdigest())
         self.assertFalse((out / "perturbation_control.csv.partial").exists())
+
+
+class DescriptorRaceTests(unittest.TestCase):
+    setUp = PathContractTests.setUp
+    git = PathContractTests.git
+    """Controlled swaps use invented files; no research paths or profile values."""
+
+    def test_read_does_not_follow_parent_replaced_after_descriptor_acquisition(self):
+        directory = self.root / "incoming"
+        directory.mkdir()
+        path = directory / "data.txt"
+        path.write_bytes(b"INSIDE")
+        outside = self.root.parent / (self.root.name + "-outside")
+        outside.mkdir()
+        self.addCleanup(shutil.rmtree, outside)
+        (outside / path.name).write_bytes(b"OUTSIDE")
+        held = self.root / "held-incoming"
+        original_open = os.open
+        changed = False
+
+        def swap_at_leaf(name, flags, *args, **kwargs):
+            nonlocal changed
+            if name == path.name and kwargs.get("dir_fd") is not None and not changed:
+                changed = True
+                directory.rename(held)
+                directory.symlink_to(outside, target_is_directory=True)
+            return original_open(name, flags, *args, **kwargs)
+
+        with mock.patch.object(os, "open", side_effect=swap_at_leaf):
+            self.assertEqual(read_bytes(path, root=self.root), b"INSIDE")
+        self.assertTrue(changed)
+        with self.assertRaises(ValueError):
+            self.contract.read_bytes(path)
+
+    def test_exclusive_write_cannot_be_redirected_by_parent_swap(self):
+        out = self.contract.create_output(self.outputs / "result-dir")
+        outside = self.root.parent / (self.root.name + "-outside")
+        outside.mkdir()
+        self.addCleanup(shutil.rmtree, outside)
+        held = self.outputs / "held-dir"
+        original_open = os.open
+        changed = False
+
+        def swap_at_leaf(name, flags, *args, **kwargs):
+            nonlocal changed
+            if name == "result.json" and flags & os.O_CREAT and not changed:
+                changed = True
+                out.rename(held)
+                out.symlink_to(outside, target_is_directory=True)
+            return original_open(name, flags, *args, **kwargs)
+
+        with mock.patch.object(os, "open", side_effect=swap_at_leaf):
+            self.contract.write_json(out / "result.json", {"invented": True})
+        self.assertTrue(changed)
+        self.assertFalse((outside / "result.json").exists())
+        self.assertEqual(json.loads((held / "result.json").read_text()), {"invented": True})
+
+    def test_directory_creation_cannot_be_redirected_by_parent_swap(self):
+        parent = self.outputs / "parent"
+        parent.mkdir()
+        outside = self.root.parent / (self.root.name + "-outside")
+        outside.mkdir()
+        self.addCleanup(shutil.rmtree, outside)
+        held = self.outputs / "held-parent"
+        original_mkdir = os.mkdir
+        changed = False
+
+        def swap_at_mkdir(name, *args, **kwargs):
+            nonlocal changed
+            if name == "new" and kwargs.get("dir_fd") is not None:
+                changed = True
+                parent.rename(held)
+                parent.symlink_to(outside, target_is_directory=True)
+            return original_mkdir(name, *args, **kwargs)
+
+        with mock.patch.object(os, "mkdir", side_effect=swap_at_mkdir):
+            self.contract.create_output(parent / "new")
+        self.assertTrue(changed)
+        self.assertFalse((outside / "new").exists())
+        self.assertTrue((held / "new").is_dir())
+
+    def test_same_size_rewrite_with_restored_mtime_is_detected(self):
+        path = self.root / "snapshot.txt"
+        path.write_bytes(b"ORIGINAL")
+        stamp = path.stat().st_mtime_ns
+        original_read = os.read
+        changed = False
+
+        def rewrite(descriptor, size):
+            nonlocal changed
+            block = original_read(descriptor, size)
+            if block and not changed:
+                changed = True
+                path.write_bytes(b"REPLACED")
+                os.utime(path, ns=(stamp, stamp))
+            return block
+
+        with mock.patch.object(os, "read", side_effect=rewrite):
+            with self.assertRaisesRegex(ValueError, "changed while reading"):
+                self.contract.read_bytes(path)
+
+    def test_component_prefix_sibling_is_not_inside_root(self):
+        outside = self.root.parent / (self.root.name + "-sibling")
+        outside.mkdir()
+        self.addCleanup(shutil.rmtree, outside)
+        path = outside / "data.txt"
+        path.write_bytes(b"OUTSIDE")
+        with self.assertRaises(ValueError):
+            read_bytes(path, root=self.root)
 
 
 class MetadataPlanTamperTests(unittest.TestCase):

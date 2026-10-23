@@ -88,7 +88,7 @@ def fetch_file(relative_path, max_bytes, out, *, contract):
     body = contract.read_bytes(partial, max_bytes=max_bytes, within=out)
     receipt = validate_blob_bytes(body, api_obj, relative_path, max_bytes)
     contract.write_bytes(out / Path(relative_path).name, body)
-    partial.unlink()
+    contract.unlink_file(partial)
     receipt["url"] = url
     return receipt
 

@@ -185,7 +185,7 @@ class ApprovalAndRunTests(unittest.TestCase):
         mutated=[]
         def mutate(path,*_):
             if not mutated:
-                Path(path).write_bytes(b'CHANGED MOCK PROFILE')
+                self.profile_paths['profile_G'].write_bytes(b'CHANGED MOCK PROFILE')
                 mutated.append(True)
         with self.assertRaisesRegex(ValueError,'Profile bytes changed'):
             self.run_synthetic(before_load=mutate)
