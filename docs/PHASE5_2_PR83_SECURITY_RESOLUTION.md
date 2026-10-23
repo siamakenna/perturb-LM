@@ -63,8 +63,10 @@ support fail closed.
 The shared helper lives with the archived pilot source so standalone archived
 kits keep their security implementation and plan code hashes. The layout CLI
 uses only that filesystem helper, not pilot execution code. A source-only layout
-archive must include `scripts/phase5_2_batch8_pilot/path_contract.py`; the archive
-fixture checks this dependency. This is independent of PR84's specialized JSON
+archive must include `scripts/phase5_2_batch8_pilot/path_contract.py` and its
+`__init__.py` package marker. The marker prevents a competing installed regular
+package from displacing the local helper; the archive fixture supplies such a
+competing package and verifies local-source precedence. This is independent of PR84's specialized JSON
 reader and its invocation-directory trust policy.
 
 Plans/cohorts are parsed from the verified bytes. Numeric Parquet projection,
@@ -108,7 +110,11 @@ Both are intentional local-operator root metadata probes, not new remote payload
 flows. They are now replaced by descriptor-based root verification, with a new
 missing/non-directory-root regression. No suppressions or dismissals were used.
 The other 15 original unresolved findings were absent from that fresh SARIF.
-The follow-up head requires its own scan; the failed first scan remains evidence.
+The root-verification follow-up `a12a0fa921086acc8231c57fb4db77db56a663a1`
+passed CodeQL; Python analysis 2010527180 contained zero results. Its minimum
+package check still failed. The final package-marker/import regression is a
+further revision and requires its own exact-head scan; no intermediate check is
+presented as its result. The failed first scan remains evidence.
 
 Current main's minimum package cohort pins NumPy 2.2.6 with SciPy 1.12.0 and
 scikit-image 0.22.0. PR84 already contains the separate cohort repair. This security

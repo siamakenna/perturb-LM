@@ -108,14 +108,14 @@ class ProvenanceSnapshotTests(unittest.TestCase):
         with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
             with self.assertRaisesRegex(ValueError, "regular"):
                 self.helper.read_manifest_snapshot(directory)
-        self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
+        self.assertNotIn(directory.name, [call.args[0] for call in opened.call_args_list])
         if hasattr(os, "mkfifo"):
             fifo = self.root / "input.fifo"
             os.mkfifo(fifo)
             with mock.patch.object(self.helper.os, "open", wraps=os.open) as opened:
                 with self.assertRaisesRegex(ValueError, "regular"):
                     self.helper.read_manifest_snapshot(fifo)
-            self.assertNotIn(self.provenance.name, [call.args[0] for call in opened.call_args_list])
+            self.assertNotIn(fifo.name, [call.args[0] for call in opened.call_args_list])
         # Substitute only the leaf's stat description; no device is accessed.
         original_stat = os.stat
         device = SimpleNamespace(st_mode=stat.S_IFCHR | 0o600, st_size=0)
@@ -179,6 +179,8 @@ class ProvenanceSnapshotTests(unittest.TestCase):
         helper_dir.mkdir()
         shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/path_contract.py",
                         helper_dir / "path_contract.py")
+        shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/__init__.py",
+                        helper_dir / "__init__.py")
         shutil.copyfile(
             ROOT / "src/perturb_lm/audits/layouts.py",
             repository / "src/perturb_lm/audits/layouts.py",

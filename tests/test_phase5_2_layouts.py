@@ -279,6 +279,8 @@ class LayoutCliTests(unittest.TestCase):
             helper_dir.mkdir()
             shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/path_contract.py",
                             helper_dir / "path_contract.py")
+            shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/__init__.py",
+                            helper_dir / "__init__.py")
             module = repo / "src/perturb_lm/audits"
             module.mkdir(parents=True)
             shutil.copyfile(ROOT / "src/perturb_lm/audits/layouts.py", module / "layouts.py")
@@ -293,6 +295,11 @@ class LayoutCliTests(unittest.TestCase):
             (competing / "perturb_lm").mkdir(parents=True)
             (competing / "perturb_lm/__init__.py").write_text(
                 'raise RuntimeError("Competing package was imported")\n'
+            )
+            # A competing installed regular package must not replace the local helper.
+            (competing / "phase5_2_batch8_pilot").mkdir()
+            (competing / "phase5_2_batch8_pilot/__init__.py").write_text(
+                'raise RuntimeError("Competing filesystem helper was imported")\n'
             )
             env = dict(
                 os.environ,
