@@ -101,10 +101,15 @@ not collaborator approval of biological claims or a new benchmark contract.
 
 ### Archived implementation
 
-The exact executed kit is preserved in `scripts/phase5_2_batch8_pilot/`, including
-its original runner, requirements and dated authoring validation. The ten Python
-file hashes below match the approved plan. The wrapper and requirements are also
-verified by the publishing helper against the original distributed kit.
+The exact executed kit is preserved at commit
+`600a38f7161079d8a11bafc0dc4073feadf1f632` in
+`scripts/phase5_2_batch8_pilot/`, including its original runner, requirements and
+dated authoring validation. The ten historical Python hashes below match the
+approved plan. The wrapper and requirements were also verified by the publishing
+helper against the original distributed kit. Later path-contract hardening in
+that directory is a distinct implementation for future reviewed use; it does
+not reproduce the archived code hashes or authorize rerunning the completed
+pilot. See [the security review](PHASE5_2_PATH_SECURITY_REVIEW.md).
 
 | File | SHA256 |
 |---|---|

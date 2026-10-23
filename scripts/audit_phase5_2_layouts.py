@@ -5,10 +5,13 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import os
 import re
 import subprocess
 from pathlib import Path, PurePosixPath
+
+from phase5_2_batch8_pilot.path_contract import read_bytes as read_bounded_bytes
 
 from perturb_lm.audits.layouts import compare_compound_layouts, read_tsv, sha256, write_json
 
@@ -26,6 +29,12 @@ OUTPUT_NAMES = (
     "annotation-ledger_PRIVATE.json",
     "SHA256SUMS",
 )
+MAX_PROVENANCE_BYTES = 1_000_000
+
+
+def read_manifest_snapshot(path: Path) -> bytes:
+    """Read one bounded regular manifest; parsing and hashing share these bytes."""
+    return read_bounded_bytes(path, max_bytes=MAX_PROVENANCE_BYTES, root=path.parent)
 
 
 def guarded_output(out: Path, repository: Path) -> Path:
@@ -66,7 +75,8 @@ def resolve_inputs(args: argparse.Namespace, repository: Path) -> tuple[dict, di
         if args.provenance is None:
             raise ValueError("Real metadata requires --provenance")
         root = args.metadata_dir.resolve(strict=True)
-        manifest = json.loads(args.provenance.read_text())
+        manifest_snapshot = read_manifest_snapshot(args.provenance)
+        manifest = json.loads(manifest_snapshot)
         revision = manifest.get("revision", "")
         if (
             manifest.get("schema_version") != 1
@@ -102,7 +112,7 @@ def resolve_inputs(args: argparse.Namespace, repository: Path) -> tuple[dict, di
             "evidence_kind": "operator_supplied_public_metadata",
             "source_repository": manifest["repository"],
             "upstream_revision": revision,
-            "source_provenance_manifest_sha256": sha256(args.provenance),
+            "source_provenance_manifest_sha256": hashlib.sha256(manifest_snapshot).hexdigest(),
             "source_files": source_files,
             "source_binding": "local_checksums_verified_upstream_origin_not_contacted",
         }
@@ -131,6 +141,7 @@ def main() -> None:
     summary["implementation_sha256"] = {
         "script": sha256(Path(__file__)),
         "module": sha256(repository / "src/perturb_lm/audits/layouts.py"),
+        "path_contract": sha256(repository / "scripts/phase5_2_batch8_pilot/path_contract.py"),
     }
     out.mkdir(parents=True, exist_ok=False, mode=0o700)
     write_json(out / "summary.json", summary)

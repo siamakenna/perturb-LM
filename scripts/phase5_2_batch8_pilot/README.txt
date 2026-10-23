@@ -66,3 +66,18 @@ Do not bypass an input/hash/identity guard or retry with arbitrary replacements.
 Keep the printed run folder and share the short error plus preparation.log or
 scoring.log as appropriate. Failed scoring is marked INCOMPLETE. Do not interpret
 partial metrics from a failed run as a completed result.
+
+20 OCTOBER 2026 CORRECTIVE SOURCE REVIEW
+The completed Mac pilot is preserved at commit
+600a38f7161079d8a11bafc0dc4073feadf1f632 with its original hashes. Do not rerun
+it to validate this change. The original instructions above describe that
+bounded workflow; this revised source is a proposed future path/integrity fix.
+Direct control lookup now additionally requires --work-root. All new outputs
+must be fresh paths inside the existing work-root/repo/outputs directory,
+which must be Git ignored. Inputs and recorded pointers stay within work-root.
+Internal links and nonregular pointers are rejected; macOS ancestor aliases
+remain valid. The score wrapper requires the existing base-Python pointer and
+exact archived/current Python implementation agreement. Changed code requires
+its own newly reviewed plan; original approvals are not transferable.
+See docs/PHASE5_2_PATH_SECURITY_REVIEW.md for threat-model and review limits.
+No new real-data execution is authorized by installing these fixes.
