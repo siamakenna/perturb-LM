@@ -4,7 +4,7 @@ numpy==2.4.6; python_version == "3.11"
 numpy==2.5.0; python_version >= "3.12"
 pandas==3.0.3
 pillow==12.3.0
-pyarrow==24.0.0
+pyarrow==25.0.1
 pytest==9.1.1
 PyYAML==6.0.3
 requests==2.34.2

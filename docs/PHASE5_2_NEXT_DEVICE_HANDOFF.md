@@ -1,5 +1,10 @@
 # Phase 5.2 next-device handoff
 
+> Historical checkpoint/repair record. For the verified successful `44ba331` CI,
+> integration with merged PR77/current main, PR83 disposition and instructions
+> for both Macs, use [the current integration review](PHASE5_2_PR84_INTEGRATION_REVIEW.md).
+> Earlier failure tables below are retained as history, not current blockers.
+
 **Engineering checkpoint; scientific execution remains unapproved.**
 
 - Repository: https://github.com/siamakenna/perturb-LM

@@ -1,5 +1,10 @@
 # Phase 5.2 GitHub continuation
 
+> Historical checkpoint/repair record. For the verified successful `44ba331` CI,
+> integration with merged PR77/current main, PR83 disposition and instructions
+> for both Macs, use [the current integration review](PHASE5_2_PR84_INTEGRATION_REVIEW.md).
+> Earlier failure tables below are retained as history, not current blockers.
+
 2026-10-22. **PROPOSED_NOT_APPROVED.** Issues: #30, #52.
 This is the next-device entry point. The branch contains all required audit,
 identity/design helpers, tests, aggregate evidence and scientific documentation;

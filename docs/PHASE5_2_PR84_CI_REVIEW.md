@@ -1,5 +1,10 @@
 # PR #84 source and CI follow-up (#30, #52)
 
+> Historical checkpoint/repair record. For the verified successful `44ba331` CI,
+> integration with merged PR77/current main, PR83 disposition and instructions
+> for both Macs, use [the current integration review](PHASE5_2_PR84_INTEGRATION_REVIEW.md).
+> Earlier failure tables below are retained as history, not current blockers.
+
 October 22, 2026. Package repair prepared against the supplied source checkpoint
 `e470bec0bd8a934bc5de2a7ba3766c20e0797779`. A subsequent source-Mac publication
 receipt verified the handoff-only commit

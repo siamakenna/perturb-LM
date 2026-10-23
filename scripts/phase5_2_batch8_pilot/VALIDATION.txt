@@ -1,0 +1,25 @@
+Validation performed in this conversation on 2026-10-14
+
+47 unittest tests discovered: 45 passed, 2 skipped.
+The skipped tests require PyArrow, unavailable in this authoring runtime.
+Those two tests create small invented Parquet files and will run on the Mac
+after run-local.sh installs PyArrow 24.0.0.
+
+Executed checks:
+- Synthetic cohort identity/control/masking cases and local input bindings.
+- Public query-annotation summary: reproduces 155 shared design IDs and 141
+  canonical target sets from the uploaded public metadata.
+- Median/MAD reference fitting, zero-MAD handling, nonfinite/zero-vector failure.
+- Tie-averaged retrieval against an exhaustive small ranking oracle.
+- Gallery reordering, unmatched query coverage, same-coordinate candidate masks.
+- Missing approval, changed plan, and changed cohort rejected before numeric reads.
+- Complete synthetic scoring/report/figure/checksum workflow with mocked
+  Parquet loading. This is NOT a test against real Batch8 profile values.
+- Bash syntax and Python compilation.
+- Independent review caught and corrected a macOS /var versus /private/var
+  temporary-directory path-alias issue before packaging.
+
+Authoring numeric runtime: Python 3.12, NumPy 2.3.5, Matplotlib 3.10.8.
+Actual two-plate preparation and real scoring were not executed here because
+the verified Parquet and full well-registry files are on the user's Mac.
+No performance, biological findings, GitHub push, or external approval is claimed.
