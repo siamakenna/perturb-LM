@@ -85,9 +85,9 @@ No real execution is authorized to test these limits.
 
 ## Validation and fresh CI
 
-Local checks use invented fixtures only. The Batch8 suite passed 81 tests, including
-five new adversarial tests for parent swaps during read/write/mkdir, restored-mtime
-rewrites and component-prefix sibling escapes. The existing Parquet IO tests use
+Local checks use invented fixtures only. The Batch8 suite passed 82 tests, including
+six new adversarial tests for parent swaps during read/write/mkdir, restored-mtime
+rewrites, component-prefix sibling escapes and invalid work roots. The existing Parquet IO tests use
 invented tables; the scoring-path tests use invented matrices/mocked profile IO.
 An existing local Matplotlib installation supplied figure-test dependencies; no
 download or modification of the research environment was performed. Earlier local
@@ -101,11 +101,27 @@ is not a fresh CodeQL scan. After publication, inspect the new head's CI and Pyt
 SARIF; retain remaining findings with exact locations and proposed corrections.
 Prior successful checks must not be used to certify this revision.
 
+The first fresh scan on `ea925bc3fc4f86215b3d19f5f67e7f7e97b56838`
+(Python analysis 2010507686) retained original alerts 139/140 at
+`path_contract.py:127` (`work_root.resolve`) and `:130` (`work_root.is_dir`).
+Both are intentional local-operator root metadata probes, not new remote payload
+flows. They are now replaced by descriptor-based root verification, with a new
+missing/non-directory-root regression. No suppressions or dismissals were used.
+The other 15 original unresolved findings were absent from that fresh SARIF.
+The follow-up head requires its own scan; the failed first scan remains evidence.
+
 Current main's minimum package cohort pins NumPy 2.2.6 with SciPy 1.12.0 and
 scikit-image 0.22.0. PR84 already contains the separate cohort repair. This security
-revision does not duplicate that repair. If the fresh minimum-install job fails
-on those constraints, record the exact resolver evidence and reconcile through
-reviewed PR84/main integration before merging; do not weaken the security check.
+revision does not duplicate that repair. The first fresh minimum-install job
+failed at `wheel-base` with exit 1
+([job](https://github.com/siamakenna/perturb-LM/actions/runs/39899294069/job/120236912914)).
+Its uploaded summary reports `CalledProcessError`; the old validator does not
+upload or print the underlying private pip log, so a fresh resolver message is
+unavailable. The constraint conflict is a known likely cause, not newly observed
+resolver text. Relevant locations are `configs/package-minimum.txt:2–6` and
+`scripts/validate_release_artifacts.py:112–140`. Reconcile using reviewed PR84/main
+integration, which also supplies packaging diagnostics, and rerun the exact head;
+do not weaken checks or duplicate its dependency repair here.
 
 ## PR84 independent scientific review
 

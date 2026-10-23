@@ -266,8 +266,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 94,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Original is_symlink checks inspect metadata only; CLI paths are intentional local inputs. The checks rejected static internal links but did not prove race isolation.",
-      "correction_or_mitigation": "The pathname link-scanning loop is removed; parent_descriptor rejects internal directory links during actual traversal.",
+      "original_evidence": "The original sink is work_root.resolve(strict=True) at line 94: intentional canonicalization of the operator-selected trusted anchor, a metadata probe rather than a content read.",
+      "correction_or_mitigation": "Canonicalize with realpath, then obtain/verify the selected root directory through no-follow descriptor traversal and fstat; root selection remains explicit.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -323,8 +323,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 97,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Original parent.resolve was part of the metadata-only link guard, not an arbitrary payload read; post-normalization containment and fixed root constrained the static flow.",
-      "correction_or_mitigation": "The parent.resolve guard is removed; root remains operator-selected, with descriptor-relative descendant traversal.",
+      "original_evidence": "The original sink is work_root.is_dir() at line 97: an intentional type probe of the operator-selected anchor. It does not alone constitute arbitrary file-content access.",
+      "correction_or_mitigation": "The root is verified from its opened directory descriptor with fstat; there is no separate is_dir pathname probe.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -380,8 +380,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 113,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Original input_directory.is_dir was a bounded metadata probe after containment; it was not alone proof the returned path remained safe.",
-      "correction_or_mitigation": "Directory type is checked with descriptor-relative nonfollowing stat; subsequent IO independently traverses without following links.",
+      "original_evidence": "The original sink is requested.resolve(strict=must_exist) at line 113: normalization precedes containment checks; it is a metadata probe and is not itself an unrestricted payload read.",
+      "correction_or_mitigation": "Normalized realpath uses a component-delimited containment check; actual descendant access independently traverses with no-follow descriptors.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -437,8 +437,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 114,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Original input_file.lstat was metadata-only after confinement. It rejected leaf links/special/oversize files, but its returned pathname was not a capability.",
-      "correction_or_mitigation": "Descriptor-relative stat retains regular-file/size checks; consumers read snapshots rather than trusting a checked pathname.",
+      "original_evidence": "The original sink is Path(within).resolve(strict=True) at line 114: normalization of a narrowing bound that must remain inside the operator work root.",
+      "correction_or_mitigation": "The narrowing bound is canonicalized and component-prefix-checked inside the work root; it does not authorize a new or broader root.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -494,8 +494,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 125,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Original fresh_output.exists checked preservation, not content access; static containment and ignored-output policy were present.",
-      "correction_or_mitigation": "Existence/preservation checks now use descriptor-relative nonfollowing stat before creation.",
+      "original_evidence": "The original sink is input_directory result.is_dir() at line 125, after canonical confinement: a bounded directory-type probe, not content access.",
+      "correction_or_mitigation": "Directory type is checked with descriptor-relative nonfollowing stat; subsequent IO independently traverses without following links.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -551,8 +551,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 131,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Original is_symlink probe rejected leaf aliases in the static local-operator model; it was not an unrestricted write.",
-      "correction_or_mitigation": "Leaf links are rejected via descriptor-relative nonfollowing stat, with exclusive no-follow creation at use time.",
+      "original_evidence": "The original sink is input_file result.lstat() at line 131: a bounded regular-file/type/size probe after confinement. A checked pathname is not an IO capability.",
+      "correction_or_mitigation": "Descriptor-relative stat retains regular-file/size checks; consumers read snapshots rather than trusting a checked pathname.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -608,8 +608,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 202,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "First source trace into requested.exists came from the control-lookup output CLI; this was the same metadata-only preservation check after path policy.",
-      "correction_or_mitigation": "Same descriptor-relative fresh-output preservation check; separate trace retained in this ledger.",
+      "original_evidence": "The original sink is requested.exists() at line 202, column 12: a preservation metadata probe before new output creation.",
+      "correction_or_mitigation": "Existence checks use descriptor-relative nonfollowing stat; output confinement and exclusive no-follow creation are enforced separately.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -644,41 +644,9 @@
             "line": 202
           },
           "steps": 10
-        },
-        {
-          "source": {
-            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
-            "line": 278
-          },
-          "sink": {
-            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
-            "line": 202
-          },
-          "steps": 10
-        },
-        {
-          "source": {
-            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
-            "line": 238
-          },
-          "sink": {
-            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
-            "line": 202
-          },
-          "steps": 8
-        },
-        {
-          "source": {
-            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
-            "line": 238
-          },
-          "sink": {
-            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
-            "line": 202
-          },
-          "steps": 10
         }
-      ]
+      ],
+      "original_column": 12
     },
     {
       "alert": 146,
@@ -687,8 +655,8 @@
       "original_path": "scripts/phase5_2_batch8_pilot/path_contract.py",
       "original_line": 202,
       "classification": "sufficiently mitigated finding",
-      "original_evidence": "Second source trace into requested.exists came from the pilot CLI; distinct input flow, same metadata-only preservation sink.",
-      "correction_or_mitigation": "Same descriptor-relative fresh-output preservation check; both control and pilot call sites retain output confinement.",
+      "original_evidence": "The original sink is requested.is_symlink() at line 202, column 34: the separate alias-preservation probe on the same line, not a second exists source.",
+      "correction_or_mitigation": "Leaf links are rejected via descriptor-relative nonfollowing stat and actual creation uses a pinned parent with exclusive no-follow flags.",
       "review_resolution": "not resolved or dismissed by this work; independent review pending",
       "sarif_flows": [
         {
@@ -723,41 +691,9 @@
             "line": 202
           },
           "steps": 10
-        },
-        {
-          "source": {
-            "path": "scripts/phase5_2_batch8_pilot/control_utils.py",
-            "line": 278
-          },
-          "sink": {
-            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
-            "line": 202
-          },
-          "steps": 10
-        },
-        {
-          "source": {
-            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
-            "line": 238
-          },
-          "sink": {
-            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
-            "line": 202
-          },
-          "steps": 8
-        },
-        {
-          "source": {
-            "path": "scripts/phase5_2_batch8_pilot/pilot.py",
-            "line": 238
-          },
-          "sink": {
-            "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
-            "line": 202
-          },
-          "steps": 10
         }
-      ]
+      ],
+      "original_column": 34
     },
     {
       "alert": 147,
@@ -908,5 +844,25 @@
     "Standalone layout provenance is intentionally operator-selected; its manifest-parent root is separate from Batch8 work-root policy.",
     "Different entry points retain separate trust policies; no PR84 JSON reader or scientific contract is imported."
   ],
-  "fresh_ci": "Inspect exact published head; original checks do not prove the revision."
+  "fresh_ci": "Inspect exact published head; original checks do not prove the revision.",
+  "first_fresh_scan": {
+    "head": "ea925bc3fc4f86215b3d19f5f67e7f7e97b56838",
+    "python_analysis_id": 2010507686,
+    "python_sarif_sha256": "aa2f62f4622984eafe8827bdb0fac14e31353c5656966bc3461ae8716bec1854",
+    "remaining_results": [
+      {
+        "alert": 139,
+        "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+        "line": 127,
+        "operation": "work_root.resolve(strict=True)"
+      },
+      {
+        "alert": 140,
+        "path": "scripts/phase5_2_batch8_pilot/path_contract.py",
+        "line": 130,
+        "operation": "work_root.is_dir()"
+      }
+    ],
+    "disposition": "Both original metadata-probe findings persisted at moved locations; replaced by descriptor root verification and a new missing/non-directory-root regression. No finding dismissed."
+  }
 }

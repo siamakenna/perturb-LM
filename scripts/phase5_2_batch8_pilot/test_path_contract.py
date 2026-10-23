@@ -315,6 +315,12 @@ class DescriptorRaceTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "changed while reading"):
                 self.contract.read_bytes(path)
 
+    def test_work_root_must_be_an_existing_directory(self):
+        for root in (self.root / "absent", self.layout):
+            with self.subTest(root=root.name):
+                with self.assertRaisesRegex(ValueError, "existing trusted work root"):
+                    PathContract(root)
+
     def test_component_prefix_sibling_is_not_inside_root(self):
         outside = self.root.parent / (self.root.name + "-sibling")
         outside.mkdir()

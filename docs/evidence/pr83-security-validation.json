@@ -4,7 +4,7 @@
   "main": "ef7e74ac2f76b6c111d0f8bac2a9f2ff0e7ef6f7",
   "original_pr83": "a15704ba31beee6cec0a35fc9b7f0e1016335afb",
   "source_sha256": {
-    "scripts/phase5_2_batch8_pilot/path_contract.py": "1afa56259e1e058aafd2b9460728402ad4196395cbcbb8bcb3c6c2f70b7d1dd4",
+    "scripts/phase5_2_batch8_pilot/path_contract.py": "9e14f46c77bee1f2178ab9df8f7c27fa6b0ce82e07fb2c6ea3b9ee5de19aabbf",
     "scripts/phase5_2_batch8_pilot/control_utils.py": "51739feb329455c198198cb044c2f77331cd15630f9b7c5a838e6e712e7f4b3f",
     "scripts/phase5_2_batch8_pilot/pilot.py": "ade352cfde2555b9323221754a6eb38117229ee09e1dc47f2d44c9c85693577c",
     "scripts/audit_phase5_2_layouts.py": "b01074b0cbe25d597134d853afbaef49f3840382980ff59af58e7dd8d5729a52"
@@ -12,9 +12,9 @@
   "python": "3.12.5",
   "tests": {
     "batch8": {
-      "passed": 81,
+      "passed": 82,
       "skipped": 0,
-      "includes_five_new_adversarial_tests": true
+      "new_adversarial_tests": 6
     },
     "layout_provenance_rotation_public_copy_release_contract": {
       "passed": 61,
@@ -50,10 +50,24 @@
     "original-race-evidence.log": "c86cec70472733e06dd4e0bce30fd0e649f0c860fdb29cdf391f80c0c959bae1",
     "build.log": "70e0f817f4d84180a2e8712fea946164a0e6daebc0f9a509c6ad06de60335c74",
     "wheel-imports.log": "686ceff1f5ca665e7797aed1d37c72e4561d10fb301f68dd0f7960fbce484bad",
-    "batch8-tests-final.log": "5e3c52765dc578b0d0e202029163a468fae5040ac9946fe41eec1846594aa1d7"
+    "batch8-tests-final.log": "5e3c52765dc578b0d0e202029163a468fae5040ac9946fe41eec1846594aa1d7",
+    "batch8-tests-final2.log": "b47c77318aa4e94955e5fc4a07a452f66942c9ba9dd77b627879b46d341794ce",
+    "targeted-tests-final2.log": "02c8bc8cc1fb46c775e6a23447308acef7ddf7debf1162be12643b9468ed53b6"
   },
   "dependencies": "existing local environment plus existing local Matplotlib site appended after primary environment; no installation or downloads",
   "earlier_attempts": "Missing local Matplotlib and intermediate fixture failures retained in ignored logs; missing-release-diagnostic test filename corrected to release-contract; none counted as passing",
   "scientific_execution": false,
-  "fresh_remote_validation": "Must inspect the new published head independently; original checks are not evidence of this revision."
+  "fresh_remote_validation": "Must inspect the new published head independently; original checks are not evidence of this revision.",
+  "first_fresh_ci": {
+    "head": "ea925bc3fc4f86215b3d19f5f67e7f7e97b56838",
+    "complete": 14,
+    "successful": 11,
+    "failed": [
+      "CodeQL: original alerts 139/140 at path_contract.py:127,130, subsequently corrected",
+      "Artifact installs (Python 3.10, minimum): wheel-base exit 1, CalledProcessError; underlying pip log not uploaded"
+    ],
+    "skipped": [
+      "Manual remote JUMP profile smoke"
+    ]
+  }
 }

@@ -123,12 +123,16 @@ def exclusive_write_json(path, value):
 
 class PathContract:
     def __init__(self, work_root):
+        # The operator chooses this trust anchor. Canonicalize OS/root aliases,
+        # then verify the directory by walking it without following further links.
+        self.work_root = Path(os.path.realpath(work_root))
         try:
-            self.work_root = Path(work_root).resolve(strict=True)
-        except OSError as exc:
-            raise ValueError("An existing trusted work root is required") from exc
-        if not self.work_root.is_dir():
-            raise ValueError("The trusted work root must be a directory")
+            # Only the parent descriptor is used; no sentinel file is accessed.
+            with parent_descriptor(self.work_root / ".root-check", root=self.work_root) as (fd, _):
+                if not stat.S_ISDIR(os.fstat(fd).st_mode):
+                    raise ValueError("The trusted work root must be a directory")
+        except ValueError as exc:
+            raise ValueError("An existing trusted work root directory is required") from exc
         self.repo = self.work_root / "repo"
         self.outputs = self.repo / "outputs"
 
