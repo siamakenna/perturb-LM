@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest import mock
 
 from perturb_lm.audits.layouts import compare_compound_layouts, read_tsv, sha256
 
@@ -25,7 +26,8 @@ ROLES = ("target1_metadata", "target1_platemap", "target2_metadata", "target2_pl
 def load_script():
     spec = importlib.util.spec_from_file_location("phase52_script", SCRIPT)
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    with mock.patch.object(sys, "path", [str(ROOT / "scripts"), *sys.path]):
+        spec.loader.exec_module(module)
     return module
 
 
@@ -273,6 +275,12 @@ class LayoutCliTests(unittest.TestCase):
             (repo / "scripts").mkdir(parents=True)
             (repo / ".gitignore").write_text("/outputs/\n")
             shutil.copyfile(SCRIPT, repo / "scripts" / SCRIPT.name)
+            helper_dir = repo / "scripts/phase5_2_batch8_pilot"
+            helper_dir.mkdir()
+            shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/path_contract.py",
+                            helper_dir / "path_contract.py")
+            shutil.copyfile(ROOT / "scripts/phase5_2_batch8_pilot/__init__.py",
+                            helper_dir / "__init__.py")
             module = repo / "src/perturb_lm/audits"
             module.mkdir(parents=True)
             shutil.copyfile(ROOT / "src/perturb_lm/audits/layouts.py", module / "layouts.py")
@@ -287,6 +295,11 @@ class LayoutCliTests(unittest.TestCase):
             (competing / "perturb_lm").mkdir(parents=True)
             (competing / "perturb_lm/__init__.py").write_text(
                 'raise RuntimeError("Competing package was imported")\n'
+            )
+            # A competing installed regular package must not replace the local helper.
+            (competing / "phase5_2_batch8_pilot").mkdir()
+            (competing / "phase5_2_batch8_pilot/__init__.py").write_text(
+                'raise RuntimeError("Competing filesystem helper was imported")\n'
             )
             env = dict(
                 os.environ,

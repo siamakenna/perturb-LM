@@ -11,6 +11,7 @@ import subprocess
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
+from path_contract import PathContract, read_bytes, exclusive_write_json
 
 REVISION = "016e865fa0691244e0860943e41c7d6a88ed2580"
 REPOSITORY = "jump-cellpainting/datasets"
@@ -23,15 +24,11 @@ HEADERS = ["Metadata_Source", "Metadata_Plate", "Metadata_Well", "Metadata_JCP20
 
 
 def sha256(path):
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+    return hashlib.sha256(read_bytes(path)).hexdigest()
 
 
 def write_json(path, value):
-    Path(path).write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
+    exclusive_write_json(path, value)
 
 
 def canonical_well(value):
@@ -42,28 +39,29 @@ def canonical_well(value):
 
 
 def validate_blob(path, api_obj, relative_path, max_bytes):
+    return validate_blob_bytes(read_bytes(path, max_bytes=max_bytes), api_obj, relative_path, max_bytes)
+
+
+def validate_blob_bytes(body, api_obj, relative_path, max_bytes):
     size, blob_sha = api_obj.get("size"), api_obj.get("sha")
     if (api_obj.get("type") != "file" or api_obj.get("path") != relative_path
             or type(size) is not int or not 0 < size <= max_bytes
             or not isinstance(blob_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", blob_sha)):
         raise ValueError("Unexpected GitHub file metadata or size")
-    path = Path(path)
-    if path.stat().st_size != size:
+    if len(body) != size:
         raise ValueError("Downloaded file length differs from the GitHub receipt")
     digest = hashlib.sha1(f"blob {size}\0".encode())
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
+    digest.update(body)
     if digest.hexdigest() != blob_sha:
         raise ValueError("Downloaded bytes do not match the pinned Git blob")
     return {"path": relative_path, "bytes": size, "git_blob_sha1": blob_sha,
-            "sha256": sha256(path), "revision": REVISION}
+            "sha256": hashlib.sha256(body).hexdigest(), "revision": REVISION}
 
 
-def fetch_file(relative_path, max_bytes, out):
+def fetch_file(relative_path, max_bytes, out, *, contract):
     if relative_path not in FILE_LIMITS or max_bytes > FILE_LIMITS[relative_path]:
         raise ValueError("Only the two bounded public metadata files are allowed")
-    out = Path(out)
+    out = contract.input_directory(out, within=contract.outputs)
     response = subprocess.run([
         "gh", "api", "--hostname", "github.com", "--method", "GET",
         "-H", "Accept: application/vnd.github.object+json",
@@ -75,18 +73,22 @@ def fetch_file(relative_path, max_bytes, out):
     if len(response.stdout) > 16 * 1024 * 1024:
         raise ValueError("GitHub metadata response exceeds the bound")
     api_obj = json.loads(response.stdout)
-    write_json(out / (Path(relative_path).name + ".api.json"), api_obj)
+    contract.write_json(out / (Path(relative_path).name + ".api.json"), api_obj)
     size = api_obj.get("size")
     if (api_obj.get("type") != "file" or api_obj.get("path") != relative_path
             or type(size) is not int or not 0 < size <= max_bytes):
         raise ValueError("Unexpected file receipt; download not attempted")
     partial = out / (Path(relative_path).name + ".partial")
     url = f"https://raw.githubusercontent.com/{REPOSITORY}/{REVISION}/{relative_path}"
-    subprocess.run(["curl", "--disable", "--fail", "--show-error", "--silent",
-                    "--proto", "=https", "--connect-timeout", "15", "--max-time", "90",
-                    "--max-filesize", str(size), "--output", str(partial), url], check=True)
-    receipt = validate_blob(partial, api_obj, relative_path, max_bytes)
-    partial.rename(out / Path(relative_path).name)
+    with contract.open_output_file(partial) as stream:
+        subprocess.run(["curl", "--disable", "--fail", "--show-error", "--silent",
+                        "--proto", "=https", "--connect-timeout", "15", "--max-time", "90",
+                        "--max-filesize", str(size), "--output", "-", url],
+                       stdout=stream, check=True)
+    body = contract.read_bytes(partial, max_bytes=max_bytes, within=out)
+    receipt = validate_blob_bytes(body, api_obj, relative_path, max_bytes)
+    contract.write_bytes(out / Path(relative_path).name, body)
+    contract.unlink_file(partial)
     receipt["url"] = url
     return receipt
 
@@ -131,13 +133,15 @@ def classify_control(jcp_id, registry):
 
 
 def load_reviewed_inputs(layout_path, qc_path):
-    if sha256(layout_path) != LAYOUT_SHA or sha256(qc_path) != QC_SHA:
+    layout_body = read_bytes(layout_path, max_bytes=8 * 1024 * 1024)
+    qc_body = read_bytes(qc_path, max_bytes=8 * 1024 * 1024)
+    if hashlib.sha256(layout_body).hexdigest() != LAYOUT_SHA or hashlib.sha256(qc_body).hexdigest() != QC_SHA:
         raise ValueError("Local layout or QC bytes differ from the reviewed inputs")
     by_layout = {name: {} for name in PLATES.values()}
-    with Path(layout_path).open(newline="") as handle:
+    with io.StringIO(layout_body.decode("utf-8"), newline="") as handle:
         for row in csv.DictReader(handle):
             by_layout[row["layout"]][row["well_position"]] = row
-    qc = json.loads(Path(qc_path).read_text())
+    qc = json.loads(qc_body)
     observed = {}
     for record in qc["plates"]:
         plate = record["plate"]
@@ -153,7 +157,8 @@ def load_reviewed_inputs(layout_path, qc_path):
 
 def read_selected_wells(gzip_path):
     selected = {plate: {} for plate in PLATES}
-    with gzip.open(gzip_path, "rb") as handle:
+    compressed = read_bytes(gzip_path, max_bytes=FILE_LIMITS["metadata/well.csv.gz"])
+    with gzip.open(io.BytesIO(compressed), "rb") as handle:
         def bounded_lines():
             used = 0
             while True:
@@ -232,13 +237,15 @@ def summarize_plate(plate, layout_rows, well_annotations, observed_wells, regist
                 "missing_annotation": missing_map["missing_well_annotation"]}}
 
 
-def run(layout_path, qc_path, out):
-    out = Path(out)
-    out.mkdir(mode=0o700, parents=False, exist_ok=False)
+def run(layout_path, qc_path, out, *, work_root):
+    contract = PathContract(work_root)
+    layout_path = contract.input_file(layout_path, max_bytes=8 * 1024 * 1024)
+    qc_path = contract.input_file(qc_path, max_bytes=8 * 1024 * 1024)
+    out = contract.create_output(out)
     try:
         layouts, observed = load_reviewed_inputs(layout_path, qc_path)
-        receipts = [fetch_file(name, bound, out) for name, bound in FILE_LIMITS.items()]
-        registry = read_control_registry((out / "perturbation_control.csv").read_text())
+        receipts = [fetch_file(name, bound, out, contract=contract) for name, bound in FILE_LIMITS.items()]
+        registry = read_control_registry(contract.read_bytes(out / "perturbation_control.csv", max_bytes=64 * 1024).decode("utf-8"))
         annotations = read_selected_wells(out / "well.csv.gz")
         report = {"status": "PUBLIC_CONTROL_ANNOTATION_REVIEW_NOT_COHORT_APPROVAL",
                   "created_utc": datetime.now(timezone.utc).isoformat(), "repository": REPOSITORY,
@@ -252,23 +259,24 @@ def run(layout_path, qc_path, out):
                                   "Public annotation does not independently validate reagent delivery, culture independence or phenotype.",
                                   "DMSO labels alone do not approve normalization, cohort selection or an experiment.",
                                   "Image-prefixed fields were not read or classified as exclusively technical features."]}
-        write_json(out / "batch8-control-annotations.json", report)
+        contract.write_json(out / "batch8-control-annotations.json", report)
         files = sorted(path for path in out.iterdir() if path.is_file())
-        (out / "SHA256SUMS").write_text("".join(f"{sha256(path)}  {path.name}\n" for path in files))
+        contract.write_text(out / "SHA256SUMS", "".join(f"{sha256(path)}  {path.name}\n" for path in files))
         return report
     except Exception as exc:
-        write_json(out / "control-lookup-error.json", {"status": "INCOMPLETE", "exception": type(exc).__name__,
-                                                      "message": str(exc), "partial_files_preserved": True})
+        contract.write_json(out / "control-lookup-error.json", {"status": "INCOMPLETE", "exception": type(exc).__name__,
+                                                               "message": str(exc), "partial_files_preserved": True})
         raise
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--work-root", type=Path, required=True)
     parser.add_argument("--layout-wells", type=Path, required=True)
     parser.add_argument("--qc-report", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args()
-    run(args.layout_wells, args.qc_report, args.out)
+    run(args.layout_wells, args.qc_report, args.out, work_root=args.work_root)
     print(f"PASS: return only {args.out / 'batch8-control-annotations.json'}")
 
 

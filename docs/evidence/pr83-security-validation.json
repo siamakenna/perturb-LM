@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "scope": "local invented-fixture engineering validation; no research inputs or frozen outputs read",
+  "main": "ef7e74ac2f76b6c111d0f8bac2a9f2ff0e7ef6f7",
+  "original_pr83": "a15704ba31beee6cec0a35fc9b7f0e1016335afb",
+  "source_sha256": {
+    "scripts/phase5_2_batch8_pilot/path_contract.py": "9e14f46c77bee1f2178ab9df8f7c27fa6b0ce82e07fb2c6ea3b9ee5de19aabbf",
+    "scripts/phase5_2_batch8_pilot/control_utils.py": "51739feb329455c198198cb044c2f77331cd15630f9b7c5a838e6e712e7f4b3f",
+    "scripts/phase5_2_batch8_pilot/pilot.py": "ade352cfde2555b9323221754a6eb38117229ee09e1dc47f2d44c9c85693577c",
+    "scripts/audit_phase5_2_layouts.py": "b01074b0cbe25d597134d853afbaef49f3840382980ff59af58e7dd8d5729a52",
+    "scripts/phase5_2_batch8_pilot/__init__.py": "8cd452946aa268154a12457c728e727acf7a72490639ab1c9102e9afa3ef2902"
+  },
+  "python": "3.12.5",
+  "tests": {
+    "batch8": {
+      "passed": 82,
+      "skipped": 0,
+      "new_adversarial_tests": 6
+    },
+    "layout_provenance_rotation_public_copy_release_contract": {
+      "passed": 61,
+      "subtests": 49
+    }
+  },
+  "other_checks": [
+    "public-copy consistency",
+    "Bash syntax",
+    "focused Ruff",
+    "git whitespace",
+    "wheel and sdist build without isolation or network",
+    "archive private-member exclusion",
+    "isolated installed-wheel imports: layouts, rotations, cohort"
+  ],
+  "archives": [
+    {
+      "name": "perturb_lm-0.2.0a1-py3-none-any.whl",
+      "sha256": "975a16c9de8252f1662d4aea4341e4012f9eb962b1ce052eb9ccb5ede9400600",
+      "members": 83,
+      "private_members": false
+    },
+    {
+      "name": "perturb_lm-0.2.0a1.tar.gz",
+      "sha256": "6ef97cc8ffd6f542043bbf15e7ff0211bec0f26e219ac414ed2a183c327b2a2e",
+      "members": 176,
+      "private_members": false
+    }
+  ],
+  "log_sha256": {
+    "targeted-tests-final.log": "db2ed6f4b7f8b4f04a0f49905a177cdbfde9d5c53db5d02bc867d8223acb972b",
+    "batch8-tests.log": "b09a24860278dca0d5f528acfb5ea0800e1c08e456a35c6badf03e0bea372da5",
+    "original-race-evidence.log": "c86cec70472733e06dd4e0bce30fd0e649f0c860fdb29cdf391f80c0c959bae1",
+    "build.log": "70e0f817f4d84180a2e8712fea946164a0e6daebc0f9a509c6ad06de60335c74",
+    "wheel-imports.log": "686ceff1f5ca665e7797aed1d37c72e4561d10fb301f68dd0f7960fbce484bad",
+    "batch8-tests-final.log": "5e3c52765dc578b0d0e202029163a468fae5040ac9946fe41eec1846594aa1d7",
+    "batch8-tests-final2.log": "b47c77318aa4e94955e5fc4a07a452f66942c9ba9dd77b627879b46d341794ce",
+    "targeted-tests-final2.log": "02c8bc8cc1fb46c775e6a23447308acef7ddf7debf1162be12643b9468ed53b6",
+    "targeted-tests-final3.log": "596aa07a155652b871b57e23ed45983feabe4ac4b44bdc674628bbd05000c561"
+  },
+  "dependencies": "existing local environment plus existing local Matplotlib site appended after primary environment; no installation or downloads",
+  "earlier_attempts": "Missing local Matplotlib and intermediate fixture failures retained in ignored logs; missing-release-diagnostic test filename corrected to release-contract; none counted as passing",
+  "scientific_execution": false,
+  "fresh_remote_validation": "Must inspect the new published head independently; original checks are not evidence of this revision.",
+  "first_fresh_ci": {
+    "head": "ea925bc3fc4f86215b3d19f5f67e7f7e97b56838",
+    "complete": 14,
+    "successful": 11,
+    "failed": [
+      "CodeQL: original alerts 139/140 at path_contract.py:127,130, subsequently corrected",
+      "Artifact installs (Python 3.10, minimum): wheel-base exit 1, CalledProcessError; underlying pip log not uploaded"
+    ],
+    "skipped": [
+      "Manual remote JUMP profile smoke"
+    ]
+  },
+  "source_import_regression": "Source-archive CLI fixture includes a competing installed helper package; local regular package wins.",
+  "intermediate_codeql": {
+    "head": "a12a0fa921086acc8231c57fb4db77db56a663a1",
+    "python_analysis_id": 2010527180,
+    "results": 0,
+    "python_sarif_sha256": "5c0193ff0da6acc638d92dbc46342b8f0aec095ad707b93f65c9fb3eb7f3acd1",
+    "final_package_marker_revision_requires_own_scan": true
+  }
+}
