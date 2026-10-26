@@ -1,5 +1,5 @@
 {
-  "schema_version": "phase53.a549_exploratory.v1",
+  "schema_version": "phase53.a549_exploratory.v2",
   "date": "2026-10-26",
   "status": "USER_AUTHORIZED_EXPLORATORY_UNREVIEWED_SOURCE_IDENTITIES",
   "authorization_scope": "Independent exploratory analysis requested by the user on 26 October 2026; no coauthor sign-off is asserted.",
@@ -23,9 +23,11 @@
     "metadata_per_file_bytes": 1048576
   },
   "expected_capture": {
-    "rows": 1536,
+    "rows": "observed_unique_wells_bound_by_metadata_preflight",
+    "maximum_rows": 1536,
     "features": 904,
-    "physical_plates": 4
+    "physical_plates": 4,
+    "physical_wells_per_plate": 384
   },
   "primary_endpoint": "Finite-cohort mean cosine difference between same recorded source-gene/different-recorded-DNA partners and balanced other-source-gene references.",
   "relationship_status": "Provisional source annotations only; no reviewed guide/target identity, efficacy, off-target absence or independent culture is inferred.",
@@ -69,5 +71,15 @@
   "excluded_condition_plates": [
     "BR00117001",
     "BR00117002"
-  ]
+  ],
+  "amendment": {
+    "reason": "The v1 384-profile-rows-per-plate assumption failed before scoring. Plate capacity does not establish available profile rows.",
+    "prior_source_commit": "44c9abb9907bba713c19d73a21a0a71acae69035",
+    "prior_run_preserved": true,
+    "scientific_endpoint_changed": false,
+    "row_policy": "Keep every observed unique valid well in each of four nonempty bounded files. Bind actual per-plate counts, ordered schema and full-grid absence census before numeric conversion. Never impute absent profile rows.",
+    "missingness_cause": "Unverified; not assumed random, QC failure, cell death or acquisition failure.",
+    "denominators": "Report the 1536-position physical grid separately from observed-profile eligibility. No full-grid biological recovery claim."
+  },
+  "freeze_boundary": "Before numeric feature conversion/scoring; source CSV field strings are parsed during the metadata-only census."
 }

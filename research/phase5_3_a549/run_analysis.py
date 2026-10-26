@@ -49,7 +49,7 @@ def verify_source_pins(repo):
 
 
 def validate_protocol(protocol):
-    if (protocol.get("schema_version") != "phase53.a549_exploratory.v1"
+    if (protocol.get("schema_version") != "phase53.a549_exploratory.v2"
             or protocol.get("status") != "USER_AUTHORIZED_EXPLORATORY_UNREVIEWED_SOURCE_IDENTITIES"
             or protocol.get("source_revision") != REVISION or protocol.get("plates") != PLATES
             or protocol.get("historical_results_modified") is not False
@@ -57,7 +57,8 @@ def validate_protocol(protocol):
             or protocol.get("frozen_before_features") is not True):
         raise ValueError("Unexpected A549 exploratory contract")
     expected = protocol.get("expected_capture", {})
-    if expected != {"rows": 1536, "features": 904, "physical_plates": 4}:
+    if expected != {"rows": "observed_unique_wells_bound_by_metadata_preflight", "maximum_rows": 1536,
+                    "features": 904, "physical_plates": 4, "physical_wells_per_plate": 384}:
         raise ValueError("Unexpected fixed public cohort dimensions")
     conditions = {
         "Perturbation": "crispr", "Cell_type": "a549", "Time": "144",
@@ -116,11 +117,12 @@ def public_receipt(receipt):
         "feature_schema_sha256", "metadata_sha256", "missing_label_rows",
         "labeled_treatment_rows", "labeled_control_rows", "bounds",
         "upstream_normalization_scope", "nonfinite_feature_values_retained",
+        "capture_census", "profile_availability",
     }
     return {key: receipt[key] for key in sorted(names) if key in receipt}
 
 
-def execute(repo, out, *, fetch_public=False, staging=None, authorize_exploratory=False):
+def execute(repo, out, *, fetch_public=False, staging=None, preflight_census=None, authorize_exploratory=False):
     if not authorize_exploratory:
         raise ValueError("Use --authorize-exploratory for the newly authorized provisional endpoint")
     repo = Path(repo).resolve()
@@ -140,19 +142,20 @@ def execute(repo, out, *, fetch_public=False, staging=None, authorize_explorator
     if fetch_public == (staging is not None):
         raise ValueError("Choose exactly one of --fetch-public or --staging")
     code_hashes = {p.name: sha(p) for p in sorted(SCRIPT_DIR.glob("*.py"))}
-    contract = {
-        "created_utc": datetime.now(timezone.utc).isoformat(),
+    protocol_freeze = {
         "source_commit": source_commit, "protocol": protocol,
         "protocol_sha256": hashlib.sha256(protocol_bytes).hexdigest(),
         "source_dependencies": pins, "study_python_sha256": code_hashes,
         "coauthor_approval_asserted": False,
-        "frozen_before_feature_loading": True,
+        "frozen_before_numeric_conversion": True,
+        "csv_feature_strings_may_be_parsed_for_metadata_census": True,
     }
+    write_json(out / "frozen-protocol.json", protocol_freeze)
+    protocol_digest = sha(out / "frozen-protocol.json")
     contract_path = out / "frozen-analysis-contract.json"
-    write_json(contract_path, contract)
-    contract_digest = sha(contract_path)
-    write_json(out / "RUN_STATUS.json", {"status": "CONTRACT_FROZEN_INPUTS_PENDING"})
-    print("Exploratory contract frozen. Preparing only the four pinned public A549 plates...", flush=True)
+    contract_digest = None
+    write_json(out / "RUN_STATUS.json", {"status": "PROTOCOL_FROZEN_METADATA_CENSUS_PENDING"})
+    print("Amended protocol frozen. Verifying capture and observed-well metadata before numeric conversion...", flush=True)
     try:
         if fetch_public:
             import shutil
@@ -160,28 +163,76 @@ def execute(repo, out, *, fetch_public=False, staging=None, authorize_explorator
             public_inputs.fetch_public_inputs(staging, gh=shutil.which("gh"))
         staging = Path(staging).resolve()
         manifest_digest = sha(staging / "manifest.json")
-        # Bind the completed capture before any feature parsing.
         write_json(out / "input-capture-binding.json", {
             "manifest_sha256": manifest_digest, "source_revision": REVISION,
             "input_origin": public_inputs.ORIGIN,
         })
-        study = public_inputs.load_study_inputs(staging)
-        if sha(staging / "manifest.json") != manifest_digest or sha(contract_path) != contract_digest:
-            raise ValueError("Input manifest or frozen contract changed during loading")
-        if study["features"].shape != (1536, 904) or len(study["feature_names"]) != 904:
-            raise ValueError("The pinned study requires 1536 rows and the unchanged 904-feature schema")
+        inspected = public_inputs.inspect_study_inputs(staging)
+        census = inspected["census"]
+        if preflight_census is not None:
+            supplied = json.loads(Path(preflight_census).read_text())
+            if supplied != census:
+                raise ValueError("Supplied preflight census differs from verified captured metadata")
+        expected_rows = census.get("observed_profile_rows")
+        per_plate = census.get("per_plate_rows", {})
+        if (census.get("schema_version") != "phase53.a549_capture_census.v1"
+                or census.get("input_manifest_sha256") != manifest_digest
+                or census.get("plates") != PLATES
+                or set(per_plate) != set(PLATES)
+                or any(type(value) is not int or not 1 <= value <= 384 for value in per_plate.values())
+                or type(expected_rows) is not int or expected_rows != sum(per_plate.values())
+                or census.get("planned_physical_wells") != 1536
+                or census.get("feature_count") != 904):
+            raise ValueError("Invalid bound observed-well population or unchanged 904-feature schema")
+        if sha(staging / "manifest.json") != manifest_digest:
+            raise ValueError("Captured manifest changed during metadata preflight")
+        if sha(out / "frozen-protocol.json") != protocol_digest:
+            raise ValueError("Frozen protocol changed during metadata preflight")
+        write_json(out / "preflight-census.json", census)
+        census_digest = sha(out / "preflight-census.json")
+        private = out / "PRIVATE"
+        private.mkdir(mode=0o700)
+        inspected["private_layout"].to_csv(private / "planned-well-availability.csv", index=False)
+        contract = {
+            **protocol_freeze, "created_utc": datetime.now(timezone.utc).isoformat(),
+            "capture_census": census, "preflight_census_sha256": census_digest,
+            "input_manifest_sha256": manifest_digest,
+            "frozen_before_feature_loading": True,
+            "feature_loading_definition": "Before numeric conversion/scoring; source CSV strings were parsed for the metadata-only census.",
+        }
+        write_json(contract_path, contract)
+        contract_digest = sha(contract_path)
+        write_json(out / "RUN_STATUS.json", {"status": "CENSUS_BOUND_BEFORE_NUMERIC_CONVERSION"})
+        study = public_inputs.load_study_inputs(staging, expected_census=census)
+        if (sha(staging / "manifest.json") != manifest_digest
+                or sha(contract_path) != contract_digest
+                or sha(out / "preflight-census.json") != census_digest):
+            raise ValueError("Input manifest or amended frozen contract changed during loading")
+        if (study["features"].shape != (expected_rows, 904)
+                or len(study["feature_names"]) != 904
+                or study.get("census") != census):
+            raise ValueError("Observed features differ from the bound per-plate census or unchanged schema")
         write_json(out / "input-receipt.json", study["receipt"])
     except Exception as exc:
+        import traceback
+        diagnostic = {
+            "error_type": type(exc).__name__,
+            "message": str(exc)[:1200],
+            "frames": [{"file": Path(frame.filename).name, "function": frame.name, "line": frame.lineno}
+                       for frame in traceback.extract_tb(exc.__traceback__)[-5:]],
+        }
+        # Detailed exception text is local-only; aggregate summaries remain path/row free.
+        write_json(out / "input-error-PRIVATE.json", diagnostic)
         write_json(out / "summary.json", {
             "status": "BLOCKED", "source_commit": source_commit,
             "analysis_contract_sha256": contract_digest,
             "stage": "public_input_verification", "error_type": type(exc).__name__,
             "scientific_results_computed": False,
-            "message": "Public capture or input verification did not complete. Keep this folder; no substitute data were used.",
+            "message": "Capture, metadata census or bound input validation failed; no scientific scoring ran. See local input-error-PRIVATE.json.",
         })
         write_json(out / "RUN_STATUS.json", {"status": "BLOCKED"})
         finalize_checksums(out)
-        raise RuntimeError("Public input preparation failed; see the local summary and retained files") from exc
+        raise RuntimeError("Public input preparation failed; see local input-error-PRIVATE.json") from exc
 
     from crossguide import analyze_crossguide
     from query_audit import analyze_query_information
@@ -200,7 +251,7 @@ def execute(repo, out, *, fetch_public=False, staging=None, authorize_explorator
             except Exception as exc:
                 errors[name] = {"error_type": type(exc).__name__, "message": "Analysis failed; no value was substituted."}
     private = out / "PRIVATE"
-    private.mkdir(mode=0o700)
+    private.mkdir(mode=0o700, exist_ok=True)
     for analysis_name, result in results.items():
         for name, value in result.items():
             if name.startswith("private_"):
@@ -210,10 +261,13 @@ def execute(repo, out, *, fetch_public=False, staging=None, authorize_explorator
         "source_commit": source_commit, "analysis_contract_sha256": contract_digest,
         "input_capture_manifest_sha256": manifest_digest,
         "input_receipt": public_receipt(study["receipt"]),
+        "capture_census": census,
+        "profile_availability": census["profile_availability"],
+        "amended_population_contract": "phase53.a549_exploratory.v2",
         "crossguide": results.get("crossguide", {}).get("summary"),
         "query_information": results.get("query_information", {}).get("summary"),
         "errors": errors,
-        "interpretation": "Authorized exploratory descriptions of one A549 four-plate cohort, selected after the U2OS result. Same source batch and fixed reagent layout; neither independent-batch replication nor an isolated cell-type or WGA effect is asserted. Source identities, culture independence and artifact-specific preprocessing remain unvalidated. No confidence intervals or p-values.",
+        "interpretation": "Authorized exploratory descriptions of one A549 four-plate cohort, selected after the U2OS result. Same source batch and fixed reagent layout; neither independent-batch replication nor an isolated cell-type or WGA effect is asserted. Source identities, culture independence and artifact-specific preprocessing remain unvalidated. Missing profile wells are accounted against the 1536-position source design, never imputed; eligibility is conditional on observed profiles, and absence causes remain unknown. No confidence intervals or p-values.",
         "historical_results_modified": False, "real_outputs_automatically_published": False,
         "study_context": "A549_Cas9_144h_absent_antibiotics_Day0_first_imaging_no_recorded_anomaly",
         "independent_batch_replication_established": False,
@@ -243,12 +297,14 @@ def main():
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--fetch-public", action="store_true")
     parser.add_argument("--staging", type=Path)
+    parser.add_argument("--preflight-census", type=Path)
     parser.add_argument("--authorize-exploratory", action="store_true")
     args = parser.parse_args()
     os.umask(0o077)
     try:
         summary = execute(args.repo, args.out, fetch_public=args.fetch_public,
-                          staging=args.staging, authorize_exploratory=args.authorize_exploratory)
+                          staging=args.staging, preflight_census=args.preflight_census,
+                          authorize_exploratory=args.authorize_exploratory)
     except Exception as exc:
         print("STOP: " + str(exc), file=sys.stderr)
         raise SystemExit(1)

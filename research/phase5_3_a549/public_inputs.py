@@ -33,6 +33,7 @@ from perturb_lm.audits.cohort import (
     BATCH, CONDITIONS, KIND, REPO, REVISION, clean, join_cohort, source_tables,
 )
 from a549_validation import PLATES, validate_a549_mapping
+from perturb_lm.audits.rotations import canonical_wells
 
 MAX_PROFILE_BYTES = 16 * 1024 * 1024
 MAX_TOTAL_PROFILE_BYTES = 64 * 1024 * 1024
@@ -446,12 +447,8 @@ def _alignment_order(rows: pd.DataFrame, identities: dict[str, tuple[str, str]],
     return order
 
 
-def load_study_inputs(staging: Path) -> dict:
-    """Load ALL 1536 selected rows, aligned to unchanged source feature values.
-
-    Nonfinite feature values are retained for the analysis QC policy. Source
-    annotations are exact metadata strings, never biological review labels.
-    """
+def _prepared_study(staging: Path) -> dict:
+    """Verify capture and physical/annotation metadata without numeric features."""
     staging = Path(staging).absolute()
     capture, sources, compressed = _capture_bytes(staging)
     experiments, barcodes, maps, annotations = _source_from_bytes(staging, sources)
@@ -466,8 +463,8 @@ def load_study_inputs(staging: Path) -> dict:
         metadata = frame[[name for name in frame if name.startswith("Metadata_")]].map(clean)
         if "Metadata_Plate" not in metadata or not metadata.Metadata_Plate.eq(plate).all():
             raise ValueError("Profile rows do not match their exact allowlisted plate file")
-        if len(metadata) != 384:
-            raise ValueError("Each public plate must contain exactly 384 rows")
+        if not 1 <= len(metadata) <= 384:
+            raise ValueError("Each public plate must contain 1 through 384 observed rows")
         metadata["audit_file"] = path
         metadata["audit_row"] = np.arange(len(metadata)).astype(str)
         metadata["record_id"] = [f"file{number:03d}:row{i:06d}" for i in range(len(metadata))]
@@ -481,8 +478,8 @@ def load_study_inputs(staging: Path) -> dict:
     profiles = pd.concat(metadata_frames, ignore_index=True)
     joined = join_cohort(profiles, experiments, barcodes, maps, annotations)
     rows = validate_a549_mapping(joined)
-    if len(rows) != 1536 or set(rows.Assay_Plate_Barcode) != set(PLATES):
-        raise ValueError("The reconstructed cohort must contain all 1536 four-plate rows")
+    if len(rows) != len(profiles) or set(rows.Assay_Plate_Barcode) != set(PLATES):
+        raise ValueError("All observed rows and all four selected plates must be retained")
     if rows.annotation_conflict.map(lambda value: str(value).casefold() == "true").any():
         raise ValueError("Profile annotation contradicts its source annotation")
     if "target_sequence" not in rows:
@@ -490,18 +487,90 @@ def load_study_inputs(staging: Path) -> dict:
     if "Metadata_target_sequence" in rows and not rows.Metadata_target_sequence.eq(rows.target_sequence).all():
         raise ValueError("Local and source target_sequence annotations disagree")
     order = _alignment_order(rows, identities, keys)
-    # Conversion occurs only after all compressed/source receipts, joins and row
-    # identities pass. Empty numeric fields are missing; bad text fails closed.
-    raw_features = pd.concat(feature_frames, ignore_index=True)
-    values = raw_features.to_numpy(dtype=str)
-    values[np.char.strip(values) == ""] = "nan"
-    try:
-        features = values.astype(float)[order]
-    except (TypeError, ValueError) as error:
-        raise ValueError("Profile feature contains nonnumeric text") from error
+    metadata = _analysis_metadata(rows)
+    layout = _layout_ledger(rows, maps, annotations)
+    per_plate_rows = {plate: int(rows.Assay_Plate_Barcode.eq(plate).sum()) for plate in PLATES}
+    by_plate = {}
+    for plate in PLATES:
+        group = layout[layout.plate.eq(plate)]
+        by_plate[plate] = {
+            "planned_physical_wells": 384,
+            "observed_profile_rows": per_plate_rows[plate],
+            "absent_profile_wells": 384 - per_plate_rows[plate],
+            "planned_role_counts": _counts(group.design_role),
+            "observed_role_counts": _counts(group.loc[group.profile_observed, "design_role"]),
+            "absent_role_counts": _counts(group.loc[~group.profile_observed, "design_role"]),
+            "representation_counts": _representation_counts(group),
+            "planned_control_class_counts": _counts(group.loc[group.design_role.eq("control"), "source_control_class"]),
+            "observed_control_class_counts": _counts(group.loc[group.design_role.eq("control") & group.profile_observed, "source_control_class"]),
+            "absent_control_class_counts": _counts(group.loc[group.design_role.eq("control") & ~group.profile_observed, "source_control_class"]),
+            "planned_mapping_status_counts": _counts(group.design_mapping_status),
+        }
+    availability = {
+        "planned_physical_wells": 1536,
+        "observed_profile_rows": len(rows),
+        "absent_profile_wells": 1536 - len(rows),
+        "observed_fraction_of_physical_grid": len(rows) / 1536,
+        "by_plate": by_plate,
+        "planned_role_counts": _counts(layout.design_role),
+        "observed_role_counts": _counts(layout.loc[layout.profile_observed, "design_role"]),
+        "absent_role_counts": _counts(layout.loc[~layout.profile_observed, "design_role"]),
+        "representation_counts": _representation_counts(layout),
+        "planned_control_class_counts": _counts(layout.loc[layout.design_role.eq("control"), "source_control_class"]),
+        "observed_control_class_counts": _counts(layout.loc[layout.design_role.eq("control") & layout.profile_observed, "source_control_class"]),
+        "absent_control_class_counts": _counts(layout.loc[layout.design_role.eq("control") & ~layout.profile_observed, "source_control_class"]),
+        "planned_mapping_status_counts": _counts(layout.design_mapping_status),
+        "observed_mapping_status_counts": _counts(layout.loc[layout.profile_observed, "design_mapping_status"]),
+        "absent_mapping_status_counts": _counts(layout.loc[~layout.profile_observed, "design_mapping_status"]),
+        "design_annotation_interpretation": "Planned denominators count source-annotated roles/strings only. Missing or ambiguous design annotations remain unclassified; source gene strings are not stable biological IDs.",
+        "missingness_cause": "UNKNOWN",
+        "missingness_interpretation": "Absent profile rows are not zero vectors, failed cells, deaths, or known QC exclusions. Their cause remains unverified. Analysis eligibility is conditional on observed profiles; complete-grid availability is reported separately.",
+    }
+    census = {
+        "schema_version": "phase53.a549_capture_census.v1",
+        "input_manifest_sha256": _sha((staging / "manifest.json").read_bytes()),
+        "source_revision": REVISION, "plates": list(PLATES),
+        "per_plate_rows": per_plate_rows,
+        "observed_profile_rows": len(rows), "planned_physical_wells": 1536,
+        "feature_count": len(feature_names),
+        "feature_schema_sha256": _sha("\n".join(feature_names).encode()),
+        "observed_metadata_sha256": _sha(metadata.to_csv(index=False, lineterminator="\n").encode()),
+        "private_layout_ledger_sha256": _sha(layout.to_csv(index=False, lineterminator="\n").encode()),
+        "profile_availability": availability,
+        "numeric_features_converted": False,
+        "row_selection": "Every observed unique physical well from all four complete captured files; no filling or feature-based selection.",
+    }
+    return {"capture": capture, "annotations": annotations, "rows": rows,
+            "raw_features": pd.concat(feature_frames, ignore_index=True),
+            "order": order, "feature_names": list(feature_names),
+            "metadata": metadata, "census": census, "private_layout": layout}
+
+
+def _counts(values):
+    return {str(key): int(value) for key, value in values.value_counts().sort_index().items()}
+
+
+def _representation_counts(layout):
+    treatment = layout[layout.design_role.eq("treatment")]
+    result = {}
+    for field, name in (("source_sample", "treatment_reagent_ids"),
+                        ("source_gene", "treatment_source_gene_strings"),
+                        ("source_sequence", "treatment_valid_DNA_sequence_strings")):
+        values = treatment[field].str.upper() if field == "source_sequence" else treatment[field]
+        valid = values.str.fullmatch("[ACGT]+") if field == "source_sequence" else values.ne("")
+        planned = set(values[valid])
+        observed = set(values[valid & treatment.profile_observed])
+        absent = set(values[valid & ~treatment.profile_observed])
+        result[name] = {"planned_distinct": len(planned), "observed_distinct": len(observed),
+                        "absent_well_distinct": len(absent),
+                        "entirely_absent_distinct": len(planned - observed)}
+    return result
+
+
+def _analysis_metadata(rows):
     labeled = rows.broad_sample.ne("")
     pert_type = rows.Metadata_pert_type
-    result = pd.DataFrame({
+    return pd.DataFrame({
         "row_id": rows.record_id, "plate": rows.Assay_Plate_Barcode,
         "well": rows.well_position, "gene": rows.Metadata_gene,
         "reagent": rows.broad_sample, "sequence": rows.target_sequence,
@@ -511,6 +580,83 @@ def load_study_inputs(staging: Path) -> dict:
         "control_type": rows.get("Metadata_control_type", rows.get("control_type", "")),
         "negcon_control_type": rows.get("Metadata_negcon_control_type", rows.get("negcon_control_type", "")),
     }, columns=METADATA_COLUMNS)
+
+
+def _layout_ledger(rows, maps, annotations):
+    """Account for every physical position without inventing an observed profile."""
+    crispr = annotations[annotations.Perturbation.eq("crispr")].copy().map(clean)
+    required = {"broad_sample", "pert_type", "gene", "target_sequence"}
+    if required - set(crispr):
+        raise ValueError("Source CRISPR annotations lack required planned-well fields")
+    records = []
+    for plate in PLATES:
+        observed = rows[rows.Assay_Plate_Barcode.eq(plate)]
+        names = observed.Plate_Map_Name.unique()
+        if len(names) != 1:
+            raise ValueError("Selected plate must have one unambiguous source layout")
+        layout = maps[maps.Plate_Map_Name.eq(names[0])].copy().map(clean)
+        if {"well_position", "broad_sample"} - set(layout):
+            raise ValueError("Source layout lacks canonical physical identities")
+        layout["well_position"] = canonical_wells(layout.well_position)
+        if (not layout.well_position.str.fullmatch(r"[A-P](?:0[1-9]|1[0-9]|2[0-4])").all()
+                or layout.well_position.duplicated().any()):
+            raise ValueError("Source layout has invalid or duplicate physical wells")
+        lookup = layout.set_index("well_position").broad_sample.to_dict()
+        present = set(observed.well_position)
+        for letter in "ABCDEFGHIJKLMNOP":
+            for column in range(1, 25):
+                well = f"{letter}{column:02d}"
+                sample = lookup.get(well, "")
+                ann = crispr[crispr.broad_sample.eq(sample)] if sample else crispr.iloc[:0]
+                status = ("missing_layout_well" if well not in lookup else
+                          "missing_sample" if not sample else
+                          "matched" if len(ann) == 1 else
+                          "ambiguous_annotation" if len(ann) > 1 else "unmatched_annotation")
+                role = "unclassified"
+                gene = sequence = control_class = ""
+                if status == "matched":
+                    row = ann.iloc[0]
+                    gene, sequence = row.gene, row.target_sequence
+                    role = "treatment" if row.pert_type == "trt" else "control" if row.pert_type else "unclassified"
+                    if role == "control":
+                        control_class = clean(row.get("control_type", "")) or row.pert_type
+                records.append({"plate": plate, "well": well,
+                                "profile_observed": well in present,
+                                "design_mapping_status": status, "design_role": role,
+                                "source_sample": sample, "source_gene": gene,
+                                "source_sequence": sequence, "source_control_class": control_class})
+    return pd.DataFrame.from_records(records)
+
+
+def inspect_study_inputs(staging: Path) -> dict:
+    """Hash-bound metadata census and private well ledger; no numeric conversion."""
+    prepared = _prepared_study(Path(staging))
+    return {"census": prepared["census"], "private_layout": prepared["private_layout"]}
+
+
+def preflight_capture(staging: Path) -> dict:
+    """Return only the JSON-safe aggregate metadata census for contract binding."""
+    return inspect_study_inputs(staging)["census"]
+
+
+def load_study_inputs(staging: Path, *, expected_census: dict | None = None) -> dict:
+    """Load every observed row after metadata census and optional frozen binding."""
+    prepared = _prepared_study(Path(staging))
+    if expected_census is not None and prepared["census"] != expected_census:
+        raise ValueError("Observed metadata census changed after the amended contract was frozen")
+    rows, annotations = prepared["rows"], prepared["annotations"]
+    raw_features, order = prepared["raw_features"], prepared["order"]
+    feature_names, capture = prepared["feature_names"], prepared["capture"]
+    # Conversion occurs only after all compressed/source receipts, joins and row
+    # identities pass. Empty numeric fields are missing; bad text fails closed.
+    values = raw_features.to_numpy(dtype=str)
+    values[np.char.strip(values) == ""] = "nan"
+    try:
+        features = values.astype(float)[order]
+    except (TypeError, ValueError) as error:
+        raise ValueError("Profile feature contains nonnumeric text") from error
+    result = prepared["metadata"]
+    labeled = rows.broad_sample.ne("")
     ann = annotations[annotations.Perturbation.eq("crispr")].copy()
     if "target_sequence" not in ann or "gene" not in ann:
         raise ValueError("Pinned CRISPR annotations lack explicit sequence/gene fields")
@@ -518,6 +664,8 @@ def load_study_inputs(staging: Path) -> dict:
     valid = ann[ann.canonical_sequence.str.fullmatch("[ACGT]+")]
     receipt = {
         **capture, "selected_rows": len(result), "feature_count": len(feature_names),
+        "capture_census": prepared["census"],
+        "profile_availability": prepared["census"]["profile_availability"],
         "feature_schema_sha256": _sha("\n".join(feature_names).encode()),
         "metadata_sha256": _sha(result.to_csv(index=False, lineterminator="\n").encode()),
         "missing_label_rows": int((~labeled).sum()),
@@ -530,4 +678,5 @@ def load_study_inputs(staging: Path) -> dict:
         "upstream_normalization_scope": "source_batch_global",
         "normalization_note": "Public files already use batch-global normalization/feature selection; training-only preprocessing cannot undo it.",
     }
-    return {"metadata": result, "features": features, "feature_names": list(feature_names), "receipt": receipt}
+    return {"metadata": result, "features": features, "feature_names": list(feature_names), "receipt": receipt,
+            "private_layout": prepared["private_layout"], "census": prepared["census"]}

@@ -245,15 +245,80 @@ class PublicInputTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "alignment changed"):
                 self.load(captured)
 
-    def test_incomplete_or_wrong_plate_profile_rejected(self):
+    def test_incomplete_plate_is_retained_with_full_grid_absence_accounting(self):
         path = inputs.PROFILE_PATHS[0]
         self.frames[path] = self.frames[path].iloc[:-1]
-        with self.assertRaisesRegex(ValueError, "384"):
-            self.load(self.capture())
+        captured = self.capture()
+        census = inputs.preflight_capture(Path(captured["staging"]))
+        self.assertEqual(census["observed_profile_rows"], 1535)
+        self.assertEqual(census["planned_physical_wells"], 1536)
+        self.assertEqual(census["profile_availability"]["absent_profile_wells"], 1)
+        self.assertFalse(census["numeric_features_converted"])
+        loaded = inputs.load_study_inputs(Path(captured["staging"]), expected_census=census)
+        self.assertEqual(loaded["features"].shape, (1535, 2))
+        self.assertEqual(len(loaded["metadata"]), 1535)
+        self.assertEqual(len(loaded["private_layout"]), 1536)
+        absent = loaded["private_layout"][~loaded["private_layout"].profile_observed]
+        self.assertEqual(list(absent.well), ["P24"])
+        self.assertEqual(census["profile_availability"]["missingness_cause"], "UNKNOWN")
         self.sources, self.frames = synthetic_tables()
         self.frames[path].loc[0, "Metadata_Plate"] = "SYNTH_OTHER_PLATE"
         with self.assertRaisesRegex(ValueError, "allowlisted plate"):
             self.load(self.capture("wrong-plate"))
+
+    def test_empty_and_oversized_profile_are_rejected(self):
+        path = inputs.PROFILE_PATHS[0]
+        self.frames[path] = self.frames[path].iloc[:0]
+        with self.assertRaisesRegex(ValueError, "1 through 384"):
+            self.load(self.capture("empty"))
+        self.sources, self.frames = synthetic_tables()
+        self.frames[path] = pd.concat([self.frames[path], self.frames[path].iloc[[0]]])
+        with self.assertRaisesRegex(ValueError, "384-row"):
+            self.load(self.capture("oversized"))
+
+    def test_entirely_absent_gene_remains_in_planned_denominator(self):
+        for path in inputs.PROFILE_PATHS:
+            frame = self.frames[path]
+            self.frames[path] = frame[~frame.Metadata_gene.eq("SYNTH_GENE_B")]
+        loaded = self.load(self.capture())
+        counts = loaded["census"]["profile_availability"]["representation_counts"]
+        genes = counts["treatment_source_gene_strings"]
+        guides = counts["treatment_valid_DNA_sequence_strings"]
+        self.assertEqual(genes["planned_distinct"], 2)
+        self.assertEqual(genes["observed_distinct"], 1)
+        self.assertEqual(genes["entirely_absent_distinct"], 1)
+        self.assertEqual(guides["entirely_absent_distinct"], 1)
+        self.assertNotIn("SYNTH_GENE_B", set(loaded["metadata"].gene))
+        self.assertLess(len(loaded["metadata"]), 1536)
+
+    def test_absent_controls_and_treatments_have_distinct_counts(self):
+        path = inputs.PROFILE_PATHS[0]
+        self.frames[path] = self.frames[path].drop(index=[1, 31])
+        census = inputs.preflight_capture(Path(self.capture()["staging"]))
+        missing = census["profile_availability"]["absent_role_counts"]
+        self.assertEqual(missing, {"control": 1, "treatment": 1})
+        self.assertEqual(census["profile_availability"]["absent_control_class_counts"], {"negcon": 1})
+
+    def test_preflight_parses_metadata_without_numeric_feature_conversion(self):
+        self.frames[inputs.PROFILE_PATHS[0]].loc[0, "Cells_SYNTH"] = "SYNTH_NOT_A_NUMBER"
+        captured = self.capture()
+        census = inputs.preflight_capture(Path(captured["staging"]))
+        self.assertEqual(census["observed_profile_rows"], 1536)
+        self.assertFalse(census["numeric_features_converted"])
+        with self.assertRaisesRegex(ValueError, "nonnumeric"):
+            inputs.load_study_inputs(Path(captured["staging"]), expected_census=census)
+
+    def test_amended_census_mismatch_rejected_before_numeric_conversion(self):
+        captured = self.capture()
+        census = inputs.preflight_capture(Path(captured["staging"]))
+        census["observed_profile_rows"] -= 1
+        with self.assertRaisesRegex(ValueError, "census changed"):
+            inputs.load_study_inputs(Path(captured["staging"]), expected_census=census)
+
+    def test_invalid_well_is_not_treated_as_profile_absence(self):
+        self.frames[inputs.PROFILE_PATHS[0]].loc[0, "Metadata_Well"] = "Z99"
+        with self.assertRaises(ValueError):
+            self.load(self.capture())
 
     def test_wrong_condition_and_duplicate_physical_well_rejected(self):
         data = self.sources["experiment-metadata.tsv"]

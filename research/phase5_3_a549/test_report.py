@@ -8,7 +8,7 @@ import unittest
 
 import pandas as pd
 
-from report import FILES, MASKS, PRIMARY, SECONDARY, render_report
+from report import FILES, MASKS, PRIMARY, SECONDARY, _availability, _availability_html, render_report
 
 
 class MetricCells(HTMLParser):
@@ -84,12 +84,39 @@ def synthetic_results(*, empty=False):
     return cross, query
 
 
+def synthetic_availability():
+    """Invented profile absence only; no real cohort or mechanism claim."""
+    plates = ["SYNTH_PRIVATE_PLATE_A", "SYNTH_PRIVATE_PLATE_B", "SYNTH_PRIVATE_PLATE_C", "SYNTH_PRIVATE_PLATE_D"]
+    counts = [379, 375, 380, 336]
+    return {
+        "planned_physical_wells": 1536,
+        "observed_profile_rows": 1470,
+        "absent_profile_wells": 66,
+        "by_plate": {plate: {"planned_physical_wells": 384, "observed_profile_rows": count,
+                              "absent_profile_wells": 384 - count} for plate, count in zip(plates, counts)},
+        "planned_role_counts": {"treatment": 12, "control": 1524, "unclassified": 0},
+        "observed_role_counts": {"treatment": 8, "control": 1462, "unclassified": 0},
+        "absent_role_counts": {"treatment": 4, "control": 62},
+        "planned_control_class_counts": {"negcon": 1486, "SYNTH_PRIVATE_CONTROL_LABEL": 38},
+        "observed_control_class_counts": {"negcon": 1424, "SYNTH_PRIVATE_CONTROL_LABEL": 38},
+        "absent_control_class_counts": {"negcon": 62},
+        "representation_counts": {
+            "treatment_source_gene_strings": {"planned_distinct": 3, "observed_distinct": 2,
+                "absent_well_distinct": 1, "entirely_absent_distinct": 1},
+            "SYNTH_PRIVATE_UNREQUESTED_FIELD": {"planned_distinct": 99999},
+        },
+        "private_rows": ["SYNTH_PRIVATE_SOURCE_IDENTIFIER"],
+        "missingness_interpretation": "SYNTH_PRIVATE_UNTRUSTED_TEXT",
+    }
+
+
 class ReportTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.temporary = tempfile.TemporaryDirectory()
         cls.out = Path(cls.temporary.name)
-        cls.summary = {"status": "COMPLETE_EXPLORATORY", "source_commit": "a" * 40}
+        cls.summary = {"status": "COMPLETE_EXPLORATORY", "source_commit": "a" * 40,
+                       "profile_availability": synthetic_availability()}
         cls.cross, cls.query = synthetic_results()
         render_report(cls.out, cls.summary, cls.cross, cls.query)
         cls.html = (cls.out / "report.html").read_text(encoding="utf-8")
@@ -131,6 +158,33 @@ class ReportTests(unittest.TestCase):
         self.assertIn("0.314159", self.html)
         self.assertIn("0.234567", self.html)
         self.assertIn("0.00123", self.html)
+
+    def test_observed_and_design_denominators_remain_separate_and_anonymous(self):
+        cells = MetricCells(self.html).cells
+        self.assertEqual(cells["availability-total-planned"], "1536")
+        self.assertEqual(cells["availability-total-observed"], "1470")
+        self.assertEqual(cells["availability-total-absent"], "66")
+        self.assertEqual(cells["availability-P4-absent"], "48")
+        self.assertEqual(cells["availability-control-absent"], "62")
+        self.assertEqual(cells["coverage-P1-initial"], "2")
+        self.assertEqual(cells["coverage-P1-complete"], "1")
+        self.assertEqual(cells["representation-treatment_source_gene_strings-entirely_absent_distinct"], "1")
+        self.assertIn("Entirely absent units remain in the source-design denominator", self.html)
+        self.assertIn("conditional on the observed subset", self.html)
+        self.assertIn("Absence has an unknown cause", self.html)
+        self.assertIn("observed treatment profiles", self.html)
+        self.assertIn("Other or unresolved source control classes", self.html)
+        self.assertNotIn("SYNTH_PRIVATE", self.html)
+
+    def test_inconsistent_availability_never_appears_as_verified_counts(self):
+        availability = synthetic_availability()
+        availability["observed_profile_rows"] = 1536
+        section = _availability_html(_availability({"profile_availability": availability}))
+        self.assertIn("unavailable", section)
+        self.assertIn("Unavailable", section)
+        self.assertNotIn("1536", section)
+        self.assertNotIn("1470", section)
+        self.assertNotIn("SYNTH_PRIVATE", section)
 
     def test_zero_eligible_and_missing_analysis_panels_are_graceful(self):
         with tempfile.TemporaryDirectory() as folder:

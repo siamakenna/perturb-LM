@@ -39,6 +39,28 @@ def invented_study():
                         "feature_count": 904, "private_path": "/SYNTH_PRIVATE_PATH"}}
 
 
+def invented_census(study, staging):
+    metadata = study["metadata"]
+    per_plate = {plate: int(metadata.plate.eq(plate).sum()) for plate in runner.PLATES}
+    observed = len(metadata)
+    return {
+        "schema_version": "phase53.a549_capture_census.v1",
+        "input_manifest_sha256": runner.sha(staging / "manifest.json"),
+        "source_revision": runner.REVISION, "plates": runner.PLATES,
+        "per_plate_rows": per_plate, "observed_profile_rows": observed,
+        "planned_physical_wells": 1536, "feature_count": 904,
+        "feature_schema_sha256": hashlib.sha256("\n".join(study["feature_names"]).encode()).hexdigest(),
+        "numeric_features_converted": False,
+        "profile_availability": {"planned_physical_wells": 1536,
+                                 "observed_profile_rows": observed,
+                                 "absent_profile_wells": 1536 - observed,
+                                 "missingness_cause": "UNKNOWN",
+                                 "observed_role_counts": {"treatment": int(metadata.treatment.sum()), "control": int(metadata.control.sum())},
+                                 "planned_role_counts": {"treatment": 16, "control": 1520},
+                                 "by_plate": {}},
+    }
+
+
 class RunnerTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix="phase53-runner-test-")
@@ -59,7 +81,13 @@ class RunnerTests(unittest.TestCase):
             (out / "manifest.json").write_text('{"synthetic":true}\n')
             return {}
 
-        def load(staging):
+        def inspect(staging):
+            self.assertTrue((self.out / "frozen-protocol.json").is_file())
+            self.assertFalse((self.out / "frozen-analysis-contract.json").exists())
+            return {"census": invented_census(self.study, staging),
+                    "private_layout": pd.DataFrame({"profile_observed": [True]})}
+
+        def load(staging, *, expected_census=None):
             self.assertTrue((self.out / "frozen-analysis-contract.json").is_file())
             self.assertTrue((self.out / "input-capture-binding.json").is_file())
             contract = json.loads((self.out / "frozen-analysis-contract.json").read_text())
@@ -67,9 +95,12 @@ class RunnerTests(unittest.TestCase):
             self.assertFalse(contract["coauthor_approval_asserted"])
             if mutate_manifest:
                 (staging / "manifest.json").write_text('{"tampered":true}')
+            self.assertEqual(contract["capture_census"], expected_census)
+            self.assertTrue(contract["frozen_before_numeric_conversion"])
+            result = {**self.study, "census": expected_census}
             if malformed:
-                return {**self.study, "features": self.study["features"][:, :2]}
-            return self.study
+                return {**result, "features": self.study["features"][:, :2]}
+            return result
 
         def report(out, summary, cross, query):
             self.assertTrue((out / "analysis-results-pending.json").is_file())
@@ -79,6 +110,7 @@ class RunnerTests(unittest.TestCase):
         return [patch.object(runner, "verify_source_pins", return_value={"files": []}),
                 patch.object(public_inputs, "fetch_public_inputs", side_effect=fetch),
                 patch.object(public_inputs, "load_study_inputs", side_effect=load),
+                patch.object(public_inputs, "inspect_study_inputs", side_effect=inspect),
                 patch("report.render_report", side_effect=report)]
 
     def run_case(self, **kwargs):
@@ -115,12 +147,12 @@ class RunnerTests(unittest.TestCase):
         result = json.loads((self.out / "summary.json").read_text())
         self.assertEqual(result["status"], "BLOCKED")
         self.assertFalse(result["scientific_results_computed"])
-        self.assertFalse((self.out / "PRIVATE").exists())
+        self.assertFalse(list((self.out / "PRIVATE").glob("crossguide_*.csv")))
 
     def test_report_failure_does_not_claim_completion(self):
         from contextlib import ExitStack
         with ExitStack() as stack:
-            for patcher in self.patches()[:3]:
+            for patcher in self.patches()[:4]:
                 stack.enter_context(patcher)
             stack.enter_context(patch("report.render_report", side_effect=OSError("Synthetic rendering failure")))
             with self.assertRaises(OSError):
@@ -189,6 +221,34 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "parent traversal"):
             runner.guarded_output(self.repo, self.repo / "outputs/../outputs/traversal")
         self.assertFalse((self.repo / "outputs/traversal").exists())
+
+    def test_missing_observed_row_freezes_actual_population_and_no_imputation(self):
+        keep = np.arange(len(self.study["metadata"])) != 5
+        self.study = {**self.study,
+                      "metadata": self.study["metadata"].loc[keep].reset_index(drop=True),
+                      "features": self.study["features"][keep]}
+        result = self.run_case()
+        self.assertEqual(result["status"], "COMPLETE_EXPLORATORY")
+        self.assertEqual(result["capture_census"]["observed_profile_rows"], 1535)
+        self.assertEqual(result["profile_availability"]["absent_profile_wells"], 1)
+        self.assertEqual(result["crossguide"]["input_rows_including_controls"], 1535)
+        contract = json.loads((self.out / "frozen-analysis-contract.json").read_text())
+        self.assertEqual(contract["capture_census"]["per_plate_rows"][runner.PLATES[0]], 383)
+        self.assertEqual(contract["protocol"]["schema_version"], "phase53.a549_exploratory.v2")
+
+    def test_supplied_census_mismatch_blocks_before_numeric_load(self):
+        from contextlib import ExitStack
+        census_path = Path(self.temp.name) / "wrong-census.json"
+        census_path.write_text('{"observed_profile_rows":1535}')
+        with ExitStack() as stack:
+            for patcher in self.patches():
+                stack.enter_context(patcher)
+            with patch.object(public_inputs, "load_study_inputs", side_effect=AssertionError("numeric load must not start")):
+                with self.assertRaisesRegex(RuntimeError, "input preparation"):
+                    runner.execute(self.repo, self.out, fetch_public=True, preflight_census=census_path, authorize_exploratory=True)
+        self.assertFalse((self.out / "frozen-analysis-contract.json").exists())
+        diagnostic = json.loads((self.out / "input-error-PRIVATE.json").read_text())
+        self.assertIn("Supplied preflight census", diagnostic["message"])
 
     def test_protocol_cannot_be_relabelled_as_validated_or_widened(self):
         protocol = json.loads((runner.SCRIPT_DIR / "PROTOCOL.json").read_text())
