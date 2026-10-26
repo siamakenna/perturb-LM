@@ -179,8 +179,9 @@ PLATES = ("SYNTH_P1", "SYNTH_P2", "SYNTH_P3", "SYNTH_P4")
 
 
 def observations(gene="SYNTH_GENE_A", guides=("SYNTH_A", "SYNTH_B")):
+    wells = {"SYNTH_A": "A01", "SYNTH_B": "B02", "SYNTH_C": "C03", "SYNTH_D": "D04"}
     return [
-        (gene, guide, partner, p, q, f"SYNTH_WELL_{gene}_{guide}")
+        (gene, guide, partner, p, q, wells[guide])
         for p, q in permutations(PLATES, 2)
         for guide, partner in (guides, guides[::-1])
     ]
@@ -189,7 +190,7 @@ def observations(gene="SYNTH_GENE_A", guides=("SYNTH_A", "SYNTH_B")):
 def test_balanced_weights_repeat_orientations_within_genes():
     rows = observations() + observations("SYNTH_GENE_B", ("SYNTH_C", "SYNTH_D"))
     # Unequal well counts in one metadata cell must not increase its gene's weight.
-    rows.append((*rows[0][:-1], "SYNTH_EXTRA_WELL"))
+    rows.append((*rows[0][:-1], "E05"))
     result = balanced_comparison_weights(rows, PLATES)
     assert result["eligible_gene_groups"] == 2
     assert result["complete_guide_pairs"] == 2
@@ -222,6 +223,35 @@ def test_contradictory_physical_anchor_fails_before_weighting():
     conflicting = ("SYNTH_OTHER_GENE", *rows[0][1:])
     with pytest.raises(ValueError, match="Physical"):
         balanced_comparison_weights(rows + [conflicting], PLATES)
+
+
+def test_weighting_well_alias_duplicate_does_not_create_an_extra_observation():
+    rows = observations()
+    alias = (*rows[0][:-1], "a1")
+    with pytest.raises(ValueError, match="Duplicate"):
+        balanced_comparison_weights(rows + [alias], PLATES)
+
+
+def test_weighting_well_alias_cannot_hide_a_physical_identity_conflict():
+    rows = observations()
+    conflicting = ("SYNTH_OTHER_GENE", *rows[0][1:-1], "a1")
+    with pytest.raises(ValueError, match="Physical"):
+        balanced_comparison_weights(rows + [conflicting], PLATES)
+
+
+def test_weighting_well_aliases_and_reordering_preserve_canonical_weights():
+    rows = observations() + observations("SYNTH_GENE_B", ("SYNTH_C", "SYNTH_D"))
+    aliases = [(*row[:-1], row[-1][0].lower() + str(int(row[-1][1:]))) for row in rows]
+    expected = balanced_comparison_weights(rows, PLATES)
+    assert balanced_comparison_weights(aliases[::-1], PLATES[::-1]) == expected
+    assert isclose(sum(weight for _, weight in expected["weights"]), 1)
+
+
+def test_weighting_rejects_invalid_physical_wells():
+    rows = observations()
+    for well in ("A00", "A25", "Q01", "A001", "A01 ", 1):
+        with pytest.raises(ValueError, match="physical well"):
+            balanced_comparison_weights([(*rows[0][:-1], well), *rows[1:]], PLATES)
 
 
 def test_manifest_containment_returns_checked_canonical_path(tmp_path):

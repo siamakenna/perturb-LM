@@ -107,7 +107,8 @@ def balanced_comparison_weights(records, plates):
     and ordered physical plate pair. It must already have positive AND reference
     support. No numerical features or effects enter this function. Incomplete
     guide pairs are excluded in their entirety; no minimum study size is chosen.
-    Duplicate observations fail, rather than adding apparent replication.
+    Well aliases are canonicalized before physical-identity checks. Duplicate
+    observations fail, rather than adding apparent replication.
     """
     if len(plates) != 4 or len(set(plates)) != 4:
         raise ValueError("Exactly four distinct physical plates required")
@@ -120,6 +121,11 @@ def balanced_comparison_weights(records, plates):
         gene, guide, partner, p, q, well = row
         if not all(row) or guide == partner or (p, q) not in expected:
             raise ValueError("Invalid comparison metadata")
+        canonical = canonical_wells(pd.Series([well], dtype="string"))
+        if not canonical.str.fullmatch(r"[A-P](?:0[1-9]|1[0-9]|2[0-4])").fillna(False).all():
+            raise ValueError("Invalid physical well")
+        well = canonical.iloc[0]
+        row = (gene, guide, partner, p, q, well)
         if row in observed:
             raise ValueError("Duplicate comparison observation")
         physical = (p, well)
