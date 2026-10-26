@@ -1,0 +1,55 @@
+{
+  "schema_version": "phase53.authorized_exploratory.v1",
+  "date": "2026-10-26",
+  "status": "USER_AUTHORIZED_EXPLORATORY_UNREVIEWED_SOURCE_IDENTITIES",
+  "authorization_scope": "Independent exploratory analysis requested by the user on 26 October 2026; no coauthor sign-off is asserted.",
+  "historical_results_modified": false,
+  "previous_reviewed_protocol_replaced": false,
+  "source_repository": "jump-cellpainting/2024_Chandrasekaran_NatureMethods_CPJUMP1",
+  "source_revision": "56845c7d4dc322652952783d91dae0ffef47829f",
+  "plates": [
+    "BR00116996",
+    "BR00116997",
+    "BR00116998",
+    "BR00116999"
+  ],
+  "input_kind": "normalized_feature_select_negcon_batch",
+  "public_capture_scope": "Four public profiles plus eleven bounded source metadata files; not recipient verification of the historical private twelve-file bundle.",
+  "download_limits": {
+    "profile_files": 4,
+    "compressed_file_bytes": 16777216,
+    "compressed_total_bytes": 67108864,
+    "decompressed_per_file_bytes": 33554432,
+    "metadata_per_file_bytes": 1048576
+  },
+  "expected_capture": {
+    "rows": 1536,
+    "features": 904,
+    "physical_plates": 4
+  },
+  "primary_endpoint": "Finite-cohort mean cosine difference between same recorded source-gene/different-recorded-DNA partners and balanced other-source-gene references.",
+  "relationship_status": "Provisional source annotations only; no reviewed guide/target identity, efficacy, off-target absence or independent culture is inferred.",
+  "guide_grouping": "Identical recorded DNA strings collapse across reagent aliases; exact reagent, identical DNA and reverse-complement DNA matches are conservatively excluded from comparisons.",
+  "identity_holds": "Missing, multigene/ambiguous sequence associations and well-like gene strings including F10 remain in accounting but are held from labeled cross-guide relationships. This does not assert that F10 is an invalid biological gene.",
+  "primary_mask": "different physical plate and different canonical row AND different canonical column",
+  "secondary_mask": "different physical plate and different canonical coordinate",
+  "reference_weighting": "Equal source gene, then recorded sequence group, then physical well after masking; all treatment gallery rows retained in flow accounting.",
+  "effect_weighting": "Existing canonical helper: complete guide pair supports both guide directions in every ordered plate comparison; equal wells/cells, directions, six unordered physical plate pairs, guide pairs within source gene, then source genes.",
+  "qcs": "Nonfinite and zero-norm vectors remain in denominators, have unavailable cosine and cannot yield fabricated zero effects. No imputation, learned scaler, feature selection or training.",
+  "preprocessing_interpretation": "Conditional on provided source-preprocessed vectors; original fit population and artifact-specific execution binding remain unverified. No inductive or leakage-free preprocessing claim.",
+  "position_control": "Same morphology-valid comparison observations and weights, fixed coordinate score 1 - 0.5*(absolute row difference/15 + absolute column difference/23). Report side by side; no causal adjustment or score-scale equivalence claim.",
+  "query_information": "New field-signature audit on unique treatment reagent IDs. Category-only uses pert_type/control_type/negcon_control_type; gene-aware adds the literal recorded gene. No historical V1/V2 renderer or model is run.",
+  "uncertainty": "Finite-cohort distributions only. No confidence interval, permutation p-value or independent culture/population inference.",
+  "multiplicity": "One frozen primary endpoint and one declared spatial sensitivity. Report every result without selecting favorable groups/masks. Three analyses share one cohort and are not independent replications.",
+  "publication": "Code, synthetic tests and protocol may be pushed to a draft research branch. Real-data outputs remain local and are not automatically committed or published.",
+  "compute": "Local CPU only; no Biowulf allocation, private-data transfer, GPU/model run or collaborator contact.",
+  "frozen_before_features": true,
+  "stop_conditions": [
+    "wrong revision or input checksum",
+    "mixed recorded conditions",
+    "duplicate physical wells or contradictory joins",
+    "unexpected source/schema/population",
+    "unverified/incomplete capture",
+    "no eligible comparison population (report unavailable, never fabricate a score)"
+  ]
+}

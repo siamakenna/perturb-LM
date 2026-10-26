@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "repository": "siamakenna/perturb-LM",
+  "files": [
+    {
+      "path": "src/perturb_lm/audits/cohort.py",
+      "sha256": "decade3bcfdeb617217647df0023522db04bd24966362b3f2c0618ae7a8a82fe"
+    },
+    {
+      "path": "src/perturb_lm/audits/rotations.py",
+      "sha256": "e5c16b4119519a98b59852c254cd471d79bde03a9fccf07db8df44f71cdc371d"
+    },
+    {
+      "path": "src/perturb_lm/audits/guide_support.py",
+      "sha256": "d4ad4b26071b32497b2da49ab8b5735bfdabfdb67f5b0326d24cf1478de22f4b"
+    },
+    {
+      "path": "src/perturb_lm/audits/cross_guide_design.py",
+      "sha256": "c0c8ce4b70737b08ce2b44aaeebe52128e516b08b372f62fc3fd9068735ee65d"
+    }
+  ]
+}
