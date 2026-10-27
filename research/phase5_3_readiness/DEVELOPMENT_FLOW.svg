@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1060" viewBox="0 0 1100 1060" role="img" aria-labelledby="title desc">
+<title id="title">Perturb-LM development and parallel readiness work</title>
+<desc id="desc">Completed profile studies and published source feed three parallel readiness jobs, which must converge before a controlled image experiment and later language retrieval.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#847294"/></marker></defs>
+<rect width="1100" height="1060" fill="#fbf9ff"/>
+<style>text{font-family:Arial,Helvetica,sans-serif;fill:#30253f}.title{font-size:29px;font-weight:600}.label{font-size:20px;font-weight:600}.detail{font-size:18px}.status{font-size:15px;font-weight:600;letter-spacing:1px}.arrow{stroke:#847294;stroke-width:2;fill:none;marker-end:url(#arrow)}</style>
+<text class="title" x="550" y="42" text-anchor="middle">Perturb-LM: development and parallel work</text>
+<rect x="20" y="80" width="330" height="115" rx="14" fill="#e9f2ed" stroke="#d9cce8"/>
+<text class="status" x="185.0" y="105" text-anchor="middle">COMPLETED / REPORTED</text>
+<text class="label" x="185.0" y="134" text-anchor="middle">U2OS + A549 profiles</text>
+<text class="detail" x="185.0" y="160" text-anchor="middle">Added A549 plates; same batch</text>
+<rect x="385" y="80" width="330" height="115" rx="14" fill="#e9f2ed" stroke="#d9cce8"/>
+<text class="status" x="550.0" y="105" text-anchor="middle">COMPLETED / REPORTED</text>
+<text class="label" x="550.0" y="134" text-anchor="middle">Batch8 + MOA pilots</text>
+<text class="detail" x="550.0" y="160" text-anchor="middle">Bounded, descriptive studies</text>
+<rect x="750" y="80" width="330" height="115" rx="14" fill="#e9f2ed" stroke="#d9cce8"/>
+<text class="status" x="915.0" y="105" text-anchor="middle">COMPLETED / REPORTED</text>
+<text class="label" x="915.0" y="134" text-anchor="middle">Published source + CI</text>
+<text class="detail" x="915.0" y="160" text-anchor="middle">PR92 and PR93 snapshots</text>
+<path class="arrow" d="M185 195 V225 H550 V250"/>
+<path class="arrow" d="M550 195 V225 H550 V250"/>
+<path class="arrow" d="M915 195 V225 H550 V250"/>
+<rect x="310" y="255" width="480" height="88" rx="14" fill="#efe8f7" stroke="#d9cce8"/>
+<text class="status" x="550.0" y="280" text-anchor="middle">DEVELOPMENT STARTING POINT</text>
+<text class="label" x="550.0" y="309" text-anchor="middle">Preserved evidence and limitations</text>
+<path class="arrow" d="M550 343 V365 H185 V395"/>
+<path class="arrow" d="M550 343 V365 H550 V395"/>
+<path class="arrow" d="M550 343 V365 H915 V395"/>
+<rect x="20" y="400" width="330" height="120" rx="14" fill="#eee4fa" stroke="#d9cce8"/>
+<text class="status" x="185.0" y="425" text-anchor="middle">PARALLEL READ-ONLY JOB</text>
+<text class="label" x="185.0" y="454" text-anchor="middle">Source verification</text>
+<text class="detail" x="185.0" y="480" text-anchor="middle">Copy pinned public code</text>
+<rect x="385" y="400" width="330" height="120" rx="14" fill="#eee4fa" stroke="#d9cce8"/>
+<text class="status" x="550.0" y="425" text-anchor="middle">PARALLEL READ-ONLY JOB</text>
+<text class="label" x="550.0" y="454" text-anchor="middle">Data and image inventory</text>
+<text class="detail" x="550.0" y="480" text-anchor="middle">Report what exists or is missing</text>
+<rect x="750" y="400" width="330" height="120" rx="14" fill="#eee4fa" stroke="#d9cce8"/>
+<text class="status" x="915.0" y="425" text-anchor="middle">PARALLEL READ-ONLY JOB</text>
+<text class="label" x="915.0" y="454" text-anchor="middle">Model-source audit</text>
+<text class="detail" x="915.0" y="480" text-anchor="middle">Pin code; inspect compatibility</text>
+<path class="arrow" d="M185 520 V555 H550 V585"/>
+<path class="arrow" d="M550 520 V555 H550 V585"/>
+<path class="arrow" d="M915 520 V555 H550 V585"/>
+<rect x="270" y="590" width="560" height="115" rx="14" fill="#fff2d9" stroke="#d9cce8"/>
+<text class="status" x="550.0" y="615" text-anchor="middle">PREREQUISITES REMAIN</text>
+<text class="label" x="550.0" y="644" text-anchor="middle">Verified cohort + channel contract</text>
+<text class="detail" x="550.0" y="670" text-anchor="middle">Resolve preprocessing and study units</text>
+<path class="arrow" d="M550 705 V755"/>
+<rect x="270" y="760" width="560" height="100" rx="14" fill="#fff2d9" stroke="#d9cce8"/>
+<text class="status" x="550.0" y="785" text-anchor="middle">PROPOSED IMAGE EXPERIMENT</text>
+<text class="label" x="550.0" y="814" text-anchor="middle">Full-channel versus reduced-channel test</text>
+<path class="arrow" d="M550 860 V910"/>
+<rect x="270" y="915" width="560" height="100" rx="14" fill="#efedf2" stroke="#d9cce8"/>
+<text class="status" x="550.0" y="940" text-anchor="middle">LATER SCIENTIFIC STAGE</text>
+<text class="label" x="550.0" y="969" text-anchor="middle">Separate language-to-morphology evaluation</text>
+<text class="detail" x="550" y="1042" text-anchor="middle">The preflight runs no model inference or scientific scoring.</text></svg>

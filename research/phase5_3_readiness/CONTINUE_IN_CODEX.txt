@@ -1,0 +1,50 @@
+Continue Perturb-LM from this transfer kit and its README, batch_usage_notes,
+tracker_seed, model_public_audit, model_readiness and PROTOCOL files.
+
+The original Mac already reported all three readiness jobs completed. Read
+the accompanying source-machine receipt and model source-pins first; do not
+repeat completed scientific analyses. Run the corrected synthetic suite and
+read fresh GitHub state. Use --fetch-source only if pinned source checkouts
+are needed on this receiving device; the kit is not the full repository.
+Check fresh GitHub state before changing source. Preserve dirty work, historical results and ignored outputs.
+
+Prioritize resolving image-cohort availability, guide/gene identity and source
+processing provenance. Added A549 plates share the original CPJUMP1 batch.
+A separate bounded cpg0016 Batch8 pilot was completed; it is not an independent
+multibatch image-transformer validation. Do not repeat these completed analyses.
+
+ChAda-ViT/16 Moyen is proposed. Inspect the author checkpoint/source revisions,
+input grouping, token-versus-CLS output, license, training overlap and isolated
+runtime before any execution. The model uses DINO-style learning, not
+specifically DINOv2. Inventory checks are not a full input adapter or evidence
+of biological retrieval. The ten existing compound-site TIFFs do not establish
+the cross-guide CRISPR image cohort.
+
+Work in parallel on three independent streams: source/checkpoint provenance,
+local image/metadata availability, and an explicit channel/preprocessing
+contract with synthetic tests. Freeze one controlled full-versus-reduced-channel
+image experiment only after the prerequisites converge. Retain CellProfiler
+as the morphology reference, CellCLIP as the paired image-text baseline, and
+MedCPT/BioLORD as historical language comparators. Language alignment is separate.
+
+No model downloads, pretrained inference, new scoring or Biowulf jobs are
+authorized by the preflight kit. No private data, row-level artifacts or local
+paths may be published. The existing source-publication authorization covers
+reviewed code/docs and draft PRs; no merge/release/deployment/collaborator
+message is authorized. Use the supplied explicit-whitelist publisher if saving
+the kit's new source on GitHub. Verify remote SHA and PR state before claiming
+publication. Keep scientific proposal/approval, code correctness and measured
+biological results distinct.
+
+Deliver an updated completion tracker with actual commands/tests, source pins,
+image availability, blockers and the smallest next executable experiment.
+Do not infer unavailable data, independent cultures, measured effects or power.
+
+This receiving Mac has no Biowulf access. Do not block source review or synthetic
+adapter development on Biowulf. First inspect the captured ChAda-ViT configuration
+and grouping/output contract. In parallel, specify an isolated runtime and a
+full-channel versus reduced-channel experiment using one clearly defined cohort.
+Do not infer that original-Mac image/profile hashes have been reverified here.
+If research files are absent, document that exact blocker while completing the
+source and synthetic-test work. Source-Mac readiness receipts and publication
+receipts establish only their stated checks, not new biological validation.

@@ -1,0 +1,111 @@
+{
+  "schema_version": 1,
+  "prepared_date": "2026-10-27",
+  "status": "PARTIAL_PUBLIC_SOURCE_AUDIT_PINS_NOT_ESTABLISHED",
+  "scope": "Bounded inspection of author documentation, configuration and model source through retrieved public webpages. No weights, training images or runtime model execution.",
+  "candidate": {
+    "architecture": "ChAda-ViT/16 Moyen",
+    "github_repository": "nicoboou/chadavit",
+    "huggingface_repository": "nicoboou/chadavit16-moyen",
+    "selection_status": "PROPOSED_NOT_INTEGRATED_OR_EVALUATED"
+  },
+  "pins": {
+    "status": "PINS_NOT_ESTABLISHED",
+    "github_source_revision": null,
+    "huggingface_revision_candidate": "91a41123650ccff12f590364fec95d76af36cc93",
+    "candidate_revision_evidence": "Full SHA exposed by the commit link from the retrieved Hugging Face main tree; the immutable commit/configuration fetch was inaccessible.",
+    "candidate_is_verified_current_head": false,
+    "configuration_bound_to_candidate_revision": false,
+    "source_file_sha256": {},
+    "weight_sha256": null,
+    "limitations": [
+      "Author GitHub immutable revision was not recoverable through the available reader.",
+      "The Hugging Face API endpoint and immutable revision routes were inaccessible.",
+      "Retrieved webpages have different crawl dates. Mutable main-file observations must not be treated as one freshly bound snapshot.",
+      "No byte-level source or weight integrity claim is made."
+    ]
+  },
+  "observed_configuration": {
+    "source": "https://huggingface.co/nicoboou/chadavit16-moyen/blob/main/config.json",
+    "model_type": "chadavit",
+    "architectures": ["ChAdaViTModel"],
+    "img_size": [224],
+    "patch_size": 16,
+    "embed_dim": 192,
+    "depth": 12,
+    "num_heads": 12,
+    "in_chans": 1,
+    "max_number_channels": 10,
+    "return_all_tokens": true,
+    "torch_dtype": "float32",
+    "transformers_version": "4.43.0",
+    "auto_config": "config_chada_vit.ChAdaViTConfig",
+    "auto_model": "modeling_chada_vit.ChAdaViTModel"
+  },
+  "integration_findings": [
+    {
+      "id": "OUTPUT_POOLING_REQUIRED",
+      "finding": "The retrieved configuration enables return_all_tokens. The inspected forward method returns all non-masked patch tokens under that setting; it does not default to one fixed-size vector per image.",
+      "next_action": "Define and test CLS-token output with return_all_tokens disabled or an explicit pooling rule before retrieval. Freeze this choice without tuning on held-out results."
+    },
+    {
+      "id": "GROUPED_CHANNEL_INPUT_REQUIRED",
+      "finding": "The inspected forward signature is forward(x, index, list_num_channels). Its tokenization receives flattened single-channel image batches and splits them according to grouping metadata.",
+      "next_action": "Build and test a channel-group adapter. Do not assume that an ordinary B-by-C-by-H-by-W tensor can be passed unchanged to this author wrapper."
+    },
+    {
+      "id": "SINGLE_CHANNEL_PATCHIFIER_NOT_SINGLE_CHANNEL_MODEL",
+      "finding": "The in_chans value of one describes each patchifier input; the separate maximum channel count is ten.",
+      "next_action": "Preserve biological channel identities and sample boundaries while preparing the grouped input."
+    },
+    {
+      "id": "ISOLATED_RUNTIME_REQUIRED",
+      "finding": "The retrieved author GitHub pyproject declares an older development stack including NumPy 1.24.3 and Torch 2.0.0.",
+      "next_action": "Assess a separate model runtime. Do not install that dependency set into Perturb-LM's recently repaired NumPy 2 environment."
+    },
+    {
+      "id": "CUSTOM_LOADER_REVIEW_REQUIRED",
+      "finding": "The model configuration maps Transformers auto classes to repository-specific Python modules. The model-page usage requests trust_remote_code.",
+      "next_action": "Pin and review the exact custom source before any loading. This audit did not import or execute it."
+    }
+  ],
+  "training": {
+    "reported_method": "DINO self-supervised learning",
+    "reported_dataset": "IDRCell100k",
+    "reported_training_experiments": 79,
+    "reported_channel_range": [1, 10],
+    "is_specifically_a_dinov2_extension": false,
+    "overlap_with_perturb_lm_evaluation": "NOT_ESTABLISHED",
+    "limitation": "No experiment-by-experiment training inventory was reconciled against the proposed JUMP evaluation cohort. Self-supervised training does not establish independence."
+  },
+  "license": {
+    "author_github_code_declared_license": "Apache 2.0",
+    "checkpoint_weight_license": "NOT_INDEPENDENTLY_VERIFIED",
+    "limitation": "The code license was not silently extended to every checkpoint artifact."
+  },
+  "unresolved_preprocessing": [
+    "Exact immutable inference preprocessing recipe",
+    "Intensity scaling and normalization for the selected five-channel TIFFs",
+    "Channel-order semantics across assays",
+    "Crop and resize choices for the selected image cohort",
+    "Registration and missing-channel behavior on actual inputs",
+    "Field-to-well aggregation",
+    "Stable output/pooling contract"
+  ],
+  "execution": {
+    "model_weights_downloaded": false,
+    "model_code_executed": false,
+    "inference_run": false,
+    "scientific_results_computed": false,
+    "github_writes_performed": false
+  },
+  "sources": [
+    {"url": "https://github.com/nicoboou/chadavit", "ref": "turn530view2", "role": "Author code repository, links and declared code license"},
+    {"url": "https://huggingface.co/nicoboou/chadavit16-moyen/tree/main", "ref": "turn530view1", "role": "Author checkpoint file inventory and observed commit link"},
+    {"url": "https://huggingface.co/nicoboou/chadavit16-moyen/blob/main/config.json", "ref": "turn531view1", "role": "Observed model configuration"},
+    {"url": "https://huggingface.co/nicoboou/chadavit16-moyen/blob/main/config_chada_vit.py", "ref": "turn531view2", "role": "Observed custom configuration implementation"},
+    {"url": "https://huggingface.co/nicoboou/chadavit16-moyen/blob/main/modeling_chada_vit.py", "ref": "turn531view3", "role": "Observed forward signature, grouping and token output"},
+    {"url": "https://raw.githubusercontent.com/nicoboou/chadavit/main/pyproject.toml", "ref": "turn532view3", "role": "Author development dependency declarations"},
+    {"url": "https://arxiv.org/html/2311.15264v2", "ref": "turn533view1", "role": "Primary paper, DINO training and IDRCell100k description"}
+  ]
+}

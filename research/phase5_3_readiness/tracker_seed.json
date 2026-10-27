@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "project": "Perturb-LM",
+  "prepared_date": "2026-10-27",
+  "timezone": "America/New_York",
+  "scope": "Local transfer and tracked continuation; completed facts are evidence-bounded and future jobs are not claimed to have started.",
+  "job_launch_state": "THREE_LOCAL_JOBS_CONFIGURED_NOT_STARTED_ON_RECEIVING_MAC",
+  "github_pushes_performed_by_this_handoff": false,
+  "scientific_analyses_run_by_this_handoff": false,
+  "merges_performed_by_this_handoff": false,
+  "status_definitions": {
+    "DONE_VERIFIED_FROM_TERMINAL": "The user supplied terminal output that verifies the stated source or check status; no independent authenticated observation by this handoff is implied.",
+    "DONE_REPORTED": "A prior completed result is reported in the supplied history; the present handoff has not rerun or independently verified its raw inputs.",
+    "PROPOSED": "A specified next task that has not been executed or marked approved by this tracker.",
+    "BLOCKED": "A task cannot yet execute because its listed prerequisites are unresolved.",
+    "DONE_LOCAL_SYNTHETIC_TESTED": "Implementation passed actual invented-data software tests in this session; no real-image or biological validation is implied."
+  },
+  "parallel_groups": {
+    "read_only_preflight": {
+      "purpose": "Three independent receiving-computer jobs: source verification, local evidence/image inventory, and model-source metadata capture.",
+      "task_ids": [
+        "PRE_GITHUB",
+        "PRE_BATCH_IMAGE",
+        "PRE_MODEL"
+      ],
+      "allows_model_execution": false,
+      "allows_bulk_data_download": false,
+      "allows_biowulf_jobs": false
+    }
+  },
+  "tasks": [
+    {
+      "id": "PUB_PR92",
+      "title": "A549 exploratory-analysis source publication",
+      "status": "DONE_VERIFIED_FROM_TERMINAL",
+      "evidence_level": "USER_TERMINAL_VERIFIED",
+      "stream": "completed_source",
+      "parallel_group": null,
+      "depends_on": [],
+      "evidence": {
+        "pull_request": "https://github.com/siamakenna/perturb-LM/pull/92",
+        "head_sha": "c28bd56f56771055e3cc5c7e84bcff0841e76190",
+        "reported_checks": {
+          "successful": 9,
+          "skipped": 1,
+          "failing": 0,
+          "pending": 0
+        },
+        "last_reported_state": "OPEN",
+        "merged_by_this_workflow": false
+      },
+      "next_action": "Preserve this completed source revision; obtain a fresh read-only GitHub observation before treating its PR state as current.",
+      "completion_criteria": [
+        "Source push and remote SHA were verified in the supplied terminal output.",
+        "The supplied terminal output reported nine successful checks and one skipped manual check."
+      ],
+      "limitations": [
+        "Published source and passing CI do not establish biological validation.",
+        "This handoff has not independently queried the authenticated repository."
+      ]
+    },
+    {
+      "id": "SCI_U2OS",
+      "title": "Completed U2OS exploratory cross-guide profile analysis",
+      "status": "DONE_REPORTED",
+      "evidence_level": "PRESERVED_PRIOR_RESULT_REPORTED",
+      "stream": "completed_science",
+      "parallel_group": null,
+      "depends_on": [],
+      "evidence": {
+        "cell_context": "U2OS/Cas9",
+        "source_batch": "2020_11_04_CPJUMP1",
+        "plates": [
+          "BR00116996",
+          "BR00116997",
+          "BR00116998",
+          "BR00116999"
+        ]
+      },
+      "next_action": "Reuse the preserved result as development evidence; do not repeat scoring merely to reconstruct the handoff.",
+      "completion_criteria": [
+        "The prior conversation reports a completed, preserved exploratory profile analysis."
+      ],
+      "limitations": [
+        "This is morphology-profile evidence, not a completed multichannel image-transformer or language-retrieval experiment.",
+        "Raw-profile recipient-side verification was not performed by this handoff."
+      ]
+    },
+    {
+      "id": "SCI_A549",
+      "title": "Completed A549 exploratory cross-guide profile extension",
+      "status": "DONE_REPORTED",
+      "evidence_level": "USER_TERMINAL_COMPLETION_AND_PRIOR_RESULT_REPORTED",
+      "stream": "completed_science",
+      "parallel_group": null,
+      "depends_on": [],
+      "evidence": {
+        "cell_context": "A549/Cas9",
+        "source_batch": "2020_11_04_CPJUMP1",
+        "plates": [
+          "BR00117000",
+          "BR00117003",
+          "BR00117004",
+          "BR00117005"
+        ],
+        "input_missingness": "The preserved capture contains one fewer observed profile on BR00117005; no profile was imputed."
+      },
+      "next_action": "Keep the completed analysis and missing-well accounting; assess lineage and preprocessing before interpreting cross-context differences.",
+      "completion_criteria": [
+        "The supplied terminal reports completion after the missing-well correction."
+      ],
+      "limitations": [
+        "Additional A549 plates extend the cell context within the same recorded source batch; they are not a verified new batch.",
+        "The missing-profile cause remains unknown.",
+        "Cell-context differences are not established causal effects."
+      ]
+    },
+    {
+      "id": "SCI_BATCH8",
+      "title": "Completed bounded production Batch8 design-label profile pilot",
+      "status": "DONE_REPORTED",
+      "evidence_level": "CURRENT_WORKSPACE_AGGREGATE_INSPECTED",
+      "depends_on": [],
+      "stream": "completed_science",
+      "evidence": {
+        "collection": "cpg0016-jump",
+        "source": "source_4",
+        "object_path_batch": "2021_07_12_Batch8",
+        "query_plate": "BR00121428",
+        "gallery_plate": "BR00123523",
+        "evaluable_queries": 147,
+        "summary_status": "COMPLETED_DESCRIPTIVE_DESIGN_LABEL_PILOT",
+        "batch_field_in_profile_metadata": "UNAVAILABLE; association uses recorded object path and available source/plate metadata"
+      },
+      "next_action": "Preserve this descriptive result; do not treat one pair as an independent multibatch validation.",
+      "completion_criteria": [
+        "The current workspace contains the completed aggregate summary and bound pair inspection."
+      ]
+    },
+    {
+      "id": "SCI_MOA",
+      "title": "Completed MOA retrieval and separate control-centering sensitivity",
+      "status": "DONE_REPORTED",
+      "evidence_level": "CURRENT_WORKSPACE_AGGREGATES_INSPECTED_AND_PRIOR_REPORT",
+      "depends_on": [],
+      "stream": "completed_science",
+      "next_action": "Retain original and centered analyses separately; resolve biological labels and acquisition lineage.",
+      "completion_criteria": [
+        "Completed aggregate records exist; no new scoring was run to create this handoff."
+      ]
+    },
+    {
+      "id": "ENG_INVENTORY",
+      "title": "Bounded five-channel inventory verifier implemented",
+      "status": "DONE_LOCAL_SYNTHETIC_TESTED",
+      "evidence_level": "CURRENT_SESSION_SOFTWARE_TESTS",
+      "depends_on": [],
+      "stream": "completed_engineering",
+      "evidence": {
+        "synthetic_tests": 18,
+        "real_images_inspected_in_this_session": false,
+        "pixels_decoded": false,
+        "model_inference_performed": false
+      },
+      "next_action": "Run the provided local evidence job on the existing reviewed image inventory; this still does not establish the CRISPR image cohort.",
+      "completion_criteria": [
+        "Synthetic byte, grouping, alias, mutation and path/size guards pass."
+      ]
+    },
+    {
+      "id": "SCI_CONTEXT",
+      "title": "Completed post hoc U2OS\u2013A549 agreement diagnostic",
+      "status": "DONE_REPORTED",
+      "evidence_level": "USER_TERMINAL_COMPLETION_AND_PRIOR_RESULT_REPORTED",
+      "stream": "completed_science",
+      "parallel_group": null,
+      "depends_on": [
+        "SCI_U2OS",
+        "SCI_A549"
+      ],
+      "evidence": {
+        "reported_status": "POST_HOC_CONTEXT_DIAGNOSTIC_NOT_RESCORE"
+      },
+      "next_action": "Use the diagnostic to motivate a prospective reliability question; retain all development groups rather than selecting favorable ones.",
+      "completion_criteria": [
+        "The supplied terminal reports that the diagnostic completed with the original inputs preserved."
+      ],
+      "limitations": [
+        "The diagnostic did not rescore profiles or establish independent biological replication.",
+        "Aggregate agreement does not approve individual biological relationships."
+      ]
+    },
+    {
+      "id": "PUB_PR93",
+      "title": "Comparison methods, synthetic tests, focused CI and multichannel proposal published",
+      "status": "DONE_VERIFIED_FROM_TERMINAL",
+      "evidence_level": "USER_TERMINAL_VERIFIED",
+      "stream": "completed_source",
+      "parallel_group": null,
+      "depends_on": [],
+      "evidence": {
+        "pull_request": "https://github.com/siamakenna/perturb-LM/pull/93",
+        "initial_head_sha": "0a6335e2324d1d184c8a94ab918023e96ad8519e",
+        "current_verified_head_sha": "88d367fa7c7ea224af14de979efcb1831d3518d6",
+        "last_reported_state": "OPEN",
+        "merged_by_this_workflow": false
+      },
+      "next_action": "Retrieve the exact published source on the receiving computer and verify the remote head before continuing development.",
+      "completion_criteria": [
+        "The supplied terminal verifies the GitHub branch and PR head at the recorded source revision."
+      ],
+      "limitations": [
+        "The published proposal lists candidate architectures; the later ChAda-ViT recommendation is conversation-level and is not claimed to be committed."
+      ]
+    },
+    {
+      "id": "CI_PR93_REPAIR",
+      "title": "PR93 NumPy-compatible package cohort repaired and CI verified",
+      "status": "DONE_VERIFIED_FROM_TERMINAL",
+      "evidence_level": "USER_TERMINAL_VERIFIED",
+      "stream": "completed_source",
+      "parallel_group": null,
+      "depends_on": [
+        "PUB_PR93"
+      ],
+      "evidence": {
+        "head_sha": "88d367fa7c7ea224af14de979efcb1831d3518d6",
+        "changed_paths": [
+          "configs/package-minimum.txt"
+        ],
+        "changes": {
+          "scipy": {
+            "before": "1.12.0",
+            "after": "1.15.3"
+          },
+          "scikit-image": {
+            "before": "0.22.0",
+            "after": "0.25.2"
+          }
+        },
+        "reported_checks": {
+          "successful": 15,
+          "skipped": 1,
+          "failing": 0,
+          "pending": 0
+        },
+        "research_results_changed": false
+      },
+      "next_action": "Retain the verified repair; no repeat package repair or scientific rerun is needed to reproduce this status.",
+      "completion_criteria": [
+        "The supplied terminal verifies the repaired remote SHA and fifteen successful checks with one skipped manual workflow."
+      ],
+      "limitations": [
+        "CI establishes software checks, not improved biological retrieval."
+      ]
+    },
+    {
+      "id": "PRE_GITHUB",
+      "title": "Freeze a fresh receiving-computer GitHub source snapshot",
+      "status": "PROPOSED",
+      "evidence_level": "PLANNED_READ_ONLY_WORK",
+      "stream": "source_reconciliation",
+      "parallel_group": "read_only_preflight",
+      "depends_on": [
+        "PUB_PR93",
+        "CI_PR93_REPAIR"
+      ],
+      "next_action": "Read current main and PR92/PR93 state, fetch the recorded revisions into an isolated checkout, and preserve any existing dirty work.",
+      "completion_criteria": [
+        "Record actual remote SHA observations and collection time.",
+        "Bind the inspected source to an exact commit.",
+        "Report any source movement without automatically merging, overwriting or republishing."
+      ]
+    },
+    {
+      "id": "PRE_BATCH_IMAGE",
+      "title": "Audit batch identity and matching raw-image availability",
+      "status": "PROPOSED",
+      "evidence_level": "PLANNED_LOCAL_METADATA_WORK",
+      "stream": "data_and_images",
+      "parallel_group": "read_only_preflight",
+      "depends_on": [
+        "SCI_U2OS",
+        "SCI_A549"
+      ],
+      "next_action": "Inspect bounded local manifests and public metadata to distinguish added plates, cell contexts, batches and independent cultures; join selected wells to available raw image fields.",
+      "completion_criteria": [
+        "List verified cohort/batch identities separately from proposed expansions.",
+        "Report matched and missing images with explicit denominators and channel identities.",
+        "Record source and preprocessing provenance gaps.",
+        "Keep detailed paths and row-level ledgers local."
+      ],
+      "limitations": [
+        "The current handoff does not establish new production-batch measurements or a complete transformer-ready image cohort."
+      ]
+    },
+    {
+      "id": "PRE_MODEL",
+      "title": "Assess the proposed ChAda-ViT checkpoint and compatibility contract",
+      "status": "PROPOSED",
+      "evidence_level": "CONVERSATION_RECOMMENDATION_NOT_IMPLEMENTATION",
+      "stream": "model_and_channels",
+      "parallel_group": "read_only_preflight",
+      "depends_on": [],
+      "evidence": {
+        "proposed_architecture": "ChAda-ViT/16 Moyen",
+        "candidate_checkpoint": "nicoboou/chadavit16-moyen",
+        "selection_committed_to_repository": false,
+        "checkpoint_integrated": false,
+        "checkpoint_run_on_research_images": false
+      },
+      "next_action": "Review public source and checkpoint metadata, pin revisions, assess training overlap and specify supported channel mappings and preprocessing before downloading weights or executing model code.",
+      "completion_criteria": [
+        "Record the inspected source and checkpoint revisions.",
+        "Document pretraining overlap as verified, unknown or disqualifying for the intended claim.",
+        "Specify axes, channel identities/order, missing-channel behavior, crops, intensity processing and field-to-well aggregation.",
+        "Keep image encoding separate from text\u2013image alignment."
+      ]
+    },
+    {
+      "id": "PRE_DESIGN",
+      "title": "Draft one controlled multichannel biological-retrieval experiment",
+      "status": "PROPOSED",
+      "evidence_level": "PROPOSED_NOT_APPROVED",
+      "stream": "experimental_design",
+      "parallel_group": null,
+      "depends_on": [
+        "PRE_BATCH_IMAGE",
+        "PRE_MODEL"
+      ],
+      "next_action": "Specify one full-channel versus supported reduced-channel comparison, matched CellProfiler reference, candidate rules, exclusions, coverage and experimental units before new results are read.",
+      "completion_criteria": [
+        "State the testable scientific hypothesis and operational relevance.",
+        "Keep exact-reagent, same-gene/different-guide, pathway and language tasks distinct.",
+        "Define one primary endpoint and uncertainty approach without treating wells or overlapping plate pairs as independent cultures.",
+        "Separate development data from a future confirmation cohort."
+      ],
+      "limitations": [
+        "The written specification is prepared; a cohort-specific frozen experiment is not approved or executed."
+      ]
+    },
+    {
+      "id": "FREEZE_EXECUTION",
+      "title": "Freeze a feasible image-study execution contract",
+      "status": "BLOCKED",
+      "evidence_level": "PREREQUISITES_NOT_YET_VERIFIED",
+      "stream": "integration_decision",
+      "parallel_group": null,
+      "depends_on": [
+        "PRE_GITHUB",
+        "PRE_BATCH_IMAGE",
+        "PRE_MODEL",
+        "PRE_DESIGN"
+      ],
+      "next_action": "Combine the verified image inventory, identity/provenance findings and model contract into one bounded executable study or record why no defensible cohort is available.",
+      "completion_criteria": [
+        "All required inputs are recipient-verified and linked to the selected cohort.",
+        "Eligibility, image processing, split, metrics and resource scope are fixed.",
+        "Unresolved biological identities or preprocessing limitations remain explicit.",
+        "No scientific approval is inferred from a passing software check."
+      ]
+    },
+    {
+      "id": "IMAGE_EXPERIMENT",
+      "title": "Run the separately authorized controlled image experiment",
+      "status": "BLOCKED",
+      "evidence_level": "NOT_EXECUTED",
+      "stream": "future_science",
+      "parallel_group": null,
+      "depends_on": [
+        "FREEZE_EXECUTION"
+      ],
+      "next_action": "After the execution contract is satisfied and model/resource execution is explicitly authorized, run the bounded compatibility smoke and selected comparison; preserve all outcomes.",
+      "completion_criteria": [
+        "Record actual execution, source/checkpoint/input hashes and environment.",
+        "Report ranking and coverage on matched populations with exclusions.",
+        "Do not claim biological improvement from input acceptance alone."
+      ]
+    }
+  ],
+  "source_mac_preflight_from_uploaded_terminal": {
+    "evidence": "Supplied 27 October terminal transcript; raw job receipts are still on the source Mac until exported.",
+    "github": "DONE_PINNED_HEADS_VERIFIED",
+    "local_evidence": "DONE_AVAILABLE_EVIDENCE_INVENTORIED",
+    "model_source": "DONE_SOURCE_PINS_CAPTURED_REVIEW_PENDING",
+    "original_publication": "STOPPED_BEFORE_COMMIT_IGNORED_PNG_SCOPE_ACCOUNTING",
+    "recipient_raw_data_verification": false
+  }
+}

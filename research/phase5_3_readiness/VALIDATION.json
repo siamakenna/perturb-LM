@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "prepared_date": "2026-10-27",
+  "status": "PASS_LOCAL_SYNTHETIC_CHECKS",
+  "python": "3.12.14",
+  "platform": "Linux",
+  "test_command": "python3 -m unittest discover -s . -p 'test_*.py' -v",
+  "tests": {
+    "channel_inventory": 18,
+    "parallel_runner": 14,
+    "source_publisher": 17,
+    "total": 49,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "source_byte_syntax": "Python 3.9 grammar parsed",
+  "tracker_dependency_graph": "complete and acyclic",
+  "flowchart_svg_xml": "valid",
+  "flowchart_png": "rendered and visually inspected",
+  "actual_tests_scope": "Invented metadata/TIFF-byte fixtures, mocked public-service responses, real temporary local Git worktrees and bare-remote pushes.",
+  "live_network_preflight_run_here": false,
+  "actual_github_push_from_this_session": false,
+  "model_weights_downloaded": false,
+  "downloaded_model_code_executed": false,
+  "raw_profile_values_read": false,
+  "real_images_inspected_here": false,
+  "scientific_scoring_performed": false,
+  "biological_validation_established": false,
+  "source_audit_scope": "Public author text inspected; model/configuration immutable current-head binding remains a recipient task.",
+  "publication_fix": "Account for ignored files only within the exact reviewed payload; stage that whitelist explicitly. PNG/JSON ignore regression tests passed.",
+  "prior_mac_preflight_reported": {
+    "github": "DONE_PINNED_HEADS_VERIFIED",
+    "local_evidence": "DONE_AVAILABLE_EVIDENCE_INVENTORIED",
+    "model_source": "DONE_SOURCE_PINS_CAPTURED_REVIEW_PENDING"
+  },
+  "prior_mac_publication_reported": "STOPPED_BEFORE_COMMIT_BY_ORIGINAL_IGNORED_PNG_SCOPE_BUG"
+}

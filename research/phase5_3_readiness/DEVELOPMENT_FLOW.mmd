@@ -1,0 +1,12 @@
+flowchart TD
+    A["Completed: U2OS and A549 profile analyses"] --> E["Preserved evidence and limitations"]
+    B["Completed: bounded Batch8 and MOA pilots"] --> E
+    C["Published: PR92 and PR93; reported CI passed"] --> E
+    E --> S["Parallel A: verify source and copy pinned code"]
+    E --> D["Parallel B: inventory batches and image availability"]
+    E --> M["Parallel C: pin and inspect ChAda source"]
+    S --> R["Resolve cohort, preprocessing and channel contract"]
+    D --> R
+    M --> R
+    R --> X["Proposed: controlled full-channel image experiment"]
+    X --> L["Later: separate text-to-morphology evaluation"]

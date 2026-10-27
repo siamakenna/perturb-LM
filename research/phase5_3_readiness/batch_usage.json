@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "as_of_date": "2026-10-27",
+  "question": "Are the newly discussed batches and cohorts actually being used?",
+  "answer": {
+    "additional_a549_plates_used": true,
+    "bounded_production_batch8_pair_used_in_earlier_pilot": true,
+    "independent_multibatch_generalization_established": false,
+    "chadavit_experiment_executed": false,
+    "plain_language": "Yes: the A549 plate expansion and a separate bounded Batch8 Target1/Target2 profile pilot were used. The A549 expansion stays within the original CPJUMP1 source batch. A new multibatch multichannel-transformer experiment has not run."
+  },
+  "evidence_levels": {
+    "user_terminal_verified": "Reported directly in the user's pasted terminal output; not a fresh authenticated GitHub query from this review runtime.",
+    "workspace_aggregate_inspected": "An available aggregate summary or prior aggregate review was read here; this is not recipient-side revalidation of its raw profiles.",
+    "historical_completed_result_reported": "Completed analysis described in the visible handoff and terminal history; corresponding raw data and recent result files were not newly available for inspection here.",
+    "proposed_not_run": "A development direction or experiment specification, without execution or performance evidence."
+  },
+  "cohorts": [
+    {
+      "id": "cpjump1_u2os_crispr",
+      "status": "COMPLETED_EXPLORATORY_PROFILE_ANALYSIS_REPORTED",
+      "evidence_level": "historical_completed_result_reported",
+      "source_batch": "2020_11_04_CPJUMP1",
+      "plates": [
+        "BR00116996",
+        "BR00116997",
+        "BR00116998",
+        "BR00116999"
+      ],
+      "reported_profile_rows": 1536,
+      "ordered_numeric_features": 904,
+      "role": "Original U2OS cross-guide development context.",
+      "limits": [
+        "Recorded gene/guide associations are not automatically approved biological identities.",
+        "One source batch; source preprocessing fit provenance and independent culture units remain unresolved."
+      ]
+    },
+    {
+      "id": "cpjump1_a549_crispr",
+      "status": "COMPLETED_EXPLORATORY_PROFILE_ANALYSIS_REPORTED",
+      "evidence_level": "historical_completed_result_reported",
+      "source_batch": "2020_11_04_CPJUMP1",
+      "plates": [
+        "BR00117000",
+        "BR00117003",
+        "BR00117004",
+        "BR00117005"
+      ],
+      "newly_added_plates": [
+        "BR00117003",
+        "BR00117004",
+        "BR00117005"
+      ],
+      "previously_available_anchor_plate": "BR00117000",
+      "reported_profile_rows": 1535,
+      "reported_rows_per_plate": {
+        "BR00117000": 384,
+        "BR00117003": 384,
+        "BR00117004": 384,
+        "BR00117005": 383
+      },
+      "ordered_numeric_features": 904,
+      "role": "Added A549 cell context and plates; the missing observed well was accounted for without imputation.",
+      "limits": [
+        "This is a same-source-batch expansion, not a new independent batch replication.",
+        "The cause of the absent profile is unknown.",
+        "The cross-context difference cannot be assigned causally to cell type."
+      ]
+    },
+    {
+      "id": "cpjump1_context_agreement",
+      "status": "COMPLETED_POST_HOC_DIAGNOSTIC_REPORTED",
+      "evidence_level": "historical_completed_result_reported",
+      "role": "Compared completed U2OS and A549 group-level results using frozen source/result bindings.",
+      "limits": [
+        "This diagnostic did not rescore profiles or run an image model.",
+        "Repeatedly inspected groups remain development data.",
+        "Positive averages do not establish consistent individual-group effects or independent replication."
+      ]
+    },
+    {
+      "id": "production_batch8_target_pair",
+      "status": "COMPLETED_DESCRIPTIVE_PROFILE_PILOT",
+      "evidence_level": "workspace_aggregate_inspected",
+      "gallery_collection": "cpg0016-jump",
+      "source": "source_4",
+      "source_batch": "2021_07_12_Batch8",
+      "gallery_plate": {
+        "plate": "BR00123523",
+        "layout": "Target1"
+      },
+      "query_plate": {
+        "plate": "BR00121428",
+        "layout": "Target2"
+      },
+      "reported_evaluable_queries": 147,
+      "pilot_plan_sha256": "4ab036385405a0d7982b4f22692fe0bdacaf0811163d582ebe7919ec646680ce",
+      "role": "A bounded production-dataset expansion already used for exact design-label profile recovery.",
+      "pretrained_inference_performed": false,
+      "evidence": [
+        {
+          "workspace_relative_file": "upload/pilot-summary.json",
+          "sha256": "2fa25b216e6f2f3c0e93a90a4d5c67649da27a79f73e3e8c8e2e337efaa5ceea",
+          "inspection": "aggregate summary or prior aggregate review read in this session; underlying raw files not reverified here"
+        },
+        {
+          "workspace_relative_file": "upload/batch8-pair-inspection.json",
+          "sha256": "c8f77902f0daedc90fb9c77ac775965d09b282ceaeea733ace8c49500ac28078",
+          "inspection": "aggregate summary or prior aggregate review read in this session; underlying raw files not reverified here"
+        },
+        {
+          "workspace_relative_file": "phase52/phase52-pilot-results-and-next-decision.html",
+          "sha256": "76c8d09bcaef67ab0652e92719afcd359fc9493232aef6fe192985336b8f31f9",
+          "inspection": "aggregate summary or prior aggregate review read in this session; underlying raw files not reverified here"
+        }
+      ],
+      "limits": [
+        "One registered source batch and one Target1/Target2 plate pair.",
+        "Completed pilot does not establish independent biological replication, mechanism recovery or language retrieval.",
+        "It is inaccurate to say that cpg0016 has never been used; broader production expansion remains unverified.",
+        "Upstream preprocessing provenance remains unverified."
+      ]
+    },
+    {
+      "id": "jump_moa_scope",
+      "status": "COMPLETED_EXPLORATORY_PROFILE_RETRIEVAL_AND_POST_HOC_CENTERING",
+      "evidence_level": "workspace_aggregate_inspected",
+      "acquisition_labels": [
+        "CP_Broad_Phenix_C_BIN1_1Plane_P1",
+        "CP_Broad_Phenix_C_BIN1_1Plane_P2",
+        "CP_Broad_Phenix_C_BIN1_1Plane_P3",
+        "CP_Broad_Phenix_C_BIN1_1Plane_P4"
+      ],
+      "named_compounds": 82,
+      "source_moa_labels": 47,
+      "role": "Separate compound-profile feasibility and source-annotation studies, plus control-centering sensitivity.",
+      "pretrained_inference_performed": false,
+      "evidence": [
+        {
+          "workspace_relative_file": "upload/moa-retrieval-summary.json",
+          "sha256": "559dfe73f96614b547f2d24456c9c0a43afd77caf1c5c98e4fd5e07bdcd58d88",
+          "inspection": "aggregate summary or prior aggregate review read in this session; underlying raw files not reverified here"
+        },
+        {
+          "workspace_relative_file": "upload/moa-control-sensitivity-summary.json",
+          "sha256": "9b1523199937c3a93b282705c8d652cbbb2a658d0cbe4e992308cd175fab42cf",
+          "inspection": "aggregate summary or prior aggregate review read in this session; underlying raw files not reverified here"
+        }
+      ],
+      "limits": [
+        "P1-P4 acquisition names do not prove independent physical plates or cultures.",
+        "Source MOA labels are not approved biological ground truth.",
+        "These are separate analyses, not pooled evidence of cross-batch transformer performance."
+      ]
+    },
+    {
+      "id": "cpjump1_two_site_raw_image_preparation",
+      "status": "COMPLETED_STACK_PREPARATION_AND_EXPLORATORY_QC",
+      "evidence_level": "workspace_aggregate_inspected",
+      "source_batch": "2020_11_04_CPJUMP1",
+      "source_plate": "BR00117011",
+      "site_count": 2,
+      "original_channel_tiff_count": 10,
+      "channels": [
+        "DNA",
+        "ER",
+        "RNA",
+        "AGP",
+        "Mito"
+      ],
+      "role": "Limited raw-image preparation and exploratory image-reader/QC exercise.",
+      "pretrained_inference_performed": false,
+      "evidence": [
+        {
+          "workspace_relative_file": "upload/jump-preparation-summary.json",
+          "sha256": "a34e2b0c40780cf769ecdf3dff21de81b8aff12369ebba88e6e6213e533a55f0",
+          "inspection": "aggregate summary or prior aggregate review read in this session; underlying raw files not reverified here"
+        }
+      ],
+      "limits": [
+        "Two compound image sites do not provide the verified CRISPR image cohort needed for the proposed transformer study.",
+        "Exploratory QC does not establish segmentation accuracy or biological suitability."
+      ]
+    },
+    {
+      "id": "broader_production_and_orf_expansion",
+      "status": "INVESTIGATION_OR_PROPOSAL_NOT_VERIFIED_EXECUTION",
+      "evidence_level": "proposed_not_run",
+      "role": "Additional source/layout/batch cohorts and ORF perturbations remain expansion candidates.",
+      "limits": [
+        "No additional acquisition, raw-image coverage, eligible treatment joins or independent culture counts should be inferred.",
+        "No bulk download or new model experiment is established by the handoff."
+      ]
+    },
+    {
+      "id": "chadavit_multichannel_experiment",
+      "status": "PROPOSED_NOT_RUN",
+      "evidence_level": "proposed_not_run",
+      "provisional_encoder": "ChAda-ViT/16 Moyen",
+      "checkpoint_candidate": "nicoboou/chadavit16-moyen",
+      "role": "Assess channel compatibility, then test whether multichannel input improves controlled biological retrieval.",
+      "limits": [
+        "The checkpoint is not yet pinned, audited, integrated or evaluated in Perturb-LM.",
+        "ChAda-ViT uses DINO-style self-supervised learning; it is not specifically an extension of DINOv2.",
+        "Neither profile tables nor the two-site preparation establish a matching raw-image cohort."
+      ]
+    }
+  ],
+  "github_checkpoint": {
+    "evidence_level": "user_terminal_verified",
+    "pr": 93,
+    "url": "https://github.com/siamakenna/perturb-LM/pull/93",
+    "head_sha": "88d367fa7c7ea224af14de979efcb1831d3518d6",
+    "checks": {
+      "successful": 15,
+      "skipped": 1,
+      "failing": 0,
+      "pending": 0
+    },
+    "source_publication_complete": true,
+    "merged": false,
+    "limits": [
+      "This checkpoint reflects the pasted terminal verification; live GitHub state must be rechecked on the recipient Mac.",
+      "Passing synthetic and package checks is not scientific validation."
+    ]
+  },
+  "recipient_limits": [
+    "No raw profiles, original private mappings, row-level observations, image files, credentials or private logs are included in this status artifact.",
+    "Local file verification on the source Mac is not recipient-side data verification.",
+    "No new Biowulf job, model inference or data transfer was executed for this audit."
+  ]
+}

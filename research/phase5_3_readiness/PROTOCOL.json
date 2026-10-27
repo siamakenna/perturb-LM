@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "project": "Perturb-LM",
+  "prepared_date": "2026-10-27",
+  "scope": "READ_ONLY_PARALLEL_PREFLIGHT",
+  "parallel_jobs": 3,
+  "source_repository": "siamakenna/perturb-LM",
+  "pinned_pull_requests": {
+    "92": "c28bd56f56771055e3cc5c7e84bcff0841e76190",
+    "93": "88d367fa7c7ea224af14de979efcb1831d3518d6"
+  },
+  "model_candidate": "ChAda-ViT/16 Moyen",
+  "model_status": "PROPOSED_NOT_INTEGRATED_OR_EVALUATED",
+  "pretrained_weights_downloaded": false,
+  "model_inference_permitted_by_this_runner": false,
+  "scientific_scoring_permitted_by_this_runner": false,
+  "bulk_research_download_permitted_by_this_runner": false,
+  "remote_github_writes_performed_by_preflight": false,
+  "biowulf_jobs_permitted_by_this_runner": false,
+  "private_results_transfer_performed": false,
+  "local_results_policy": "Retain source paths and any private error logs locally; publish only the separate reviewed source whitelist.",
+  "historical_evidence_policy": "Preserve terminal-verified source/CI observations and prior reported scientific completions as distinct evidence levels. No historical scoring is repeated."
+}
