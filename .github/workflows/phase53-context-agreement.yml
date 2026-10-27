@@ -1,0 +1,30 @@
+name: Context comparison synthetic tests
+on:
+  pull_request:
+    paths:
+      - 'research/phase5_3_context_agreement/**'
+      - '.github/workflows/phase53-context-agreement.yml'
+  push:
+    paths:
+      - 'research/phase5_3_context_agreement/**'
+      - '.github/workflows/phase53-context-agreement.yml'
+permissions:
+  contents: read
+jobs:
+  synthetic-only:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    env:
+      PYTHONNOUSERSITE: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Test invented result tables without profiles or model downloads
+        run: python -m unittest discover -s research/phase5_3_context_agreement -p 'test_*.py' -v
