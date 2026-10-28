@@ -2,6 +2,9 @@ version: 2
 updates:
   - package-ecosystem: "pip"
     directory: "/"
+    # Preserve the compatibility fixture; newer/reference pins still receive updates.
+    exclude-paths:
+      - "configs/package-sklearn-lower-bound.txt"
     schedule:
       interval: "weekly"
       day: "monday"
