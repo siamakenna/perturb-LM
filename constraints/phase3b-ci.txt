@@ -2,7 +2,7 @@ certifi==2026.7.22
 # NumPy 2.5 requires Python >=3.12; retain a compatible pin for Python 3.11.
 numpy==2.4.6; python_version == "3.11"
 numpy==2.5.0; python_version >= "3.12"
-pandas==3.0.3
+pandas==2.3.3
 pillow==12.3.0
 pyarrow==25.0.1
 pytest==9.1.1
