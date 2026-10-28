@@ -1,0 +1,5440 @@
+{
+  "original_census_code_sha": "703039dfb11f5ce29c3bdb32b4d9ff568d0de7bf",
+  "original_census_date": "2026-10-22",
+  "original_receipt_sha256": "bf193358fdb31d06f68fdd7d937310787c7c686829b6f19b54c2251e4f6ba81a",
+  "preprocessing_and_replication_uncertainties": {
+    "F10_guard": "unchanged; no rendering or encoding executed; any future exception requires review",
+    "WGA_anomaly": "retained in both endpoints and spatial sensitivities",
+    "culture_independence": "not established",
+    "exact_feature_selection_fit_population_and_parameters": "unknown",
+    "exact_normalization_fit_population": "unknown for these artifact bytes",
+    "guide_efficacy_and_off_target_effects": "not measured",
+    "inductive_preprocessing_certified": false,
+    "input_kind": "normalized_feature_select_negcon_batch",
+    "new_scaler_can_undo_upstream_fit": false,
+    "one_batch": "no independent cross-batch inference",
+    "preserved_source_README_evidence": "CellProfiler well aggregation; Pycytominer annotation, whole-plate and negative-control normalization variants, MAD robustization, invariant/redundant feature filtering. README lists plate feature-selection variants; it does not document the exact selected negcon_batch artifact's fitted populations or parameters.",
+    "reviewed_stable_gene_identity": "not provided",
+    "rotations": "12 overlapping assignments of four plates, not 12 independent experiments",
+    "same_904_feature_header_proves_train_only_fit": false
+  },
+  "previous_census_comparison": {
+    "full_support_census_identical": true,
+    "input_verification_identical": true,
+    "reference_date": "2026-10-20",
+    "summary_sha256": "6482d029871bbbb1934dd288ba0a35ae865c16c5c0ee1375de421eac4f15b2e3"
+  },
+  "publication_session_census_rerun": false,
+  "scientific_execution_authorized": false,
+  "status": "COMPLETE_DESCRIPTIVE_CENSUS_RECEIPT_REUSED",
+  "support_census": {
+    "assignments": [
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116997",
+        "per_training_plate_usable_population": {
+          "BR00116998": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116999": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116996",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116998",
+          "BR00116999"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116998",
+        "per_training_plate_usable_population": {
+          "BR00116997": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116999": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116996",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116997",
+          "BR00116999"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116999",
+        "per_training_plate_usable_population": {
+          "BR00116997": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116998": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116996",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116997",
+          "BR00116998"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116996",
+        "per_training_plate_usable_population": {
+          "BR00116998": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116999": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116997",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116998",
+          "BR00116999"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116998",
+        "per_training_plate_usable_population": {
+          "BR00116996": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116999": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116997",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116996",
+          "BR00116999"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116999",
+        "per_training_plate_usable_population": {
+          "BR00116996": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116998": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116997",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116996",
+          "BR00116998"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116996",
+        "per_training_plate_usable_population": {
+          "BR00116997": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116999": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116998",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116997",
+          "BR00116999"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116997",
+        "per_training_plate_usable_population": {
+          "BR00116996": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116999": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116998",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116996",
+          "BR00116999"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116999",
+        "per_training_plate_usable_population": {
+          "BR00116996": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116997": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116998",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116996",
+          "BR00116997"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116996",
+        "per_training_plate_usable_population": {
+          "BR00116997": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116998": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116999",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116997",
+          "BR00116998"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116997",
+        "per_training_plate_usable_population": {
+          "BR00116996": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116998": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116999",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116996",
+          "BR00116998"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      },
+      {
+        "explicit_both_training_plate_support": {
+          "both_training_plates_contribute_usable_noncontrol_records": true,
+          "query_wells_seen_on_both_training_plates": 260,
+          "query_wells_seen_on_either_training_plate": 260
+        },
+        "gallery_plate": "BR00116998",
+        "per_training_plate_usable_population": {
+          "BR00116996": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "BR00116997": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          }
+        },
+        "populations": {
+          "gallery": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "query": {
+            "canonical_coordinates": 260,
+            "plates": 1,
+            "profile_rows": 260,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 260
+          },
+          "training": {
+            "canonical_coordinates": 260,
+            "plates": 2,
+            "profile_rows": 520,
+            "reagents": 247,
+            "reviewed_stable_genes": 0,
+            "source_gene_strings": 130,
+            "valid_sequences": 247,
+            "wells": 520
+          }
+        },
+        "query_plate": "BR00116999",
+        "role_exclusions": {
+          "gallery": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "query": {
+            "input_rows": 384,
+            "labeled_control_rows": 120,
+            "missing_label_rows": 4
+          },
+          "training": {
+            "input_rows": 768,
+            "labeled_control_rows": 240,
+            "missing_label_rows": 8
+          }
+        },
+        "spatial_masks": {
+          "different_coordinate": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 234,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "positive_well_count_histogram": {
+                "0": 234,
+                "1": 26
+              },
+              "query_positive_well_pairs": 26,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.1,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.1,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 26,
+                "plates": 1,
+                "profile_rows": 26,
+                "reagents": 13,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 13,
+                "valid_sequences": 13,
+                "wells": 26
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "259": 260
+              },
+              "no_positive_query_wells": 26,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "positive_well_count_histogram": {
+                "0": 26,
+                "1": 234
+              },
+              "query_positive_well_pairs": 234,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.9,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.9,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 234,
+                "plates": 1,
+                "profile_rows": 234,
+                "reagents": 234,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 117,
+                "valid_sequences": 234,
+                "wells": 234
+              }
+            }
+          },
+          "different_row_and_column": {
+            "A_exact_reagent": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 238,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "positive_well_count_histogram": {
+                "0": 238,
+                "1": 22
+              },
+              "query_positive_well_pairs": 22,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.08461538461538462,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.08461538461538462,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 22,
+                "plates": 1,
+                "profile_rows": 22,
+                "reagents": 11,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 11,
+                "valid_sequences": 11,
+                "wells": 22
+              }
+            },
+            "B_different_reagent_sequence_same_source_gene": {
+              "candidate_well_count_histogram": {
+                "225": 9,
+                "226": 5,
+                "227": 13,
+                "228": 19,
+                "229": 18,
+                "230": 18,
+                "231": 17,
+                "232": 15,
+                "233": 22,
+                "234": 19,
+                "235": 29,
+                "236": 20,
+                "237": 23,
+                "238": 15,
+                "239": 11,
+                "240": 5,
+                "241": 2
+              },
+              "no_positive_query_wells": 80,
+              "positive_but_query_reagent_unseen_wells": 0,
+              "positive_reagent_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_valid_sequence_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "positive_well_count_histogram": {
+                "0": 80,
+                "1": 180
+              },
+              "query_positive_well_pairs": 180,
+              "query_reagent_not_seen_in_training_wells": 0,
+              "raw_coverage_fraction": 0.6923076923076923,
+              "raw_gallery_supported_queries": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "same_sequence_other_reagent_gene_pairs_rejected_for_B": 0,
+              "seen_query_reagent_coverage_fraction": 0.6923076923076923,
+              "total_query_wells": 260,
+              "training_supported_seen_query_and_positive_reagents": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "training_supported_seen_query_reagent": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              },
+              "unique_seen_query_positive_gallery_population": {
+                "canonical_coordinates": 180,
+                "plates": 1,
+                "profile_rows": 180,
+                "reagents": 180,
+                "reviewed_stable_genes": 0,
+                "source_gene_strings": 90,
+                "valid_sequences": 180,
+                "wells": 180
+              }
+            }
+          }
+        },
+        "training_plates": [
+          "BR00116996",
+          "BR00116997"
+        ],
+        "training_plates_with_noncontrol_rows": 2
+      }
+    ],
+    "assignments_are_independent_experiments": false,
+    "conditions": {
+      "Anomaly": "WGA",
+      "Antibiotics": "absent",
+      "Cell_line": "Cas9",
+      "Cell_type": "U2OS",
+      "Density": "100",
+      "Perturbation": "crispr",
+      "Time": "144",
+      "Time_delay": "Day0",
+      "Times_imaged": "1"
+    },
+    "endpoint_B_label": "provisional_source_gene_string_different_sequence_capacity",
+    "execution_allowed": false,
+    "gene_rule": "Exact source string, single token without whitespace or | ; , /; no stable-ID or alias resolution",
+    "identity_checks": {
+      "conflict_rows_previously_resolved_true": 0,
+      "local_source_gene_rows_all_crispr": 0,
+      "local_source_gene_rows_selected": 0,
+      "local_source_sequence_rows_all_crispr": 0,
+      "local_source_sequence_rows_selected": 0,
+      "preserved_source_gene_rows_all_crispr": 0,
+      "preserved_source_gene_rows_selected": 0,
+      "preserved_source_sequence_rows_all_crispr": 0,
+      "preserved_source_sequence_rows_selected": 0,
+      "source_sequences_shared_by_multiple_reagent_ids": 0,
+      "source_sequences_with_multiple_gene_strings": 0
+    },
+    "input_rows": 4524,
+    "minimum_thresholds": null,
+    "noncontrol_rows_missing_or_ambiguous_gene_string": 0,
+    "noncontrol_rows_missing_or_invalid_sequence": 0,
+    "noncontrol_rows_not_eligible_for_B_identity": 0,
+    "noncontrol_sequence_length_histogram": {
+      "20": 1040
+    },
+    "out_of_scope_rows": 2988,
+    "recorded_Number_of_images": "27648",
+    "selected_control_rows_with_labels": 480,
+    "selected_missing_label_rows": 16,
+    "selected_noncontrol_population": {
+      "canonical_coordinates": 260,
+      "plates": 4,
+      "profile_rows": 1040,
+      "reagents": 247,
+      "reviewed_stable_genes": 0,
+      "source_gene_strings": 130,
+      "valid_sequences": 247,
+      "wells": 1040
+    },
+    "selected_rows": 1536,
+    "sequence_rule": "Trim, uppercase, nonempty A/C/G/T only; no length, targeting or efficacy assertion",
+    "stable_gene_review_status": "not_supplied; zero reviewed stable genes is not zero biological genes",
+    "status": "DESCRIPTIVE_METADATA_ONLY_NOT_SCIENTIFIC_APPROVAL",
+    "training_support_rule": "Query reagent present on remaining two matched training plates; no fit; extra stricter both-reagents count reported separately"
+  },
+  "verification": {
+    "complete_original_mapping_reproduction": {
+      "extra_original_rows": 0,
+      "field_disagreement_rows": {},
+      "matches": true,
+      "missing_original_columns": 0,
+      "missing_original_rows": 0,
+      "preserved_duplicate_record_ids": 0,
+      "reconstructed_duplicate_record_ids": 0
+    },
+    "hash_and_manifest_verification_passed": true,
+    "historical_count_reproduction": {
+      "annotation_conflict_rows": {
+        "matches": true,
+        "observed": 1009
+      },
+      "labeled_rows": {
+        "matches": true,
+        "observed": 4190
+      },
+      "local_cell_types": {
+        "matches": true,
+        "observed": {
+          "A549": 2687,
+          "U2OS": 1837
+        }
+      },
+      "local_files": {
+        "matches": true,
+        "observed": 12
+      },
+      "local_modalities": {
+        "matches": true,
+        "observed": {
+          "compound": 1836,
+          "crispr": 2688
+        }
+      },
+      "local_plate_count": {
+        "matches": true,
+        "observed": 12
+      },
+      "local_rows": {
+        "matches": true,
+        "observed": 4524
+      },
+      "missing_treatment_rows": {
+        "matches": true,
+        "observed": 334
+      },
+      "replication": {
+        "matches": true,
+        "observed": {
+          "condition_matched_evaluable_rows": 652,
+          "condition_matched_evaluable_treatments": 59,
+          "condition_matched_noncontrol_evaluable_rows": 156,
+          "condition_matched_noncontrol_evaluable_treatments": 13,
+          "cross_plate_cross_well_evaluable_rows": 762,
+          "cross_plate_cross_well_evaluable_treatments": 59,
+          "cross_plate_evaluable_rows": 4190,
+          "cross_plate_evaluable_treatments": 641,
+          "noncontrol_treatments_multiple_well_coordinates": 13,
+          "treatments": 641,
+          "treatments_multiple_plates": 641,
+          "treatments_multiple_well_coordinates": 59
+        }
+      },
+      "resolved_rows": {
+        "matches": true,
+        "observed": 4524
+      },
+      "unresolved_rows": {
+        "matches": true,
+        "observed": 0
+      }
+    },
+    "input_manifest_sha256": {
+      "original_cohort_summary": "31fd48888c5d8730c012aa078a56bc9f8958c3b511ef19fb8a1c628ae374318b",
+      "original_mapping": "a9fd252b30c2e6679fa0f29a5634622ba238aa10bbf8e33a59b91dcf11304619",
+      "original_profile_manifest": "5773f804c7475404651db4a0bbafc4c5f93f96d10b13add317f58335b7f93366",
+      "original_source_provenance": "726ac169b3047b90a891fb9f7e64c40f482375575d2ee651de014e4bd154bfff"
+    },
+    "profile_files": [
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 0,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "0dcb95c3ce07f2010e9cdd9408d6ca558d9cde54cd683128aaa14e486cba537f"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 1,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "2622b76d4865ac8a0393f984b38f17d923a39c57b559544b483895d21d409a06"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 2,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "67390575f381a6bb318c1fabeb3e91a9b99820f627931344b5600d64d9c675c5"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 3,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "bda0f28f477fce44bcc0a32d4b0863c59217f83854cb1808b870536905774ef9"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 4,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "2474c88c866bc426883c9ba0f39c7e853444584829901fd8b82ded840f1e7935"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 5,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "79c1993fc75ad8e33b27b80950953b6738b3e67a0c96cb97edad28c3274ef94a"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 6,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "732f2ff2e95cb0684a3e900d44f72ceb7dd224795fbf4b72290c713297e1b2ea"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 7,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "0912bc2876b36dc15732e40eafffcc97a3d3588abeacc3bd3cd742443bb52ac7"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 8,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "8dcf89809d45f079505fed46dc2a9452e35f5be8066b86868d4daf7bcdf4b123"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 9,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "eb889e5ca0298640934457ba782709bf707f6f1d9847568bd1e5c184fa08345c"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 10,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "46a2fd72504e85a3e94bd970fd6a20f355085732368ef6eccb5059145cd6b8a9"
+      },
+      {
+        "feature_count_matches": true,
+        "feature_schema_matches": true,
+        "file_index": 11,
+        "hash_matches": true,
+        "observed_plate_set_matches": true,
+        "row_count_matches": true,
+        "sha256": "7cbc296c93e6244dc5b006402a1e1bd17e7dccae1fa060c18bbc63018691cd0b"
+      }
+    ],
+    "source_files": [
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 0,
+        "hash_matches": true,
+        "sha256": "86d845dc152cbc3569072160e5881d550364dd9caf0336e5daa6adc5b63b1852"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 1,
+        "hash_matches": true,
+        "sha256": "380cc6cbac83df3b47a586b8c44b9511137b34885b456672146972de92e0a025"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 2,
+        "hash_matches": true,
+        "sha256": "bfd29af2cf5fcc26ad0a5ca572c79981fc4f3b0a7e559e61691c1a648af87d2c"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 3,
+        "hash_matches": true,
+        "sha256": "0dec37cbc9873c456d535ed53e2dd2423a15143f0204f44f7e8c44d71ca0f74c"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 4,
+        "hash_matches": true,
+        "sha256": "b22a82080fe75a761810040e5ed7f31e05a8d440c7f678030f8038e3b6932051"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 5,
+        "hash_matches": true,
+        "sha256": "2398f612182d0162fec9df7ef6050bbb1083da7a95a93f4379558c7d1464e36f"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 6,
+        "hash_matches": true,
+        "sha256": "1d261ab5afced8970cac76941d77ebf79ad6f596c6555151976041633d62b736"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 7,
+        "hash_matches": true,
+        "sha256": "9890cc86e2509290600364c9380cf3f81e53481bdbc49706a035a7024a6355a1"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 8,
+        "hash_matches": true,
+        "sha256": "2f5d32ec29af66e8f671db692e133358de767e9201b5e087cd05a22af391091d"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 9,
+        "hash_matches": true,
+        "sha256": "b58f1569c2a71beb44ded71a1128f5caa519b2bdebe70c9d43bcac2c8f5c2d4b"
+      },
+      {
+        "byte_count_matches": true,
+        "cohort_summary_hash_matches": true,
+        "file_index": 10,
+        "hash_matches": true,
+        "sha256": "27ee1004447ec31b85e1cdce1fe28d44652a10635280e180434d66db371a11f0"
+      }
+    ],
+    "source_revision": "56845c7d4dc322652952783d91dae0ffef47829f",
+    "verified": true
+  },
+  "verification_scope_reused": "All compressed profile bytes hashed; headers and metadata read, no numeric feature values parsed; all original source files hashed; complete mapping rejoined in memory"
+}

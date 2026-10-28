@@ -1,0 +1,139 @@
+{
+  "PR83": {
+    "code_incorporated_or_executed": false,
+    "head": "a15704ba31beee6cec0a35fc9b7f0e1016335afb",
+    "recommendation": "Revise/rebase separately against main; retain unique security changes and tests; do not close as duplicate or merge into PR84",
+    "unique_commits": [
+      "9b9513af32e7dfe58e1512f911ca27eac93f786d",
+      "a15704ba31beee6cec0a35fc9b7f0e1016335afb"
+    ],
+    "unique_delta_files": 14
+  },
+  "PR84_source_sha": "44ba331e6e5b4f73468d1632d2c79c4695c7b215",
+  "compute_status": "COMPUTE_AUTHORIZATION_PENDING",
+  "engineering_status": "ENGINEERING_READY_FOR_INDEPENDENT_REVIEW",
+  "github_test_merge_and_local_integration_tree_identical": true,
+  "github_test_merge_sha": "3e33a2a5582dd7ffebbe2ecd040880cad283badf",
+  "integration_tree_before_documentation": "4ec89d0f998a04838575e71f9caa31fbfd8cda22",
+  "local_tests": {
+    "command": "python -m pytest -q tests/test_phase5_cross_guide_readiness.py tests/test_phase5_guide_support.py tests/test_phase5_1_rotations.py tests/test_phase5_audits.py tests/test_phase5_json_inputs.py tests/test_phase5_2_layouts.py tests/test_release_artifact_diagnostics.py tests/test_query_generation.py tests/test_public_copy_consistency.py",
+    "failures": 0,
+    "log_sha256": "214d7b61752206fac40f9615e8dd8a1770a9cac0bfa273a5733b9ed721d99b46",
+    "passed": 165,
+    "skips": 0,
+    "subtests_passed": 69
+  },
+  "main_sha": "ef7e74ac2f76b6c111d0f8bac2a9f2ff0e7ef6f7",
+  "manual_source_or_dependency_compatibility_fixes": [],
+  "new_integration_head_checks": "Inspect PR84 current head after publication; not inferred from the source checkpoint",
+  "packaging": {
+    "artifacts_sha256": {
+      "perturb_lm-0.2.0a1-py3-none-any.whl": "ab56fd5d11bc93c889407176a8296a3e632970b4f91fd926ca895d0e4974399c",
+      "perturb_lm-0.2.0a1.tar.gz": "3eb79531b1a22d166d954a6615033eb40b8f6418a17a3b2801ae915c0ad42603"
+    },
+    "audit_source_bytes_match_wheel": true,
+    "installed_audit_imports": 8,
+    "installed_origin": "verified",
+    "local_python": "3.12.5",
+    "private_output_members": 0,
+    "scope": "Build and core audit imports; not a repeat of successful Python 3.10/3.11/3.12 remote install matrices",
+    "wheel_and_sdist_build": "passed"
+  },
+  "packaging_tool_limitations": "Initial existing environment lacked build/setuptools; a fresh ignored build-only environment completed wheel/sdist validation. Existing research environment and fixed dependency cohorts were not modified.",
+  "private_artifacts_transferred": false,
+  "profiles_scored": false,
+  "public_copy": "passed",
+  "real_data_analyses_repeated": false,
+  "review_date": "2026-10-22",
+  "review_zip": "Not found in checked local Downloads/Desktop/Documents/Codex attachment locations; authenticated GitHub evidence used",
+  "scientific_approvals_obtained": false,
+  "scientific_status": "SCIENTIFIC_REVIEW_PENDING",
+  "security_check_scope": "Existing descriptor-relative/no-follow, bounded snapshot and manifest/path containment synthetic regressions; prior successful remote CodeQL preserved; no local CodeQL scan claimed",
+  "source_checkpoint_checks": [
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541688/job/120008679939",
+      "name": "Synthetic tests and smoke workflows (3.11)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831534681/job/120008666777",
+      "name": "Analyze (actions)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541577/job/120008679466",
+      "name": "changes",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541596/job/120008680177",
+      "name": "Constrained install and synthetic smoke (3.11)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541729/job/120008702162",
+      "name": "web",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541688/job/120008680263",
+      "name": "Synthetic tests and smoke workflows (3.12)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831534681/job/120008666980",
+      "name": "Analyze (javascript-typescript)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541596/job/120008680642",
+      "name": "Constrained install and synthetic smoke (3.12)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831534681/job/120008666374",
+      "name": "Analyze (python)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SKIPPED",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541688/job/120008683230",
+      "name": "Manual remote JUMP profile smoke",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541577/job/120008754388",
+      "name": "Artifact installs (Python 3.10, minimum)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541577/job/120008754185",
+      "name": "Artifact installs (Python 3.11, current)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/actions/runs/39831541577/job/120008754399",
+      "name": "Artifact installs (Python 3.12, current)",
+      "status": "COMPLETED"
+    },
+    {
+      "conclusion": "SUCCESS",
+      "detailsUrl": "https://github.com/siamakenna/perturb-LM/runs/120008989239",
+      "name": "CodeQL",
+      "status": "COMPLETED"
+    }
+  ],
+  "whitespace": "passed"
+}

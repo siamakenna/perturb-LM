@@ -1,0 +1,70 @@
+{
+  "HGNC_references": {
+    "approved": {
+      "bytes": 16982321,
+      "generation": "1792157775531227",
+      "last_modified": "2026-10-16",
+      "retrieved_date": "2026-10-22",
+      "sha256": "12363916be36f8f6f91879b0faade4eeaac973722de7136ec61329b77f2c2f91",
+      "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt?generation=1792157775531227"
+    },
+    "withdrawn": {
+      "bytes": 258994,
+      "generation": "1792157780083023",
+      "last_modified": "2026-10-16",
+      "retrieved_date": "2026-10-22",
+      "sha256": "9328a7361ed5149bf7901cae52c6c30b832b8ec55af22146ea296081278a3140",
+      "url": "https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/withdrawn.txt?generation=1792157780083023"
+    }
+  },
+  "annotation_sha256": "2f5d32ec29af66e8f671db692e133358de767e9201b5e087cd05a22af391091d",
+  "census_receipt_sha256": "bf193358fdb31d06f68fdd7d937310787c7c686829b6f19b54c2251e4f6ba81a",
+  "census_rerun": false,
+  "code_changes_present": true,
+  "code_git_sha": "c0518710d38adb17a21e150db45b0388a503b030",
+  "eligibility_interpretation": "Nomenclature mapping preserves all source-string group partitions; original metadata eligibility counts are unchanged by nomenclature alone. Guide review remains pending.",
+  "identity_conflict_counts": {
+    "conflict_rows_previously_resolved_true": 0,
+    "local_source_gene_rows_all_crispr": 0,
+    "local_source_gene_rows_selected": 0,
+    "local_source_sequence_rows_all_crispr": 0,
+    "local_source_sequence_rows_selected": 0,
+    "preserved_source_gene_rows_all_crispr": 0,
+    "preserved_source_gene_rows_selected": 0,
+    "preserved_source_sequence_rows_all_crispr": 0,
+    "preserved_source_sequence_rows_selected": 0,
+    "source_sequences_shared_by_multiple_reagent_ids": 0,
+    "source_sequences_with_multiple_gene_strings": 0
+  },
+  "implementation_sha256": {
+    "scripts/prepare_phase5_cross_guide_readiness.py": "55b14737a71701dc92ad4a09351816a6be6d42b21b01b46af91af2af6e36e3a1",
+    "src/perturb_lm/audits/gene_identity.py": "07a23d2fea998ad32c588258b9645179251f6fb65ae244f9d01aec1aba920e3e",
+    "src/perturb_lm/audits/guide_support.py": "d4ad4b26071b32497b2da49ab8b5735bfdabfdb67f5b0326d24cf1478de22f4b",
+    "src/perturb_lm/audits/rotations.py": "e5c16b4119519a98b59852c254cd471d79bde03a9fccf07db8df44f71cdc371d"
+  },
+  "original_mapping_sha256": "a9fd252b30c2e6679fa0f29a5634622ba238aa10bbf8e33a59b91dcf11304619",
+  "profiles_read": false,
+  "protocol_status": "PROPOSED_NOT_APPROVED",
+  "reference_manifest_sha256": "62e0c603719bb9095e7ee1b49d0036df5b9c295974803ba1958058c6daddb217",
+  "resolution": {
+    "ambiguous_source_strings": 0,
+    "distinct_nomenclature_HGNC_IDs": 130,
+    "independently_reviewed_biological_gene_identities": 0,
+    "match_kind_counts": {
+      "approved_symbol": 130
+    },
+    "nomenclature_assigned_source_strings": 130,
+    "nomenclature_is_study_relevance_approval": false,
+    "secondary_candidate_conflicts": 3,
+    "source_gene_strings": 130,
+    "source_strings_in_merged_groups": 0,
+    "source_strings_with_withdrawn_records": 0,
+    "stable_IDs_merging_multiple_source_strings": 0
+  },
+  "scientific_execution_authorized": false,
+  "scores_computed": false,
+  "source_gene_strings_split_automatically": 0,
+  "source_gene_to_assigned_HGNC_partition_is_one_to_one_complete": true,
+  "source_provenance_sha256": "726ac169b3047b90a891fb9f7e64c40f482375575d2ee651de014e4bd154bfff",
+  "status": "COMPLETE_NOMENCLATURE_PREPARATION_NOT_BIOLOGICAL_REVIEW"
+}
