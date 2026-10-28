@@ -70,7 +70,7 @@ jobs:
           --dist dist/candidate --out outputs/package-validation
           ${{ matrix.constraint }}
       - name: Upload public-safe validation summary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: package-validation-${{ matrix.python }}-${{ matrix.dependencies }}
@@ -78,7 +78,7 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Upload candidate only after explicit manual opt-in
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: success() && github.event_name == 'workflow_dispatch' && inputs.upload_candidate
         with:
           name: package-candidate-${{ matrix.python }}-${{ matrix.dependencies }}
