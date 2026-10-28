@@ -16,6 +16,19 @@ describe("POST /api/search", () => {
     expect(response.status).toBe(400);
   });
 
+  it("reports a missing query field", async () => {
+    const response = await POST(request({}));
+    expect(response.status).toBe(400);
+    expect(await response.json()).toEqual({ error: "Query is required." });
+  });
+
+  it("rejects non-string queries without treating them as missing", async () => {
+    const response = await POST(request({ query: 42 }));
+    expect(response.status).toBe(400);
+    const payload = await response.json();
+    expect(payload.error).not.toBe("Query is required.");
+  });
+
   it("rejects long queries", async () => {
     const response = await POST(request({ query: "x".repeat(241) }));
     expect(response.status).toBe(400);
