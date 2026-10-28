@@ -43,6 +43,9 @@ jobs:
           - python: "3.10"
             dependencies: minimum
             constraint: "--constraint configs/package-minimum.txt"
+          - python: "3.10"
+            dependencies: sklearn-lower-bound
+            constraint: "--constraint configs/package-sklearn-lower-bound.txt"
           - python: "3.11"
             dependencies: current
             constraint: ""
@@ -69,6 +72,17 @@ jobs:
           python scripts/validate_release_artifacts.py
           --dist dist/candidate --out outputs/package-validation
           ${{ matrix.constraint }}
+      - name: Run lower-bound estimator synthetic regressions
+        if: matrix.dependencies == 'sklearn-lower-bound'
+        run: |
+          python -m pip install --constraint configs/package-sklearn-lower-bound.txt ".[dev,pixel]"
+          python -m pip check
+          python -c "import sklearn; assert sklearn.__version__ == '1.4.2', sklearn.__version__"
+          python -m pytest -q \
+            tests/test_release_contract.py \
+            tests/test_pixel_analyzer.py \
+            tests/test_retrieval_modes.py \
+            tests/test_package_ci_changes.py tests/test_packaging.py
       - name: Upload public-safe validation summary
         uses: actions/upload-artifact@v7
         if: always()
