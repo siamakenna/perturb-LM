@@ -1,0 +1,8 @@
+# Frozen scikit-learn 1.4-series compatibility fixture, separate from newer pins.
+# Numerical dependencies match package-minimum.txt when this coverage was added.
+# Review deliberately; automatic upgrades would remove lower-bound coverage.
+numpy==1.26.4
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.4.2
+scikit-image==0.25.2
