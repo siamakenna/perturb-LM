@@ -36,6 +36,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install numerical and plotting software only
-        run: python -m pip install --only-binary=:all: numpy==2.2.6 pandas==2.2.3 matplotlib==3.10.8
+        run: |
+          python -m pip install --only-binary=:all: numpy==2.2.6 pandas==2.2.3 matplotlib==3.10.8
       - name: Test invented data without fetching profiles
         run: python -m unittest discover -s research/phase5_3_a549 -p 'test_*.py' -v
