@@ -8,7 +8,7 @@ pyarrow==25.0.1
 pytest==9.2.0
 PyYAML==6.0.3
 requests==2.34.2
-ruff==0.17.3
+ruff==0.17.4
 scikit-learn==1.7.2
 tqdm==4.70.1
-typer==0.27.3
+typer==0.28.0
